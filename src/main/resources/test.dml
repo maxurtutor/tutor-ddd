@@ -1,0 +1,11 @@
+INSERT INTO t_group (group_id, group_name, max_capacity) VALUES ('g1', 'Dev', 5);
+INSERT INTO t_group (group_id, group_name, max_capacity) VALUES ('g2', 'Ops', 3);
+
+INSERT INTO t_user (user_id, user_name, first_name, last_name, email, group_id)
+VALUES ('u1', 'iv', 'Ivan', 'Ivanov', 'ivan@mail.com',  'g1');
+INSERT INTO t_user (user_id, user_name, first_name, last_name, email, group_id)
+VALUES ('u2', 'petr', 'Petr', 'Petrov', 'petr@mail.com',  'g1');
+INSERT INTO t_user (user_id, user_name, first_name, last_name, email, group_id)
+VALUES ('u3', 'sidor', 'Sidor', 'Sidorov', 'sidor@mail.com',  'g2');
+
+
