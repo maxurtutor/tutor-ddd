@@ -1,0 +1,17 @@
+language: java
+sudo: false
+cache:
+  directories:
+    - $HOME/.m2
+env:
+  global:
+    - MAVEN_OPTS="-XX:MaxPermSize=2g -Xmx4g"
+    - JAVA_OPTS="-XX:MaxPermSize=2g -Xmx4g"
+jdk:
+  - oraclejdk8
+install:
+  - mvn clean install
+script:
+  - mvn test
+after_success:
+  - mvn -DTRAVIS_JOB_ID=$TRAVIS_JOB_ID coveralls:report
