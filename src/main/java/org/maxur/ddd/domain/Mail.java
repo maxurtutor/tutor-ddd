@@ -1,5 +1,6 @@
 package org.maxur.ddd.domain;
 
+
 /**
  * @author myunusov
  * @version 1.0
@@ -9,9 +10,9 @@ public class Mail {
 
     private final String subject;
     private final String body;
-    private final String responseAddress;
+    private final EmailAddress responseAddress;
 
-    public Mail(String subject, String body, String responseAddress) {
+    public Mail(String subject, String body, EmailAddress responseAddress) {
         this.subject = subject;
         this.body = body;
         this.responseAddress = responseAddress;
@@ -25,7 +26,7 @@ public class Mail {
         return body;
     }
 
-    public String getToAddress() {
+    public EmailAddress getToAddress() {
         return responseAddress;
     }
 

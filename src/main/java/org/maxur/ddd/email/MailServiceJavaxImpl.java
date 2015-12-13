@@ -1,5 +1,6 @@
 package org.maxur.ddd.email;
 
+import org.maxur.ddd.domain.EmailAddress;
 import org.maxur.ddd.domain.Mail;
 import org.maxur.ddd.domain.MailService;
 
@@ -26,16 +27,16 @@ public class MailServiceJavaxImpl implements MailService {
 
     public static final String DEFAULT_SMTP_HOST = "127.0.0.1";
 
-    private final String fromAddress;
+    private final EmailAddress fromAddress;
 
     private final Properties props;
 
 
-    public MailServiceJavaxImpl(final String fromAddress) {
+    public MailServiceJavaxImpl(final EmailAddress fromAddress) {
         this(fromAddress, DEFAULT_SMTP_HOST, DEFAULT_SMTP_PORT);
     }
 
-    public MailServiceJavaxImpl(final String fromAddress, final String host, final int port) {
+    public MailServiceJavaxImpl(final EmailAddress fromAddress, final String host, final int port) {
         this.fromAddress = fromAddress;
         props = new Properties();
         props.put("mail.smtp.host", host);
@@ -63,8 +64,8 @@ public class MailServiceJavaxImpl implements MailService {
 
     private Message prepareMessage(final Mail mail, final Session session) throws MessagingException {
         Message message = new MimeMessage(session);
-        message.setFrom(new InternetAddress(fromAddress));
-        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(mail.getToAddress()));
+        message.setFrom(new InternetAddress(fromAddress.toString()));
+        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(mail.getToAddress().asString()));
         message.setSubject(mail.getSubject());
         return message;
     }

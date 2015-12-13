@@ -14,7 +14,7 @@ public abstract class AccountDao implements GetHandle {
 
     @Transaction
     public void save(User user, Group group) {
-        getHandle().attach(UserDAO.class).insert(user);
+        getHandle().attach(UserDAO.class).insert(user.getSnapshot());
         getHandle().attach(GroupDAO.class).update(group);
     }
 

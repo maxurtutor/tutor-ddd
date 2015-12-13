@@ -12,17 +12,11 @@ import java.util.Objects;
  * @version 1.0
  * @since <pre>12.12.2015</pre>
  */
-@SuppressWarnings("unused")
 public class Group extends Entity {
 
-    @JsonProperty
     private String name;
 
-    @JsonProperty
     private Integer maxCapacity;
-
-    public Group() {
-    }
 
     public Group(String id) {
         super(id);
@@ -44,14 +38,15 @@ public class Group extends Entity {
         this.maxCapacity = maxCapacity;
     }
 
-    public boolean isCompleted(DBI dbi) throws ValidationException {
+    public boolean isCompleted(DBI dbi) {
         Integer countByGroup = dbi.onDemand(UserDAO.class).findCountByGroup(getId());
         return  Objects.equals(countByGroup, getMaxCapacity());
     }
 
-    public void add(User user, DBI dbi) throws ValidationException {
+    public void add(User user, DBI dbi, Notification notification){
         if (isCompleted(dbi)) {
-            throw new ValidationException("More users than allowed in group");
+            notification.addError("More users than allowed in group");
+            return;
         }
         dbi.onDemand(AccountDao.class).save(user, this);
     }

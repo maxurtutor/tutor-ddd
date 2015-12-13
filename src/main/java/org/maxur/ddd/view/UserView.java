@@ -38,9 +38,8 @@ public class UserView {
         dto.name = user.getName();
         dto.firstName = user.getFirstName();
         dto.lastName = user.getLastName();
-        dto.email = user.getEmail();
+        dto.email = user.getEmail().asString();
         dto.groupId = user.getGroupId();
-        dto.groupName = user.getGroupName();
         return dto;
     }
 }

@@ -1,6 +1,7 @@
 package org.maxur.ddd.dao;
 
 import org.maxur.ddd.domain.User;
+import org.maxur.ddd.domain.ValidationException;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.*;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
@@ -26,34 +27,33 @@ public interface UserDAO {
             "  email, \n" +
             "  group_id\n" +
             ") VALUES (:id, :name, :firstName, :lastName, :email, :groupId)")
-    void insert(@BindBean User user);
+    void insert(@BindBean User.Snapshot user);
 
     @SqlQuery("SELECT * \n" +
             "FROM t_user\n" +
             "  JOIN t_group ON t_user.group_id = t_group.group_id\n" +
             "WHERE user_id = :id")
-    User findById(@Bind("id") String id);
+    User.Snapshot findById(@Bind("id") String id);
 
     @SqlQuery("SELECT * \n" +
             "FROM t_user\n" +
             "  JOIN t_group ON t_user.group_id = t_group.group_id")
-    List<User> findAll();
+    List<User.Snapshot> findAll();
 
     @SqlQuery("SELECT COUNT(*) \n" +
             "FROM t_user\n" +
             "WHERE group_id = :id")
     Integer findCountByGroup(@Bind("id") String id);
 
-    class Mapper implements ResultSetMapper<User> {
-        public User map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-            return User.restore(
+    class Mapper implements ResultSetMapper<User.Snapshot> {
+        public User.Snapshot map(int index, ResultSet r, StatementContext ctx) throws SQLException {
+            return new User.Snapshot(
                     r.getString("user_id"),
                     r.getString("user_name"),
                     r.getString("first_name"),
                     r.getString("last_name"),
                     r.getString("email"),
-                    r.getString("group_id"),
-                    r.getString("group_name")
+                    r.getString("group_id")
             );
         }
     }

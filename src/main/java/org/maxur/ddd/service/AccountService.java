@@ -11,6 +11,8 @@ import javax.inject.Inject;
 import javax.mail.MessagingException;
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
+
 /**
  * @author myunusov
  * @version 1.0
@@ -35,7 +37,11 @@ public class AccountService {
         if (group == null) {
             throw new NotFoundException("Group", user.getGroupId());
         }
-        group.add(user, dbi);
+        final Notification notification = new Notification();
+        group.add(user, dbi, notification);
+        if (notification.hasErrors()) {
+            throw new ValidationException(notification.errorMessage());
+        }
         Mail mail = new Mail("DDD System Notification", "You has be registered by DDD System", user.getEmail());
         try {
             mailService.send(mail);
@@ -45,16 +51,29 @@ public class AccountService {
         return user;
     }
 
-    public User findById(String id) throws NotFoundException {
-        final User user = dbi.onDemand(UserDAO.class).findById(id);
-        if (user == null) {
+    public User findById(String id) throws ValidationException {
+        final User.Snapshot snapshot = dbi.onDemand(UserDAO.class).findById(id);
+        if (snapshot == null) {
             throw new NotFoundException("User", id);
         }
-        return user;
+        final Notification notification = new Notification();
+        if (notification.hasErrors()) {
+            throw new ValidationException(notification.errorMessage());
+        }
+        return User.createFrom(snapshot, notification).orElse(null);
     }
 
-    public List<User> findAll() {
-        return dbi.onDemand(UserDAO.class).findAll();
+    public List<User> findAll() throws ValidationException {
+        final Notification notification = new Notification();
+        final List<User> users = dbi.onDemand(UserDAO.class)
+                .findAll()
+                .stream()
+                .map(s -> User.createFrom(s, notification).orElse(null))
+                .collect(toList());
+        if (notification.hasErrors()) {
+            throw new ValidationException(notification.errorMessage());
+        }
+        return users;
     }
 
 }

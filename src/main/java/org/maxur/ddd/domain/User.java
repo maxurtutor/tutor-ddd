@@ -1,7 +1,7 @@
 package org.maxur.ddd.domain;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Optional;
+
 
 /**
  * @author myunusov
@@ -10,93 +10,74 @@ import java.util.regex.Pattern;
  */
 public class User extends Entity {
 
-    private static final String EMAIL_PATTERN =
-            "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
-                    + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
-
-    private static Pattern PATTERN = Pattern.compile(EMAIL_PATTERN);
+    private final FullName fullName;
 
     private String name;
 
-    private String firstName;
-
-    private String lastName;
-
-    private String email;
+    private EmailAddress email;
 
     private String groupId;
 
-    private String groupName;
-
     private User(
             String name,
-            String firstName,
-            String lastName,
-            String email,
-            String groupId,
-            String groupName
+            FullName fullName,
+            EmailAddress email,
+            String groupId
     ) {
         super();
         this.name = name;
-        this.firstName = firstName;
-        this.lastName = lastName;
+        this.fullName = fullName;
         this.email = email;
         this.groupId = groupId;
-        this.groupName = groupName;
     }
 
     private User(
             String id,
             String name,
-            String firstName,
-            String lastName,
-            String email,
-            String groupId,
-            String groupName
+            FullName fullName,
+            EmailAddress email,
+            String groupId
     ) {
         super(id);
         this.name = name;
-        this.firstName = firstName;
-        this.lastName = lastName;
+        this.fullName = fullName;
         this.email = email;
         this.groupId = groupId;
-        this.groupName = groupName;
-    }
-
-    public static User user(
-            String id,
-            String name,
-            String firstName,
-            String lastName,
-            String email,
-            String groupId
-    ) throws ValidationException {
-        validate(firstName, lastName, email);
-        return new User(id, name, firstName, lastName, email, groupId, null);
     }
 
     public static User newUser(
             String name,
-            String firstName,
-            String lastName,
-            String email,
+            FullName fullName,
+            EmailAddress email,
             String groupId
-    ) throws ValidationException {
-        validate(firstName, lastName, email);
-        return new User(name, firstName, lastName, email, groupId, null);
+    ){
+        return new User(name, fullName, email, groupId);
     }
 
-    public static User restore(
-            String id,
-            String name,
-            String firstName,
-            String lastName,
-            String email,
-            String groupId,
-            String groupName
+    public Snapshot getSnapshot() {
+        return new Snapshot(
+                getId(),
+                this.name,
+                this.fullName.getFirstName(),
+                this.fullName.getLastName(),
+                this.email.asString(),
+                this.groupId
+        );
+    }
 
-    ) {
-        return new User(id, name, firstName, lastName, email, groupId, groupName);
+    public static Optional<User> createFrom(Snapshot snapshot, Notification notification) {
+        final Optional<EmailAddress> email = EmailAddress.email(snapshot.email, notification);
+        final Optional<FullName> fullName = FullName.fullName(snapshot.firstName, snapshot.lastName, notification);
+        if (notification.hasErrors()) {
+            return Optional.empty();
+        }
+        return Optional.of(new User(
+                snapshot.id,
+                snapshot.name,
+                fullName.get(),
+                email.get(),
+                snapshot.groupId
+        ));
     }
 
     public String getName() {
@@ -104,14 +85,14 @@ public class User extends Entity {
     }
 
     public String getFirstName() {
-        return firstName;
+        return fullName.getFirstName();
     }
 
     public String getLastName() {
-        return lastName;
+        return fullName.getLastName();
     }
 
-    public String getEmail() {
+    public EmailAddress getEmail() {
         return email;
     }
 
@@ -119,20 +100,53 @@ public class User extends Entity {
         return groupId;
     }
 
-    public String getGroupName() {
-        return groupName;
-    }
+    @SuppressWarnings("unused")
+    public static class Snapshot {
 
-    private static void validate(String firstName, String lastName, String email) throws ValidationException {
-        if (firstName == null || firstName.isEmpty()) {
-            throw new ValidationException("User First Name must not be empty");
+        private final String id;
+
+        private final String name;
+
+        private final String firstName;
+
+        private final String lastName;
+
+        private final String email;
+
+        private final String groupId;
+
+        public Snapshot(String id, String name, String firstName, String lastName, String email, String groupId) {
+            this.id = id;
+            this.name = name;
+            this.firstName = firstName;
+            this.lastName = lastName;
+            this.email = email;
+            this.groupId = groupId;
         }
-        if (lastName == null || lastName.isEmpty()) {
-            throw new ValidationException("User Last Name must not be empty");
+
+        public String getId() {
+            return id;
         }
-        Matcher matcher = PATTERN.matcher(email);
-        if (!matcher.matches()) {
-            throw new ValidationException("User Email is invalid");
+
+        public String getName() {
+            return name;
         }
+
+        public String getFirstName() {
+            return firstName;
+        }
+
+        public String getLastName() {
+            return lastName;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public String getGroupId() {
+            return groupId;
+        }
+
     }
 }

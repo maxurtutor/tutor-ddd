@@ -1,8 +1,9 @@
 package org.maxur.ddd.view;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.maxur.ddd.domain.User;
-import org.maxur.ddd.domain.ValidationException;
+import org.maxur.ddd.domain.*;
+
+import java.util.Optional;
 
 /**
  * @author myunusov
@@ -27,7 +28,13 @@ public class AddUserCommand {
     public String groupId;
 
     public User assemble() throws ValidationException {
-       return User.newUser(name, firstName, lastName, email, groupId);
+        Notification notification = new Notification();
+        final Optional<EmailAddress> email = EmailAddress.email(this.email, notification);
+        final Optional<FullName> fullName = FullName.fullName(this.firstName, this.lastName, notification);
+        if (notification.hasErrors()) {
+            throw new ValidationException(notification.errorMessage());
+        }
+        return User.newUser(name, fullName.get(), email.get(), groupId);
     }
 
 }

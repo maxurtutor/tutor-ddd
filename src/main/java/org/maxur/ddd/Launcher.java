@@ -15,6 +15,9 @@ import io.dropwizard.setup.Environment;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.h2.tools.RunScript;
 
+import org.maxur.ddd.domain.EmailAddress;
+import org.maxur.ddd.domain.Notification;
+import org.maxur.ddd.domain.ValidationException;
 import org.maxur.ddd.service.AccountService;
 import org.maxur.ddd.domain.MailService;
 import org.maxur.ddd.email.MailServiceJavaxImpl;
@@ -33,6 +36,9 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.Optional;
+
+import static org.maxur.ddd.domain.EmailAddress.email;
 
 /**
  * @author myunusov
@@ -59,7 +65,12 @@ public class Launcher extends Application<Launcher.AppConfiguration> {
     public void run(final AppConfiguration cfg, final Environment env) throws IOException, SQLException {
         JmxReporter.forRegistry(env.metrics()).build().start();
         DBI dbi = makeDBI(cfg, env);
-        final MailService sender = new MailServiceJavaxImpl("myunusov@maxur.org");
+        Notification notification = new Notification();
+        final Optional<EmailAddress> email = email("myunusov@maxur.org", notification);
+        if (notification.hasErrors()) {
+            throw new IllegalStateException(notification.errorMessage());
+        }
+        final MailService sender = new MailServiceJavaxImpl(email.get());
         AbstractBinder binder = makeBinder(env, dbi, sender);
         initRest(env.jersey(), binder);
     }
