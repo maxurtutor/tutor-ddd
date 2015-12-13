@@ -32,8 +32,8 @@ public class UserResource {
     @POST
     @Path("/user")
     @Consumes(MediaType.APPLICATION_JSON)
-    public User add(UserDTO dto) throws ValidationException {
-        User user = dto.assemble();
+    public User add(AddUserCommand command) throws ValidationException {
+        User user = command.assemble();
         service.create(user);
         return user;
     }
@@ -41,15 +41,15 @@ public class UserResource {
     @Timed
     @GET
     @Path("/user/{id}")
-    public UserDTO find(@PathParam("id") String id) throws NotFoundException {
-        return UserDTO.dto(service.findById(id));
+    public UserView find(@PathParam("id") String id) throws NotFoundException {
+        return UserView.view(service.findById(id));
     }
 
     @Timed
     @GET
     @Path("/users")
-    public List<UserDTO> findAll() {
-        return service.findAll().stream().map(UserDTO::dto).collect(Collectors.toList());
+    public List<UserView> findAll() {
+        return service.findAll().stream().map(UserView::view).collect(Collectors.toList());
     }
 
 }

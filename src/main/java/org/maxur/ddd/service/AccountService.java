@@ -31,17 +31,12 @@ public class AccountService {
     }
 
     public User create(User user) throws ValidationException {
-        user.validate();
-
         Group group = dbi.onDemand(GroupDAO.class).findById(user.getGroupId());
         if (group == null) {
             throw new NotFoundException("Group", user.getGroupId());
         }
-
         group.add(user, dbi);
-
         Mail mail = new Mail("DDD System Notification", "You has be registered by DDD System", user.getEmail());
-
         try {
             mailService.send(mail);
         } catch (MessagingException e) {

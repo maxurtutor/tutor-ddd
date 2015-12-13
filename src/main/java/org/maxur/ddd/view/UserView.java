@@ -2,13 +2,14 @@ package org.maxur.ddd.view;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.maxur.ddd.domain.User;
+import org.maxur.ddd.domain.ValidationException;
 
 /**
  * @author myunusov
  * @version 1.0
  * @since <pre>13.12.2015</pre>
  */
-public class UserDTO {
+public class UserView {
 
     @JsonProperty
     public String id;
@@ -31,14 +32,8 @@ public class UserDTO {
     @JsonProperty
     public String groupName;
 
-    public User assemble() {
-        return id == null ?
-                User.newUser(name, firstName, lastName, email, groupId, groupName) :
-                User.user(id, name, firstName, lastName, email, groupId, groupName);
-    }
-
-    public static UserDTO dto(User user) {
-        final UserDTO dto = new UserDTO();
+    public static UserView view(User user) {
+        final UserView dto = new UserView();
         dto.id = user.getId();
         dto.name = user.getName();
         dto.firstName = user.getFirstName();

@@ -46,7 +46,7 @@ public interface UserDAO {
 
     class Mapper implements ResultSetMapper<User> {
         public User map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-            return User.user(
+            return User.restore(
                     r.getString("user_id"),
                     r.getString("user_name"),
                     r.getString("first_name"),
