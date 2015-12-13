@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
  * @version 1.0
  * @since <pre>04.11.2015</pre>
  */
-@SuppressWarnings("unused")
 public class User extends Entity {
 
     private static final String EMAIL_PATTERN =
@@ -19,77 +18,68 @@ public class User extends Entity {
 
     private Pattern pattern = Pattern.compile(EMAIL_PATTERN);
 
-    @JsonProperty
     private String name;
 
-    @JsonProperty
     private String firstName;
 
-    @JsonProperty
     private String lastName;
 
-    @JsonProperty
     private String email;
 
-    @JsonProperty
     private String groupId;
 
-    @JsonProperty
     private String groupName;
 
-    public User() {
+    private User(String name, String firstName, String lastName, String email, String groupId, String groupName) {
+        super();
+        this.name = name;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.groupId = groupId;
+        this.groupName = groupName;
     }
 
-    public User(String id) {
+    private User(String id, String name, String firstName, String lastName, String email, String groupId, String groupName) {
         super(id);
+        this.name = name;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.groupId = groupId;
+        this.groupName = groupName;
+    }
+
+    public static User user(String id, String name, String firstName, String lastName, String email, String groupId, String groupName) {
+        return new User(id, name, firstName, lastName, email, groupId, groupName);
+    }
+
+    public static User newUser(String name, String firstName, String lastName, String email, String groupId, String groupName) {
+        return new User(name, firstName, lastName, email, groupId, groupName);
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getFirstName() {
         return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
     }
 
     public String getLastName() {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
     public String getEmail() {
         return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public String getGroupId() {
         return groupId;
     }
 
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
-    }
-
     public String getGroupName() {
         return groupName;
-    }
-
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
     }
 
     public void validate() throws ValidationException {

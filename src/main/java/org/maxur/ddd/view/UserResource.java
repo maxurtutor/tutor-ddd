@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author myunusov
@@ -31,7 +32,8 @@ public class UserResource {
     @POST
     @Path("/user")
     @Consumes(MediaType.APPLICATION_JSON)
-    public User add(User user) throws ValidationException {
+    public User add(UserDTO dto) throws ValidationException {
+        User user = dto.assemble();
         service.create(user);
         return user;
     }
@@ -39,15 +41,15 @@ public class UserResource {
     @Timed
     @GET
     @Path("/user/{id}")
-    public User find(@PathParam("id") String id) throws NotFoundException {
-        return service.findById(id);
+    public UserDTO find(@PathParam("id") String id) throws NotFoundException {
+        return UserDTO.dto(service.findById(id));
     }
 
     @Timed
     @GET
     @Path("/users")
-    public List<User> findAll() {
-        return service.findAll();
+    public List<UserDTO> findAll() {
+        return service.findAll().stream().map(UserDTO::dto).collect(Collectors.toList());
     }
 
 }

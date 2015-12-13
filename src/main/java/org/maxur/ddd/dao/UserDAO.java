@@ -46,14 +46,15 @@ public interface UserDAO {
 
     class Mapper implements ResultSetMapper<User> {
         public User map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-            final User result = new User(r.getString("user_id"));
-            result.setName(r.getString("user_name"));
-            result.setFirstName(r.getString("first_name"));
-            result.setLastName(r.getString("last_name"));
-            result.setEmail(r.getString("email"));
-            result.setGroupId(r.getString("group_id"));
-            result.setGroupName(r.getString("group_name"));
-            return result;
+            return User.user(
+                    r.getString("user_id"),
+                    r.getString("user_name"),
+                    r.getString("first_name"),
+                    r.getString("last_name"),
+                    r.getString("email"),
+                    r.getString("group_id"),
+                    r.getString("group_name")
+            );
         }
     }
 }
