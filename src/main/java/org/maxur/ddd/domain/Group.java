@@ -13,10 +13,7 @@ import java.util.Objects;
  * @since <pre>12.12.2015</pre>
  */
 @SuppressWarnings("unused")
-public class Group {
-
-    @JsonProperty
-    private String id;
+public class Group extends Entity {
 
     @JsonProperty
     private String name;
@@ -27,12 +24,8 @@ public class Group {
     public Group() {
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+    public Group(String id) {
+        super(id);
     }
 
     public String getName() {

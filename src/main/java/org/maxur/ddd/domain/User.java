@@ -11,16 +11,13 @@ import java.util.regex.Pattern;
  * @since <pre>04.11.2015</pre>
  */
 @SuppressWarnings("unused")
-public class User {
+public class User extends Entity {
 
     private static final String EMAIL_PATTERN =
             "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
                     + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
 
     private Pattern pattern = Pattern.compile(EMAIL_PATTERN);
-
-    @JsonProperty
-    private String id;
 
     @JsonProperty
     private String name;
@@ -43,21 +40,8 @@ public class User {
     public User() {
     }
 
-    public User(String id, String name, String firstName, String lastName, String email, String groupId) {
-        this.id = id;
-        this.name = name;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.groupId = groupId;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+    public User(String id) {
+        super(id);
     }
 
     public String getName() {
@@ -109,9 +93,6 @@ public class User {
     }
 
     public void validate() throws ValidationException {
-        if (id == null || id.isEmpty()) {
-            throw new ValidationException("User Id must not be empty");
-        }
         if (firstName == null || firstName.isEmpty()) {
             throw new ValidationException("User First Name must not be empty");
         }

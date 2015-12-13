@@ -36,11 +36,10 @@ public interface GroupDAO {
 
     class Mapper implements ResultSetMapper<Group> {
         public Group map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-            final Group user = new Group();
-            user.setId(r.getString("group_id"));
-            user.setName(r.getString("group_name"));
-            user.setMaxCapacity(r.getInt("max_capacity"));
-            return user;
+            final Group result = new Group(r.getString("group_id"));
+            result.setName(r.getString("group_name"));
+            result.setMaxCapacity(r.getInt("max_capacity"));
+            return result;
         }
     }
 }
