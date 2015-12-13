@@ -2,6 +2,9 @@ package org.maxur.ddd.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * @author myunusov
  * @version 1.0
@@ -9,6 +12,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @SuppressWarnings("unused")
 public class User {
+
+    private static final String EMAIL_PATTERN =
+            "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+                    + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+
+    private Pattern pattern = Pattern.compile(EMAIL_PATTERN);
 
     @JsonProperty
     private String id;
@@ -97,5 +106,21 @@ public class User {
 
     public void setGroupName(String groupName) {
         this.groupName = groupName;
+    }
+
+    public void validate() throws ValidationException {
+        if (id == null || id.isEmpty()) {
+            throw new ValidationException("User Id must not be empty");
+        }
+        if (firstName == null || firstName.isEmpty()) {
+            throw new ValidationException("User First Name must not be empty");
+        }
+        if (lastName == null || lastName.isEmpty()) {
+            throw new ValidationException("User Last Name must not be empty");
+        }
+        Matcher matcher = pattern.matcher(email);
+        if (!matcher.matches()) {
+            throw new ValidationException("User Email is invalid");
+        }
     }
 }

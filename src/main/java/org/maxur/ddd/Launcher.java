@@ -16,8 +16,8 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.h2.tools.RunScript;
 
 import org.maxur.ddd.service.AccountService;
-import org.maxur.ddd.service.MailService;
-import org.maxur.ddd.service.MailServiceJavaxImpl;
+import org.maxur.ddd.domain.MailService;
+import org.maxur.ddd.email.MailServiceJavaxImpl;
 import org.maxur.ddd.view.RuntimeExceptionHandler;
 import org.maxur.ddd.view.UserResource;
 import org.maxur.ddd.view.ValidationExceptionHandler;

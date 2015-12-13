@@ -1,7 +1,7 @@
 package org.maxur.ddd.view;
 
-import org.maxur.ddd.service.NotFoundException;
-import org.maxur.ddd.service.ValidationException;
+import org.maxur.ddd.domain.NotFoundException;
+import org.maxur.ddd.domain.ValidationException;
 import org.slf4j.Logger;
 
 import javax.ws.rs.core.GenericEntity;

@@ -2,8 +2,9 @@ package org.maxur.ddd.view;
 
 import com.codahale.metrics.annotation.Timed;
 import org.maxur.ddd.domain.User;
+import org.maxur.ddd.domain.ValidationException;
 import org.maxur.ddd.service.*;
-import org.maxur.ddd.service.NotFoundException;
+import org.maxur.ddd.domain.NotFoundException;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;

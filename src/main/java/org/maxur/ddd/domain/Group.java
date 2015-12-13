@@ -1,6 +1,11 @@
 package org.maxur.ddd.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.maxur.ddd.dao.AccountDao;
+import org.maxur.ddd.dao.UserDAO;
+import org.skife.jdbi.v2.DBI;
+
+import java.util.Objects;
 
 /**
  * @author myunusov
@@ -44,5 +49,17 @@ public class Group {
 
     public void setMaxCapacity(Integer maxCapacity) {
         this.maxCapacity = maxCapacity;
+    }
+
+    public boolean isCompleted(DBI dbi) throws ValidationException {
+        Integer countByGroup = dbi.onDemand(UserDAO.class).findCountByGroup(getId());
+        return  Objects.equals(countByGroup, getMaxCapacity());
+    }
+
+    public void add(User user, DBI dbi) throws ValidationException {
+        if (isCompleted(dbi)) {
+            throw new ValidationException("More users than allowed in group");
+        }
+        dbi.onDemand(AccountDao.class).save(user, this);
     }
 }

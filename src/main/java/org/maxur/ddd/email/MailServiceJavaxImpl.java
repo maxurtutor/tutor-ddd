@@ -1,6 +1,7 @@
-package org.maxur.ddd.service;
+package org.maxur.ddd.email;
 
-import org.slf4j.Logger;
+import org.maxur.ddd.domain.Mail;
+import org.maxur.ddd.domain.MailService;
 
 import javax.mail.BodyPart;
 import javax.mail.Message;
@@ -14,8 +15,6 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import java.util.Properties;
-
-import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * @author Maxim Yunusov
