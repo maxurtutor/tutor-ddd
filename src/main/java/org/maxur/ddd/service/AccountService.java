@@ -3,6 +3,7 @@ package org.maxur.ddd.service;
 import org.maxur.ddd.dao.AccountDao;
 import org.maxur.ddd.dao.TeamDao;
 import org.maxur.ddd.dao.UserDao;
+import org.maxur.ddd.domain.MailService;
 import org.maxur.ddd.domain.Team;
 import org.maxur.ddd.domain.Mail;
 import org.maxur.ddd.domain.User;
@@ -12,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.mail.MessagingException;
-import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -59,6 +59,7 @@ public class AccountService {
         try {
             dbi.onDemand(AccountDao.class).save(user, team);
         } catch (RuntimeException e) {
+            logger.error("Constrains violations", e);
             throw new BusinessException("Constrains violations");
         }
 
@@ -94,16 +95,5 @@ public class AccountService {
         }
     }
 
-    public User findById(String id) throws NotFoundException {
-        final User user = dbi.onDemand(UserDao.class).findById(id);
-        if (user == null) {
-            throw new NotFoundException("User", id);
-        }
-        return user;
-    }
-
-    public List<User> findAll() {
-        return dbi.onDemand(UserDao.class).findAll();
-    }
 
 }

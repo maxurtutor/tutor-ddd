@@ -2,6 +2,7 @@ package org.maxur.ddd.view;
 
 import com.codahale.metrics.annotation.Timed;
 import org.maxur.ddd.domain.User;
+import org.maxur.ddd.domain.UserRepository;
 import org.maxur.ddd.service.*;
 import org.maxur.ddd.service.NotFoundException;
 
@@ -21,9 +22,15 @@ public class UserResource {
 
     private final AccountService service;
 
+    private final UserRepository repository;
+
+    private final CommandHandler commandHandler;
+
     @Inject
-    public UserResource(AccountService service) {
+    public UserResource(AccountService service, UserRepository repository, CommandHandler commandHandler) {
         this.service = service;
+        this.repository = repository;
+        this.commandHandler = commandHandler;
     }
 
     @Timed
@@ -36,17 +43,26 @@ public class UserResource {
     }
 
     @Timed
+    @POST
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public User setPassword(@PathParam("id") String userId, String password) throws BusinessException {
+        Command<User> command = new ChangePasswordCommand(userId, password);
+        return commandHandler.handle(command);
+    }
+
+    @Timed
     @GET
     @Path("/{id}")
     public User find(@PathParam("id") String id) throws NotFoundException {
-        return service.findById(id);
+        return repository.findById(id);
     }
 
     @Timed
     @GET
     @Path("/")
     public List<User> findAll() {
-        return service.findAll();
+        return repository.findAll();
     }
 
 }

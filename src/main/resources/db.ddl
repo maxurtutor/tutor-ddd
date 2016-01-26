@@ -12,6 +12,7 @@ CREATE TABLE t_user (
   first_name    VARCHAR(100) NOT NULL,
   last_name     VARCHAR(100) NOT NULL,
   email         VARCHAR(25),
+  password      VARCHAR(25),
   CONSTRAINT unique_user_id PRIMARY KEY (user_id),
   FOREIGN KEY (team_id)
   REFERENCES t_team (team_id)

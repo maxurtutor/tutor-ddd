@@ -24,9 +24,21 @@ public interface UserDao {
             "  first_name, \n" +
             "  last_name, \n" +
             "  email, \n" +
+            "  password,\n" +
             "  team_id\n" +
-            ") VALUES (:id, :name, :firstName, :lastName, :email, :teamId)")
+            ") VALUES (:id, :name, :firstName, :lastName, :email, :password, :teamId)")
     void insert(@BindBean User user);
+
+    @SqlUpdate("UPDATE t_user SET    \n" +
+            "  user_name = :name, \n" +
+            "  first_name = :firstName, \n" +
+            "  last_name = :lastName, \n" +
+            "  email = :email, \n" +
+            "  password = :password, \n" +
+            "  team_id = :teamId\n" +
+            "WHERE\n" +
+            "  user_id = :id")
+    void update(@BindBean User user);
 
     @SqlQuery("SELECT * \n" +
             "FROM t_user\n" +

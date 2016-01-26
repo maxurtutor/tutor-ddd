@@ -31,6 +31,9 @@ public class User {
     @JsonProperty
     private String teamName;
 
+    @JsonProperty
+    private String password;
+
     public User() {
     }
 
@@ -97,5 +100,17 @@ public class User {
 
     public void setTeamName(String teamName) {
         this.teamName = teamName;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void changePassword(String password) {
+        this.password = password;
     }
 }

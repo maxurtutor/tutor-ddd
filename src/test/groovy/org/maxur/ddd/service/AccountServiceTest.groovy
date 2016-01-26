@@ -3,6 +3,7 @@ package org.maxur.ddd.service
 import org.maxur.ddd.dao.AccountDao
 import org.maxur.ddd.dao.TeamDao
 import org.maxur.ddd.dao.UserDao
+import org.maxur.ddd.domain.MailService
 import org.maxur.ddd.domain.Team
 import org.maxur.ddd.domain.User
 import org.skife.jdbi.v2.DBI

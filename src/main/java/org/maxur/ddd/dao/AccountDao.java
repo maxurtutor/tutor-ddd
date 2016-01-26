@@ -18,4 +18,10 @@ public abstract class AccountDao implements GetHandle {
         getHandle().attach(TeamDao.class).update(team);
     }
 
+    @Transaction
+    public void update(User user, Team team) {
+        getHandle().attach(UserDao.class).update(user);
+        getHandle().attach(TeamDao.class).update(team);
+    }
+
 }
