@@ -1,8 +1,5 @@
 package org.maxur.ddd.service
 
-import org.maxur.ddd.dao.AccountDao
-import org.maxur.ddd.dao.TeamDao
-import org.maxur.ddd.dao.UserDao
 import org.maxur.ddd.domain.Team
 import org.maxur.ddd.domain.User
 import org.skife.jdbi.v2.DBI
@@ -20,8 +17,6 @@ class AccountServiceTest extends Specification {
 
     AccountService sut
 
-    DBI dbi
-
     MailService mailService
 
     User user
@@ -38,13 +33,12 @@ class AccountServiceTest extends Specification {
 
 
     void setup() {
-        dbi = Mock(DBI)
         mailService = Mock(MailService)
         teamDao = Mock(TeamDao)
         userDao = Mock(UserDao)
         accountDao = Mock(AccountDao)
         logger = Mock(Logger)
-        sut = new AccountService(dbi, mailService)
+        sut = new AccountService(userDao, teamDao, accountDao, mailService)
         sut.logger = logger
         user = new User("id", "name", "firstName", "lastName", "user@mail.org", "teamId")
         team = new Team()
@@ -112,7 +106,6 @@ class AccountServiceTest extends Specification {
         when: "Try create user"
         sut.create(user)
         then:
-        1 * dbi.onDemand(TeamDao) >> teamDao
         1 * teamDao.findById("teamId") >> null
         and: "System returns business error"
         thrown(NotFoundException.class)
@@ -122,9 +115,7 @@ class AccountServiceTest extends Specification {
         when: "Try create user"
         sut.create(user)
         then:
-        1 * dbi.onDemand(TeamDao) >> teamDao
         1 * teamDao.findById("teamId") >> team
-        1 * dbi.onDemand(UserDao) >> userDao
         1 * userDao.findCountByTeam("teamId") >> 1
         and: "System returns business error"
         thrown(BusinessException.class)
@@ -134,11 +125,8 @@ class AccountServiceTest extends Specification {
         when: "Try create user"
         sut.create(user)
         then:
-        1 * dbi.onDemand(TeamDao) >> teamDao
         1 * teamDao.findById("teamId") >> team
-        1 * dbi.onDemand(UserDao) >> userDao
         1 * userDao.findCountByTeam("teamId") >> 2
-        1 * dbi.onDemand(AccountDao) >> accountDao
         1 * accountDao.save(user, team) >> {
             throw new RuntimeException()
         }
@@ -150,11 +138,8 @@ class AccountServiceTest extends Specification {
         when: "Try create user"
         def created = sut.create(user)
         then:
-        1 * dbi.onDemand(TeamDao) >> teamDao
         1 * teamDao.findById("teamId") >> team
-        1 * dbi.onDemand(UserDao) >> userDao
         1 * userDao.findCountByTeam("teamId") >> 0
-        1 * dbi.onDemand(AccountDao) >> accountDao
         and: "User Created"
         created != null
         and: "User Saved"
@@ -171,11 +156,8 @@ class AccountServiceTest extends Specification {
         when: "Try create user"
         def created = sut.create(user)
         then:
-        1 * dbi.onDemand(TeamDao) >> teamDao
         1 * teamDao.findById("teamId") >> team
-        1 * dbi.onDemand(UserDao) >> userDao
         1 * userDao.findCountByTeam("teamId") >> 0
-        1 * dbi.onDemand(AccountDao) >> accountDao
         and: "User Created"
         created != null
         and: "User Saved"
@@ -188,11 +170,8 @@ class AccountServiceTest extends Specification {
         when: "Try update user"
         def created = sut.update(user)
         then:
-        1 * dbi.onDemand(TeamDao) >> teamDao
         1 * teamDao.findById("teamId") >> team
-        1 * dbi.onDemand(UserDao) >> userDao
         1 * userDao.findCountByTeam("teamId") >> 0
-        1 * dbi.onDemand(AccountDao) >> accountDao
         and: "User Updated"
         created != null
         and: "User Saved"
@@ -205,11 +184,8 @@ class AccountServiceTest extends Specification {
         when: "Try delete user"
         sut.delete("id1")
         then:
-        1 * dbi.onDemand(TeamDao) >> teamDao
         1 * teamDao.findById("teamId") >> team
-        1 * dbi.onDemand(UserDao) >> userDao
         1 * userDao.findById("id1") >> user
-        1 * dbi.onDemand(AccountDao) >> accountDao
         and: "User deleted"
         1 * accountDao.delete("id1", team)
         and: "System sends notification"
@@ -220,7 +196,6 @@ class AccountServiceTest extends Specification {
         when: "Try change password"
         sut.changePassword("id1", "password")
         then:
-        1 * dbi.onDemand(UserDao) >> userDao
         1 * userDao.findById("id1") >> user
         and: "Password changed"
         1 * userDao.changePassword("id1", '5f4dcc3b5aa765d61d8327deb882cf99')

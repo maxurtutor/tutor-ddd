@@ -1,8 +1,12 @@
-package org.maxur.ddd.dao;
+package org.maxur.ddd.infrastructure.dao;
 
 import org.maxur.ddd.domain.User;
+import org.maxur.ddd.service.UserDao;
 import org.skife.jdbi.v2.StatementContext;
-import org.skife.jdbi.v2.sqlobject.*;
+import org.skife.jdbi.v2.sqlobject.Bind;
+import org.skife.jdbi.v2.sqlobject.BindBean;
+import org.skife.jdbi.v2.sqlobject.SqlQuery;
+import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
@@ -15,8 +19,8 @@ import java.util.List;
  * @version 1.0
  * @since <pre>04.11.2015</pre>
  */
-@RegisterMapper(UserDao.Mapper.class)
-public interface UserDao {
+@RegisterMapper(UserDaoJdbiImpl.Mapper.class)
+public interface UserDaoJdbiImpl extends UserDao {
 
     @SqlUpdate("INSERT INTO t_user (\n" +
             "  user_id, \n" +
@@ -80,4 +84,5 @@ public interface UserDao {
             return user;
         }
     }
+
 }

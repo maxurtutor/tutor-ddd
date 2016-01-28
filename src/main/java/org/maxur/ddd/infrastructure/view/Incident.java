@@ -1,4 +1,4 @@
-package org.maxur.ddd.view;
+package org.maxur.ddd.infrastructure.view;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
@@ -14,7 +14,7 @@ import static java.util.stream.Collectors.toList;
  */
 @SuppressWarnings("unused")
 @XmlRootElement
-public class Incident implements Serializable {
+class Incident implements Serializable {
 
     private static final long serialVersionUID = 2368849548039200044L;
 
@@ -23,11 +23,11 @@ public class Incident implements Serializable {
     public Incident() {
     }
 
-    public Incident(final String message) {
+    private Incident(final String message) {
         this.message = message;
     }
 
-    public static List<Incident> incidents(final String... messages) {
+    static List<Incident> incidents(final String... messages) {
         return stream(messages).map(Incident::new).collect(toList());
     }
 

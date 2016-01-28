@@ -11,7 +11,7 @@ public class NotFoundException extends BusinessException {
 
     private static final long serialVersionUID = -343985451164289078L;
 
-    public NotFoundException(String entityType, String id) {
+    NotFoundException(String entityType, String id) {
         super(format("%s (id='%s') is not found", entityType, id));
     }
 }

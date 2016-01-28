@@ -1,4 +1,4 @@
-package org.maxur.ddd.view;
+package org.maxur.ddd.infrastructure.view;
 
 import com.codahale.metrics.annotation.Timed;
 import org.maxur.ddd.domain.User;

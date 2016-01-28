@@ -1,12 +1,8 @@
 package org.maxur.ddd.service;
 
-import org.maxur.ddd.dao.AccountDao;
-import org.maxur.ddd.dao.TeamDao;
-import org.maxur.ddd.dao.UserDao;
-import org.maxur.ddd.domain.Team;
 import org.maxur.ddd.domain.Mail;
+import org.maxur.ddd.domain.Team;
 import org.maxur.ddd.domain.User;
-import org.skife.jdbi.v2.DBI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,13 +34,19 @@ public class AccountService {
 
     private Pattern pattern = Pattern.compile(EMAIL_PATTERN);
 
-    private final DBI dbi;
+    private final UserDao userDao;
+
+    private final TeamDao teamDao;
+
+    private final AccountDao accountDao;
 
     private final MailService mailService;
 
     @Inject
-    public AccountService(DBI dbi, MailService mailService) {
-        this.dbi = dbi;
+    public AccountService(UserDao userDao, TeamDao teamDao, AccountDao accountDao, MailService mailService) {
+        this.userDao = userDao;
+        this.teamDao = teamDao;
+        this.accountDao = accountDao;
         this.mailService = mailService;
     }
 
@@ -52,12 +54,12 @@ public class AccountService {
         validate(user);
         final String teamId = user.getTeamId();
         Team team = getTeam(teamId);
-        Integer count = dbi.onDemand(UserDao.class).findCountByTeam(teamId);
+        Integer count = userDao.findCountByTeam(teamId);
         if (Objects.equals(count, team.getMaxCapacity())) {
             throw new BusinessException("The limit users in team is exceeded");
         }
         try {
-            dbi.onDemand(AccountDao.class).save(user, team);
+            accountDao.save(user, team);
         } catch (RuntimeException e) {
             throw new BusinessException("Constrains violations");
         }
@@ -70,15 +72,13 @@ public class AccountService {
 
     public void delete(String id) throws BusinessException {
 
-        final UserDao dao = dbi.onDemand(UserDao.class);
-
-        final User user = getUser(id, dao);
+        final User user = getUser(id);
 
         final String teamId = user.getTeamId();
         Team team = getTeam(teamId);
 
         try {
-            dbi.onDemand(AccountDao.class).delete(id, team);
+            accountDao.delete(id, team);
         } catch (RuntimeException e) {
             throw new BusinessException("Constrains violations");
         }
@@ -92,12 +92,12 @@ public class AccountService {
         validate(user);
         final String teamId = user.getTeamId();
         Team team = getTeam(teamId);
-        Integer count = dbi.onDemand(UserDao.class).findCountByTeam(teamId);
+        Integer count = userDao.findCountByTeam(teamId);
         if (Objects.equals(count, team.getMaxCapacity())) {
             throw new BusinessException("The limit users in team is exceeded");
         }
         try {
-            dbi.onDemand(AccountDao.class).update(user, team);
+            accountDao.update(user, team);
         } catch (RuntimeException e) {
             throw new BusinessException("Constrains violations");
         }
@@ -109,11 +109,11 @@ public class AccountService {
     }
 
     public User findById(String id) throws NotFoundException {
-        return getUser(id, dbi.onDemand(UserDao.class));
+        return getUser(id);
     }
 
     public List<User> findAll() {
-        return dbi.onDemand(UserDao.class).findAll();
+        return userDao.findAll();
     }
 
     public void changePassword(String id, String password) throws BusinessException {
@@ -124,11 +124,9 @@ public class AccountService {
             throw new BusinessException("User password must not be empty");
         }
 
-        final UserDao dao = dbi.onDemand(UserDao.class);
+        final User user = getUser(id);
 
-        final User user = getUser(id, dao);
-
-        dao.changePassword(id, encryptPassword(password));
+        userDao.changePassword(id, encryptPassword(password));
 
         final String message = "You password has been changed";
         sendMessage(user, message);
@@ -177,8 +175,8 @@ public class AccountService {
         }
     }
 
-    private User getUser(String id, UserDao dao) throws NotFoundException {
-        final User user = dao.findById(id);
+    private User getUser(String id) throws NotFoundException {
+        final User user = userDao.findById(id);
         if (user == null) {
             throw new NotFoundException("User", id);
         }
@@ -186,7 +184,7 @@ public class AccountService {
     }
 
     private Team getTeam(String teamId) throws NotFoundException {
-        Team team = dbi.onDemand(TeamDao.class).findById(teamId);
+        Team team = teamDao.findById(teamId);
         if (team == null) {
             throw new NotFoundException("Team", teamId);
         }

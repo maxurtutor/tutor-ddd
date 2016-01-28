@@ -12,15 +12,18 @@ import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.lifecycle.setup.LifecycleEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.h2.tools.RunScript;
 
-import org.maxur.ddd.service.AccountService;
-import org.maxur.ddd.service.MailService;
-import org.maxur.ddd.service.MailServiceJavaxImpl;
-import org.maxur.ddd.view.RuntimeExceptionHandler;
-import org.maxur.ddd.view.UserResource;
-import org.maxur.ddd.view.BusinessExceptionHandler;
+import org.maxur.ddd.infrastructure.dao.AccountDaoJdbiImpl;
+import org.maxur.ddd.infrastructure.dao.TeamDaoJdbiImpl;
+import org.maxur.ddd.infrastructure.dao.UserDaoJdbiImpl;
+import org.maxur.ddd.service.*;
+import org.maxur.ddd.infrastructure.mail.MailServiceJavaxImpl;
+import org.maxur.ddd.infrastructure.view.RuntimeExceptionHandler;
+import org.maxur.ddd.infrastructure.view.UserResource;
+import org.maxur.ddd.infrastructure.view.BusinessExceptionHandler;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 
@@ -91,11 +94,17 @@ public class Launcher extends Application<Launcher.AppConfiguration> {
             @Override
             protected void configure() {
                 bind(env.lifecycle()).to(LifecycleEnvironment.class);
-                bind(dbi).to(DBI.class);
                 bind(AccountService.class).to(AccountService.class).in(Singleton.class);
+                bindFactory(daoFactory(dbi, AccountDaoJdbiImpl.class)).to(AccountDao.class);
+                bindFactory(daoFactory(dbi, UserDaoJdbiImpl.class)).to(UserDao.class);
+                bindFactory(daoFactory(dbi, TeamDaoJdbiImpl.class)).to(TeamDao.class);
                 bind(sender).to(MailService.class);
             }
         };
+    }
+
+    private <T> Factory<T> daoFactory(final DBI dbi, final Class<T> jdbiClass) {
+        return new DaoFactory<>(dbi, jdbiClass);
     }
 
     private void initRest(JerseyEnvironment jersey, AbstractBinder binder) {
@@ -105,15 +114,36 @@ public class Launcher extends Application<Launcher.AppConfiguration> {
         jersey.register(binder);
     }
 
-    public static class AppConfiguration extends Configuration {
+    static class AppConfiguration extends Configuration {
         @Valid
         @NotNull
         @JsonProperty
         private DataSourceFactory database = new DataSourceFactory();
 
-        public DataSourceFactory getDataSourceFactory() {
+        DataSourceFactory getDataSourceFactory() {
             return database;
         }
     }
 
+    private static class DaoFactory<T> implements Factory<T> {
+
+        private final DBI dbi;
+
+        private final Class<T> jdbiClass;
+
+        DaoFactory(DBI dbi, Class<T> jdbiClass) {
+            this.dbi = dbi;
+            this.jdbiClass = jdbiClass;
+        }
+
+        @Override
+        public T provide() {
+            return dbi.onDemand(jdbiClass);
+        }
+
+        @Override
+        public void dispose(T instance) {
+
+        }
+    }
 }

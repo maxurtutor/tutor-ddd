@@ -1,21 +1,14 @@
-package org.maxur.ddd.service;
+package org.maxur.ddd.infrastructure.mail;
 
 import org.maxur.ddd.domain.Mail;
+import org.maxur.ddd.service.MailService;
 
-import javax.mail.BodyPart;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.Session;
-import javax.mail.Transport;
+import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
-
 import java.util.Properties;
-
-import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * @author Maxim Yunusov
@@ -23,9 +16,9 @@ import static org.slf4j.LoggerFactory.getLogger;
  */
 public class MailServiceJavaxImpl implements MailService {
 
-    public static final int DEFAULT_SMTP_PORT = 25;
+    private static final int DEFAULT_SMTP_PORT = 25;
 
-    public static final String DEFAULT_SMTP_HOST = "127.0.0.1";
+    private static final String DEFAULT_SMTP_HOST = "127.0.0.1";
 
     private final String fromAddress;
 
@@ -36,7 +29,7 @@ public class MailServiceJavaxImpl implements MailService {
         this(fromAddress, DEFAULT_SMTP_HOST, DEFAULT_SMTP_PORT);
     }
 
-    public MailServiceJavaxImpl(final String fromAddress, final String host, final int port) {
+    private MailServiceJavaxImpl(final String fromAddress, final String host, final int port) {
         this.fromAddress = fromAddress;
         props = new Properties();
         props.put("mail.smtp.host", host);
