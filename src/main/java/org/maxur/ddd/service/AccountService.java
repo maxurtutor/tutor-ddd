@@ -57,7 +57,7 @@ public class AccountService {
     }
 
     public User update(User user) throws BusinessException {
-        final User result = user.update(userDao, teamDao, accountDao);
+        final User result = user.update(getUser(user.getId()), userDao, teamDao, accountDao);
         sendMessage(String.format("Welcome to team '%s' !", result.getTeamName()), result);
         return result;
     }

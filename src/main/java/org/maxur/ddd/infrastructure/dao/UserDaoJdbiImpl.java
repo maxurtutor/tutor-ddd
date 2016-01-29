@@ -1,5 +1,6 @@
 package org.maxur.ddd.infrastructure.dao;
 
+import org.maxur.ddd.domain.BusinessException;
 import org.maxur.ddd.domain.User;
 import org.maxur.ddd.service.UserDao;
 import org.skife.jdbi.v2.StatementContext;
@@ -73,11 +74,15 @@ public interface UserDaoJdbiImpl extends UserDao {
     class Mapper implements ResultSetMapper<User> {
         public User map(int index, ResultSet r, StatementContext ctx) throws SQLException {
             final User user = new User();
-            user.setId(r.getString("user_id"));
-            user.setName(r.getString("user_name"));
-            user.setFirstName(r.getString("first_name"));
-            user.setLastName(r.getString("last_name"));
-            user.setEmail(r.getString("email"));
+            try {
+                user.setId(r.getString("user_id"));
+                user.setName(r.getString("user_name"));
+                user.setFirstName(r.getString("first_name"));
+                user.setLastName(r.getString("last_name"));
+                user.setEmail(r.getString("email"));
+            } catch (BusinessException e) {
+                throw new IllegalStateException(e);
+            }
             user.setTeamId(r.getString("team_id"));
             user.setTeamName(r.getString("team_name"));
             user.setPassword(r.getString("password"));

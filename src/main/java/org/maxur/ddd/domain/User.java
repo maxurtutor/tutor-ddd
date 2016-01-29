@@ -28,28 +28,20 @@ public class User {
 
     private static final Pattern PATTERN = Pattern.compile(EMAIL_PATTERN);
 
-    @JsonProperty
     private String id;
 
-    @JsonProperty
     private String name;
 
-    @JsonProperty
     private String firstName;
 
-    @JsonProperty
     private String lastName;
 
-    @JsonProperty
     private String email;
 
-    @JsonProperty
     private String teamId;
 
-    @JsonProperty
     private String teamName;
 
-    @JsonProperty
     private String password;
 
     private String encryptedPassword;
@@ -57,93 +49,136 @@ public class User {
     public User() {
     }
 
-    public User(String id, String name, String firstName, String lastName, String email, String teamId) {
-        this.id = id;
-        this.name = name;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.teamId = teamId;
+    public static User make(
+            String id, String name, String firstName, String lastName, String email, String teamId
+    ) throws BusinessException {
+        final User user = new User();
+        user.setId(id);
+        user.setName(name);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setEmail(email);
+        user.setTeamId(teamId);
+        return user;
     }
 
     public String getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(String id) throws BusinessException {
+        if (isNullOrEmpty(id)) {
+            throw new BusinessException("User Id must not be empty");
+        }
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
+    public void setName(String name) throws BusinessException {
+        if (isNullOrEmpty(name)) {
+            throw new BusinessException("User Id must not be empty");
+        }
         this.name = name;
     }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
+    public void setFirstName(String firstName) throws BusinessException {
+        if (isNullOrEmpty(firstName)) {
+            throw new BusinessException("User First Name must not be empty");
+        }
         this.firstName = firstName;
     }
 
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
+    public void setLastName(String lastName) throws BusinessException {
+        if (isNullOrEmpty(lastName)) {
+            throw new BusinessException("User Last Name must not be empty");
+        }
         this.lastName = lastName;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
+    public void setEmail(String email) throws BusinessException {
+        if (isNullOrEmpty(email)) {
+            throw new BusinessException("User Email must not be empty");
+        }
+        Matcher matcher = PATTERN.matcher(email);
+        if (!matcher.matches()) {
+            throw new BusinessException("User Email is invalid");
+        }
         this.email = email;
-    }
-
-    public String getTeamId() {
-        return teamId;
     }
 
     public void setTeamId(String teamId) {
         this.teamId = teamId;
     }
 
-    public String getTeamName() {
-        return teamName;
-    }
-
-    public void setTeamName(String teamName) {
-        this.teamName = teamName;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getEncryptedPassword() {
-        return encryptedPassword;
     }
 
     public void setEncryptedPassword(String encryptedPassword) {
         this.encryptedPassword = encryptedPassword;
     }
 
+    @JsonProperty
+    public String getName() {
+        return name;
+    }
+
+    @JsonProperty
+    public String getFirstName() {
+        return firstName;
+    }
+
+    @JsonProperty
+    public String getLastName() {
+        return lastName;
+    }
+
+    @JsonProperty
+    public String getEmail() {
+        return email;
+    }
+
+    @JsonProperty
+    public String getTeamId() {
+        return teamId;
+    }
+
+    @JsonProperty
+    public String getTeamName() {
+        return teamName;
+    }
+
+    @JsonProperty
+    public void setTeamName(String teamName) {
+        this.teamName = teamName;
+    }
+
+    @JsonProperty
+    public String getPassword() {
+        return password;
+    }
+
+    public String getEncryptedPassword() {
+        return encryptedPassword;
+    }
+
     public User create(UserDao userDao, TeamDao teamDao, AccountDao accountDao) throws BusinessException {
-        validate();
         Team team = getTeam(teamDao);
         team.checkTeamCapacity(userDao);
         try {
             accountDao.save(this, team);
+        } catch (RuntimeException e) {
+            throw new BusinessException("Constrains violations");
+        }
+        this.encryptedPassword = encryptPassword();
+        return this;
+    }
+
+    public User update(User old, UserDao userDao, TeamDao teamDao, AccountDao accountDao) throws BusinessException {
+        Team team = getTeam(teamDao);
+        if (!old.getTeamId().equals(teamId)) {
+            team.checkTeamCapacity(userDao);
+        }
+        try {
+            accountDao.update(this, team);
         } catch (RuntimeException e) {
             throw new BusinessException("Constrains violations");
         }
@@ -159,19 +194,6 @@ public class User {
         } catch (RuntimeException e) {
             throw new BusinessException("Constrains violations");
         }
-    }
-
-    public User update(UserDao userDao, TeamDao teamDao, AccountDao accountDao) throws BusinessException {
-        validate();
-        Team team = getTeam(teamDao);
-        team.checkTeamCapacity(userDao);
-        try {
-            accountDao.update(this, team);
-        } catch (RuntimeException e) {
-            throw new BusinessException("Constrains violations");
-        }
-        this.encryptedPassword = encryptPassword();
-        return this;
     }
 
     public void changePassword(String password, UserDao userDao, MailService mailService) throws BusinessException {
@@ -202,28 +224,6 @@ public class User {
             hashtext = "0" + hashtext;
         }
         return hashtext;
-    }
-
-    private void validate() throws BusinessException {
-        if (isNullOrEmpty(this.getId())) {
-            throw new BusinessException("User Id must not be empty");
-        }
-        if (isNullOrEmpty(this.getName())) {
-            throw new BusinessException("User Id must not be empty");
-        }
-        if (isNullOrEmpty(this.getFirstName())) {
-            throw new BusinessException("User First Name must not be empty");
-        }
-        if (isNullOrEmpty(this.getLastName())) {
-            throw new BusinessException("User Last Name must not be empty");
-        }
-        if (isNullOrEmpty(this.getEmail())) {
-            throw new BusinessException("User Email must not be empty");
-        }
-        Matcher matcher = PATTERN.matcher(this.getEmail());
-        if (!matcher.matches()) {
-            throw new BusinessException("User Email is invalid");
-        }
     }
 
     private Team getTeam(TeamDao teamDao) throws NotFoundException {

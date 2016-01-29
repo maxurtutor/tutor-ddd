@@ -21,7 +21,11 @@ class AccountServiceTest extends Specification {
 
     User user
 
+    User newUser
+
     Team team
+
+    Team otherTeam
 
     TeamDao teamDao
 
@@ -40,69 +44,67 @@ class AccountServiceTest extends Specification {
         logger = Mock(Logger)
         sut = new AccountService(userDao, teamDao, accountDao, mailService)
         sut.logger = logger
-        user = new User("id", "name", "firstName", "lastName", "user@mail.org", "teamId")
+        user = User.make("id", "name", "firstName", "lastName", "user@mail.org", "teamId")
+        newUser = User.make("id", "name", "firstName", "lastName", "user@mail.org", "other_teamId")
         team = new Team()
         team.id = "teamId"
         team.name = "teamName"
         team.maxCapacity = 1
+        otherTeam = new Team()
+        otherTeam.id = "other_teamId"
+        otherTeam.name = "other_teamName"
+        otherTeam.maxCapacity = 1
     }
 
     def "User cannot be created without id"() {
-        given: "User without id"
-            user.id = null
         when: "Try create user"
-            sut.create(user)
+        user.id = null
+        sut.create(user)
         then: "System returns business error"
             thrown(BusinessException.class)
     }
 
     def "User cannot be created without name"() {
-        given: "User without Name"
-        user.name = null
         when: "Try create user"
+        user.name = null
         sut.create(user)
         then: "System returns business error"
         thrown(BusinessException.class)
     }
 
     def "User cannot be created without First Name"() {
-        given: "User without First Name"
-        user.firstName = null
         when: "Try create user"
+        user.firstName = null
         sut.create(user)
         then: "System returns business error"
         thrown(BusinessException.class)
     }
 
     def "User cannot be created without Last Name"() {
-        given: "User without Last Name"
-        user.lastName = null
         when: "Try create user"
+        user.lastName = null
         sut.create(user)
         then: "System returns business error"
         thrown(BusinessException.class)
     }
 
     def "User cannot be created without email"() {
-        given: "User without email"
-        user.email = null
         when: "Try create user"
+        user.email = null
         sut.create(user)
         then: "System returns business error"
         thrown(BusinessException.class)
     }
 
     def "User cannot be created with invalid email"() {
-        given: "User with invalid email"
-        user.email = "invalid"
         when: "Try create user"
+        user.email = "invalid"
         sut.create(user)
         then: "System returns business error"
         thrown(BusinessException.class)
     }
 
     def "User cannot be created with invalid team id"() {
-        given: "User with invalid team id"
         when: "Try create user"
         sut.create(user)
         then:
@@ -170,12 +172,27 @@ class AccountServiceTest extends Specification {
         when: "Try update user"
         def created = sut.update(user)
         then:
+        1 * userDao.findById("id") >> user
         1 * teamDao.findById("teamId") >> team
-        1 * userDao.findCountByTeam("teamId") >> 0
         and: "User Updated"
         created != null
         and: "User Saved"
         1 * accountDao.update(user, team)
+        and: "System sends notification"
+        1 * mailService.send(_)
+    }
+
+    def "User can be removed to other team"() {
+        when: "Try update user"
+        def created = sut.update(newUser)
+        then:
+        1 * userDao.findById("id") >> user
+        1 * teamDao.findById("other_teamId") >> otherTeam
+        1 * userDao.findCountByTeam("other_teamId") >> 0
+        and: "User Updated"
+        created != null
+        and: "User Saved"
+        1 * accountDao.update(newUser, otherTeam)
         and: "System sends notification"
         1 * mailService.send(_)
     }
@@ -202,5 +219,6 @@ class AccountServiceTest extends Specification {
         and: "System sends notification"
         1 * mailService.send(_)
     }
+
 
 }

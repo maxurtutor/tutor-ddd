@@ -3,8 +3,7 @@ package org.maxur.ddd.infrastructure.view;
 import com.codahale.metrics.annotation.Timed;
 import org.maxur.ddd.domain.BusinessException;
 import org.maxur.ddd.domain.User;
-import org.maxur.ddd.service.*;
-import org.maxur.ddd.domain.NotFoundException;
+import org.maxur.ddd.service.AccountService;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
