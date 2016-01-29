@@ -1,12 +1,14 @@
 package org.maxur.ddd.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.maxur.ddd.service.*;
+import org.maxur.ddd.service.AccountDao;
+import org.maxur.ddd.service.MailService;
+import org.maxur.ddd.service.TeamDao;
+import org.maxur.ddd.service.UserDao;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -139,10 +141,7 @@ public class User {
     public User create(UserDao userDao, TeamDao teamDao, AccountDao accountDao) throws BusinessException {
         validate();
         Team team = getTeam(teamDao);
-        Integer count = userDao.findCountByTeam(this.teamId);
-        if (Objects.equals(count, team.getMaxCapacity())) {
-            throw new BusinessException("The limit users in team is exceeded");
-        }
+        team.checkTeamCapacity(userDao);
         try {
             accountDao.save(this, team);
         } catch (RuntimeException e) {
@@ -165,10 +164,7 @@ public class User {
     public User update(UserDao userDao, TeamDao teamDao, AccountDao accountDao) throws BusinessException {
         validate();
         Team team = getTeam(teamDao);
-        Integer count = userDao.findCountByTeam(teamId);
-        if (Objects.equals(count, team.getMaxCapacity())) {
-            throw new BusinessException("The limit users in team is exceeded");
-        }
+        team.checkTeamCapacity(userDao);
         try {
             accountDao.update(this, team);
         } catch (RuntimeException e) {
