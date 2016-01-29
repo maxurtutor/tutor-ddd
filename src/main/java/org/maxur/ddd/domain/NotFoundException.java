@@ -1,4 +1,6 @@
-package org.maxur.ddd.service;
+package org.maxur.ddd.domain;
+
+import org.maxur.ddd.domain.BusinessException;
 
 import static java.lang.String.format;
 
@@ -11,7 +13,7 @@ public class NotFoundException extends BusinessException {
 
     private static final long serialVersionUID = -343985451164289078L;
 
-    NotFoundException(String entityType, String id) {
+    public NotFoundException(String entityType, String id) {
         super(format("%s (id='%s') is not found", entityType, id));
     }
 }

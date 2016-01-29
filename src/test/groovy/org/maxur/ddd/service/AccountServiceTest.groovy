@@ -1,13 +1,13 @@
 package org.maxur.ddd.service
 
+import org.maxur.ddd.domain.BusinessException
+import org.maxur.ddd.domain.NotFoundException
 import org.maxur.ddd.domain.Team
 import org.maxur.ddd.domain.User
-import org.skife.jdbi.v2.DBI
 import org.slf4j.Logger
 import spock.lang.Specification
 
 import javax.mail.MessagingException
-
 /**
  * @author myunusov
  * @version 1.0
@@ -149,7 +149,7 @@ class AccountServiceTest extends Specification {
              mail -> throw new MessagingException("message")
         }
         and: "Log error"
-        1 * logger.error(_, _ as MessagingException)
+        1 * logger.error(_)
     }
 
     def "User can be created"() {
@@ -182,23 +182,23 @@ class AccountServiceTest extends Specification {
 
     def "User can be deleted"() {
         when: "Try delete user"
-        sut.delete("id1")
+        sut.delete("id")
         then:
         1 * teamDao.findById("teamId") >> team
-        1 * userDao.findById("id1") >> user
+        1 * userDao.findById("id") >> user
         and: "User deleted"
-        1 * accountDao.delete("id1", team)
+        1 * accountDao.delete("id", team)
         and: "System sends notification"
         1 * mailService.send(_)
     }
 
     def "User can change password"() {
         when: "Try change password"
-        sut.changePassword("id1", "password")
+        sut.changePassword("id", "password")
         then:
-        1 * userDao.findById("id1") >> user
+        1 * userDao.findById("id") >> user
         and: "Password changed"
-        1 * userDao.changePassword("id1", '5f4dcc3b5aa765d61d8327deb882cf99')
+        1 * userDao.changePassword("id", '5f4dcc3b5aa765d61d8327deb882cf99')
         and: "System sends notification"
         1 * mailService.send(_)
     }

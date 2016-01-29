@@ -30,7 +30,7 @@ public interface UserDaoJdbiImpl extends UserDao {
             "  email, \n" +
             "  password,\n" +
             "  team_id\n" +
-            ") VALUES (:id, :name, :firstName, :lastName, :email, :password, :teamId)")
+            ") VALUES (:id, :name, :firstName, :lastName, :email, :encryptedPassword, :teamId)")
     void insert(@BindBean User user);
 
     @SqlUpdate("DELETE FROM t_user\n" +
@@ -42,7 +42,7 @@ public interface UserDaoJdbiImpl extends UserDao {
             "  first_name = :firstName, \n" +
             "  last_name = :lastName, \n" +
             "  email = :email, \n" +
-            "  password = :password, \n" +
+            "  password = :encryptedPassword, \n" +
             "  team_id = :teamId\n" +
             "WHERE\n" +
             "  user_id = :id")

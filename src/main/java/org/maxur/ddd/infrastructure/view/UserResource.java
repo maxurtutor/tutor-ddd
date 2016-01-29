@@ -1,9 +1,10 @@
 package org.maxur.ddd.infrastructure.view;
 
 import com.codahale.metrics.annotation.Timed;
+import org.maxur.ddd.domain.BusinessException;
 import org.maxur.ddd.domain.User;
 import org.maxur.ddd.service.*;
-import org.maxur.ddd.service.NotFoundException;
+import org.maxur.ddd.domain.NotFoundException;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -65,7 +66,7 @@ public class UserResource {
     @Timed
     @GET
     @Path("/{id}")
-    public User find(@PathParam("id") String id) throws NotFoundException {
+    public User find(@PathParam("id") String id) throws BusinessException {
         return service.findById(id);
     }
 

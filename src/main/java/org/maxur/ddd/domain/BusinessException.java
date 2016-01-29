@@ -1,4 +1,4 @@
-package org.maxur.ddd.service;
+package org.maxur.ddd.domain;
 
 /**
  * @author Maxim Yunusov
@@ -9,7 +9,7 @@ public class BusinessException extends Exception {
 
     private static final long serialVersionUID = -7189064682665335451L;
 
-    BusinessException(final String message) {
+    public BusinessException(final String message) {
         super(message);
     }
 }
