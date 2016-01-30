@@ -1,7 +1,5 @@
 package org.maxur.ddd.domain;
 
-import java.util.Objects;
-
 import static com.google.common.base.Strings.isNullOrEmpty;
 
 /**
@@ -9,8 +7,9 @@ import static com.google.common.base.Strings.isNullOrEmpty;
  * @version 1.0
  * @since <pre>04.11.2015</pre>
  */
-@SuppressWarnings("unused")
-public class User {
+public class User extends Entity {
+
+    private String name;
 
     private final Person person;
 
@@ -18,29 +17,44 @@ public class User {
 
     private Password password;
 
-    private String id;
-
-    private String name;
-
     private String teamId;
 
     private String teamName;
 
-    private User(Person person, Password password, EmailAddress emailAddress) {
+    private User(String id, String name, Person person, Password password, EmailAddress emailAddress) {
+        super(id);
+        this.name = name;
         this.emailAddress = emailAddress;
         this.password = password;
         this.person = person;
     }
 
-    public static User make(
+    public User(String name, Person person, Password password, EmailAddress emailAddress) {
+        super();
+        this.name = name;
+        this.emailAddress = emailAddress;
+        this.password = password;
+        this.person = person;
+    }
+
+    public static User newUser(
+            String name, String firstName, String lastName, String email, String teamId
+    ) throws BusinessException {
+        final Person person = Person.make(firstName, lastName);
+        final EmailAddress emailAddress = EmailAddress.make(email);
+        final Password password = Password.empty();
+        final User user = new User(checkName(name), person, password, emailAddress);
+        user.setTeamId(teamId);
+        return user;
+    }
+
+    public static User oldUser(
             String id, String name, String firstName, String lastName, String email, String teamId
     ) throws BusinessException {
         final Person person = Person.make(firstName, lastName);
         final EmailAddress emailAddress = EmailAddress.make(email);
         final Password password = Password.empty();
-        final User user = new User(person, password, emailAddress);
-        user.setId(id);
-        user.setName(name);
+        final User user = new User(checkId(id), checkName(name), person, password, emailAddress);
         user.setTeamId(teamId);
         return user;
     }
@@ -49,16 +63,15 @@ public class User {
         final Person person = Person.make(snapshot.firstName, snapshot.lastName);
         final EmailAddress emailAddress = EmailAddress.make(snapshot.email);
         final Password password = Password.restore(snapshot.password);
-        final User user = new User(person, password, emailAddress);
-        user.setId(snapshot.getId());
-        user.setName(snapshot.getName());
+        final User user =
+                new User(checkId(snapshot.getId()), checkName(snapshot.getName()), person, password, emailAddress);
         user.setTeamId(snapshot.getTeamId());
         return user;
     }
 
     public Snapshot getSnapshot() {
         final Snapshot snapshot = new Snapshot();
-        snapshot.setId(this.id);
+        snapshot.setId(getId().asString());
         snapshot.setName(this.name);
         snapshot.setFirstName(this.person.getFirstName());
         snapshot.setLastName(this.person.getLastName());
@@ -69,8 +82,17 @@ public class User {
         return snapshot;
     }
 
-    public String getId() {
+    private static String checkId(String id) throws BusinessException {
+        if (isNullOrEmpty(id)) {
+            throw new BusinessException("User Id must not be empty");
+        }
         return id;
+    }
+    private static String checkName(String name) throws BusinessException {
+        if (isNullOrEmpty(name)) {
+            throw new BusinessException("User Name must not be empty");
+        }
+        return name;
     }
 
     public String getName() {
@@ -105,19 +127,6 @@ public class User {
         return password.getPassword();
     }
 
-    private void setId(String id) throws BusinessException {
-        if (isNullOrEmpty(id)) {
-            throw new BusinessException("User Id must not be empty");
-        }
-        this.id = id;
-    }
-    private void setName(String name) throws BusinessException {
-        if (isNullOrEmpty(name)) {
-            throw new BusinessException("User Name must not be empty");
-        }
-        this.name = name;
-    }
-
     private void setTeamId(String teamId) {
         this.teamId = teamId;
     }
@@ -140,19 +149,6 @@ public class User {
             throw new BusinessException("User password must not be empty");
         }
         this.password = Password.encrypt(password);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof User)) return false;
-        User user = (User) o;
-        return Objects.equals(id, user.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 
     @SuppressWarnings("WeakerAccess")

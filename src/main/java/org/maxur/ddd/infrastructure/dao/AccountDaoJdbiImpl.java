@@ -34,7 +34,7 @@ public abstract class AccountDaoJdbiImpl implements GetHandle, AccountDao {
     @Transaction
     public void delete(User user, Team team) {
         final Handle handle = getHandle();
-        handle.attach(UserDaoJdbiImpl.class).delete(user.getId());
+        handle.attach(UserDaoJdbiImpl.class).delete(user.getId().asString());
         handle.attach(TeamDaoJdbiImpl.class).update(team.getSnapshot());
     }
 

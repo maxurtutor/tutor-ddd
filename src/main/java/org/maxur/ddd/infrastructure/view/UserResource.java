@@ -10,6 +10,7 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
+import static org.maxur.ddd.domain.User.oldUser;
 
 /**
  * @author myunusov
@@ -32,7 +33,8 @@ public class UserResource {
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     public UserDto add(UserDto dto) throws BusinessException {
-        return UserDto.from(service.create(dto.assemble()));
+
+        return UserDto.from(service.create(dto.name, dto.firstName, dto.lastName, dto.email, dto.teamId));
     }
 
     @Timed
@@ -49,7 +51,7 @@ public class UserResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Boolean update(@PathParam("id") String id, UserDto dto) throws BusinessException {
-        service.update(dto.assemble());
+        service.update(id, oldUser(dto.id, dto.name, dto.firstName, dto.lastName, dto.email, dto.teamId));
         return true;
     }
 

@@ -37,6 +37,10 @@ public interface TeamDaoJdbiImpl extends TeamDao {
             "WHERE team_id = :id;\n")
     void update(@BindBean Team.Snapshot team);
 
+    @Override
+    @SqlUpdate ("INSERT INTO t_team (team_id, team_name, max_capacity) VALUES (:id, :name, :maxCapacity);")
+    void insert(@BindBean Team.Snapshot team);
+
     class Mapper implements ResultSetMapper<Team> {
         public Team map(int index, ResultSet r, StatementContext ctx) throws SQLException {
             final Team.Snapshot snapshot = new Team.Snapshot();

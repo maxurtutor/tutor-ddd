@@ -1,10 +1,7 @@
 package org.maxur.ddd.infrastructure.view;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.maxur.ddd.domain.BusinessException;
 import org.maxur.ddd.domain.User;
-
-import static org.maxur.ddd.domain.User.make;
 
 /**
  * @author myunusov
@@ -38,13 +35,9 @@ public class UserDto {
     @JsonProperty
     public String password;
 
-    public User assemble() throws BusinessException {
-        return make(id, name, firstName, lastName, email, teamId);
-    }
-
     public static UserDto from(User user) {
         final UserDto result = new UserDto();
-        result.id = user.getId();
+        result.id = user.getId().asString();
         result.name = user.getName();
         result.firstName = user.getFirstName();
         result.lastName = user.getLastName();

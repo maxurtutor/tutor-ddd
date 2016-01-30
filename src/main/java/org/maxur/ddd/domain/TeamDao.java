@@ -1,7 +1,5 @@
 package org.maxur.ddd.domain;
 
-import org.maxur.ddd.domain.Team;
-
 /**
  * @author myunusov
  * @version 1.0
@@ -12,4 +10,6 @@ public interface TeamDao {
     Team findById(String id);
 
     void update(Team.Snapshot team);
+
+    void insert(Team.Snapshot team);
 }

@@ -11,6 +11,7 @@ import java.util.function.BiConsumer;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
+import static org.maxur.ddd.domain.User.newUser;
 
 /**
  * @author myunusov
@@ -34,8 +35,7 @@ public class AccountService {
             UserDao userDao,
             TeamDao teamDao,
             AccountDao accountDao,
-            MailService mailService,
-            ServiceLocatorProvider provider
+            MailService mailService
     ) {
         this.userDao = userDao;
         this.teamDao = teamDao;
@@ -51,11 +51,22 @@ public class AccountService {
         return userDao.findAll();
     }
 
-    public User create(User user) throws BusinessException {
+    public User create(
+            String name, String firstName, String lastName, String email, String teamId
+    ) throws BusinessException {
+        User user = newUser(name, firstName, lastName, email, teamId);
         Team team = getTeam(user.getTeamId());
         User result = user.create(team);
         modify(user, team, accountDao::save);
         sendMessage(format("Welcome to team '%s' !", result.getTeamName()), result);
+        return result;
+    }
+
+    public Entity update(String id, User user) throws BusinessException {
+        Team team = getTeam(user.getTeamId());
+        User result = user.update(getUser(user.getId().asString()), team);
+        modify(user, team, accountDao::update);
+        sendMessage(String.format("Welcome to team '%s' !", result.getTeamName()), result);
         return result;
     }
 
@@ -64,14 +75,6 @@ public class AccountService {
         Team team = getTeam(user.getTeamId());
         modify(user, team, accountDao::delete);
         sendMessage("Good by!", user);
-    }
-
-    public User update(User user) throws BusinessException {
-        Team team = getTeam(user.getTeamId());
-        User result = user.update(getUser(user.getId()), team);
-        modify(user, team, accountDao::update);
-        sendMessage(String.format("Welcome to team '%s' !", result.getTeamName()), result);
-        return result;
     }
 
     public void changePassword(String id, String password) throws BusinessException {

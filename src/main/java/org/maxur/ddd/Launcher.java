@@ -13,12 +13,12 @@ import io.dropwizard.lifecycle.setup.LifecycleEnvironment;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.glassfish.hk2.api.Factory;
+import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.hk2.api.ServiceLocatorFactory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.servlet.ServletProperties;
 import org.h2.tools.RunScript;
-import org.maxur.ddd.domain.AccountDao;
-import org.maxur.ddd.domain.ServiceLocatorProvider;
-import org.maxur.ddd.domain.TeamDao;
-import org.maxur.ddd.domain.UserDao;
+import org.maxur.ddd.domain.*;
 import org.maxur.ddd.infrastructure.dao.AccountDaoJdbiImpl;
 import org.maxur.ddd.infrastructure.dao.TeamDaoJdbiImpl;
 import org.maxur.ddd.infrastructure.dao.UserDaoJdbiImpl;
@@ -26,7 +26,9 @@ import org.maxur.ddd.infrastructure.mail.MailServiceJavaxImpl;
 import org.maxur.ddd.infrastructure.view.BusinessExceptionHandler;
 import org.maxur.ddd.infrastructure.view.RuntimeExceptionHandler;
 import org.maxur.ddd.infrastructure.view.UserResource;
-import org.maxur.ddd.service.*;
+import org.maxur.ddd.service.AccountService;
+import org.maxur.ddd.service.MailService;
+import org.maxur.ddd.service.PlanningService;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 
@@ -39,6 +41,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.sql.SQLException;
+
+import static org.glassfish.hk2.utilities.ServiceLocatorUtilities.bind;
 
 /**
  * @author myunusov
@@ -66,21 +70,37 @@ public class Launcher extends Application<Launcher.AppConfiguration> {
         JmxReporter.forRegistry(env.metrics()).build().start();
         DBI dbi = makeDBI(cfg, env);
         final MailService sender = new MailServiceJavaxImpl("nobody@mail.org");
-        AbstractBinder binder = makeBinder(env, dbi, sender);
-        initRest(env.jersey(), binder);
+
+        final ServiceLocatorFactory locatorFactory = ServiceLocatorFactory.getInstance();
+        final ServiceLocator locator = locatorFactory.create("TdddLocator");
+        new ServiceLocatorProvider(locator);
+        bind(locator, makeBinder(dbi, sender, env.lifecycle()));
+        env.getApplicationContext().getAttributes().setAttribute(ServletProperties.SERVICE_LOCATOR, locator);
+
+        initRest(env.jersey());
+        loadData(locator);
+    }
+
+    private void loadData(ServiceLocator locator) {
+        AccountService accountService = locator.getService(AccountService.class);
+        PlanningService planningService = locator.getService(PlanningService.class);
+        try {
+            Team tddd = planningService.createTeam("T_DDD", 5);
+            Team tcqrs = planningService.createTeam("T_CQRS", 3);
+            accountService.create("iv", "Ivan", "Ivanov", "ivan@mail.com", tddd.getId().toString());
+            accountService.create("petr", "Petr", "Petrov", "petr@mail.com", tddd.getId().toString());
+            accountService.create("sidor", "Sidor", "Sidorov", "sidor@mail.com", tcqrs.getId().toString());
+        } catch (BusinessException e) {
+            e.printStackTrace();
+        }
     }
 
     private DBI makeDBI(AppConfiguration cfg, Environment env) throws IOException, SQLException {
         DBI dbi = new DBIFactory().build(env, cfg.getDataSourceFactory(), "db");
-        initDB(dbi);
-        return dbi;
-    }
-
-    private void initDB(DBI dbi) throws IOException, SQLException {
         try (Handle h = dbi.open()) {
             runScript(h, "/db.ddl");
-            runScript(h, "/test.dml");
         }
+        return dbi;
     }
 
     private void runScript(Handle h, String script) throws IOException, SQLException {
@@ -92,13 +112,14 @@ public class Launcher extends Application<Launcher.AppConfiguration> {
         }
     }
 
-    private AbstractBinder makeBinder(Environment env, DBI dbi, MailService sender) {
+    private AbstractBinder makeBinder(DBI dbi, MailService sender, LifecycleEnvironment lifecycle) {
+
         return new AbstractBinder() {
             @Override
             protected void configure() {
-                bind(env.lifecycle()).to(LifecycleEnvironment.class);
-                bind(ServiceLocatorProvider.class).to(ServiceLocatorProvider.class).in(Singleton.class);
+                bind(lifecycle).to(LifecycleEnvironment.class);
                 bind(AccountService.class).to(AccountService.class).in(Singleton.class);
+                bind(PlanningService.class).to(PlanningService.class).in(Singleton.class);
                 bindFactory(daoFactory(dbi, AccountDaoJdbiImpl.class)).to(AccountDao.class);
                 bindFactory(daoFactory(dbi, UserDaoJdbiImpl.class)).to(UserDao.class);
                 bindFactory(daoFactory(dbi, TeamDaoJdbiImpl.class)).to(TeamDao.class);
@@ -111,11 +132,10 @@ public class Launcher extends Application<Launcher.AppConfiguration> {
         return new DaoFactory<>(dbi, jdbiClass);
     }
 
-    private void initRest(JerseyEnvironment jersey, AbstractBinder binder) {
+    private void initRest(JerseyEnvironment jersey) {
         jersey.register(RuntimeExceptionHandler.class);
         jersey.register(BusinessExceptionHandler.class);
         jersey.packages(UserResource.class.getPackage().getName());
-        jersey.register(binder);
     }
 
     static class AppConfiguration extends Configuration {
