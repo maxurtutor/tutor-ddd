@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
@@ -45,27 +46,54 @@ public class AccountService {
     }
 
     public User create(User user) throws BusinessException {
-        final User result = user.create(userDao, teamDao, accountDao);
+        Team team = getTeam(user.getTeamId());
+        User result = user.create(team, userDao);
+        modify(user, team, accountDao::save);
         sendMessage(format("Welcome to team '%s' !", result.getTeamName()), result);
         return result;
     }
 
     public void delete(String id) throws BusinessException {
-        final User user = getUser(id);
-        user.delete(teamDao, accountDao);
+        User user = getUser(id);
+        Team team = getTeam(user.getTeamId());
+        modify(user, team, accountDao::delete);
         sendMessage("Good by!", user);
     }
 
     public User update(User user) throws BusinessException {
-        final User result = user.update(getUser(user.getId()), userDao, teamDao, accountDao);
+        Team team = getTeam(user.getTeamId());
+        User result = user.update(getUser(user.getId()), team, userDao);
+        modify(user, team, accountDao::update);
         sendMessage(String.format("Welcome to team '%s' !", result.getTeamName()), result);
         return result;
     }
 
     public void changePassword(String id, String password) throws BusinessException {
         final User user = getUser(id);
-        user.changePassword(password, userDao, mailService);
+        user.changePassword(password);
+        try {
+            userDao.changePassword(id, user.getEncryptedPassword());
+        } catch (RuntimeException e) {
+            throw new BusinessException("Constrains violations");
+        }
         sendMessage("You password has been changed", user);
+    }
+
+    private void modify(User user, Team team, BiConsumer<User, Team> consumer) throws BusinessException {
+        try {
+            consumer.accept(user, team);
+        } catch (RuntimeException e) {
+            throw new BusinessException("Constrains violations");
+        }
+    }
+
+    private void sendMessage(String message, User user) throws NotificationException {
+        Mail mail = new Mail("TDDD System Notification", message, user.getEmail());
+        try {
+            mailService.send(mail);
+        } catch (MessagingException e) {
+            logger.error("Unable to send email: " + e.getMessage());
+        }
     }
 
     private User getUser(String id) throws BusinessException {
@@ -79,13 +107,12 @@ public class AccountService {
         return user;
     }
 
-    private void sendMessage(String message, User user) throws NotificationException {
-        Mail mail = new Mail("TDDD System Notification", message, user.getEmail());
-        try {
-            mailService.send(mail);
-        } catch (MessagingException e) {
-            logger.error("Unable to send email: " + e.getMessage());
+    private Team getTeam(String teamId) throws NotFoundException {
+        Team team = teamDao.findById(teamId);
+        if (team == null) {
+            throw new NotFoundException("Team", teamId);
         }
+        return team;
     }
 
 

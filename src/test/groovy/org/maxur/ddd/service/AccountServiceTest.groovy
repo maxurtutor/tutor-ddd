@@ -204,7 +204,7 @@ class AccountServiceTest extends Specification {
         1 * teamDao.findById("teamId") >> team
         1 * userDao.findById("id") >> user
         and: "User deleted"
-        1 * accountDao.delete("id", team)
+        1 * accountDao.delete(user, team)
         and: "System sends notification"
         1 * mailService.send(_)
     }

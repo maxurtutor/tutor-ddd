@@ -2,7 +2,6 @@ package org.maxur.ddd.service;
 
 import org.maxur.ddd.domain.Team;
 import org.maxur.ddd.domain.User;
-import org.skife.jdbi.v2.sqlobject.Transaction;
 
 /**
  * @author myunusov
@@ -15,5 +14,5 @@ public interface AccountDao {
 
     void update(User user, Team team);
 
-    void delete(String id, Team team);
+    void delete(User user, Team team);
 }

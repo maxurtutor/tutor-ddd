@@ -1,8 +1,5 @@
 package org.maxur.ddd.domain;
 
-import org.maxur.ddd.service.AccountDao;
-import org.maxur.ddd.service.MailService;
-import org.maxur.ddd.service.TeamDao;
 import org.maxur.ddd.service.UserDao;
 
 import java.math.BigInteger;
@@ -18,7 +15,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
  * @version 1.0
  * @since <pre>04.11.2015</pre>
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings("unused")
 public class User {
 
     private static final String EMAIL_PATTERN =
@@ -151,49 +148,26 @@ public class User {
         return encryptedPassword;
     }
 
-    public User create(UserDao userDao, TeamDao teamDao, AccountDao accountDao) throws BusinessException {
-        Team team = getTeam(teamDao);
+    public User create(Team team, UserDao userDao) throws BusinessException {
         team.checkTeamCapacity(userDao);
-        try {
-            accountDao.save(this, team);
-        } catch (RuntimeException e) {
-            throw new BusinessException("Constrains violations");
-        }
         this.encryptedPassword = encryptPassword();
         return this;
     }
 
-    public User update(User old, UserDao userDao, TeamDao teamDao, AccountDao accountDao) throws BusinessException {
-        Team team = getTeam(teamDao);
+    public User update(User old, Team team, UserDao userDao) throws BusinessException {
         if (!old.getTeamId().equals(teamId)) {
             team.checkTeamCapacity(userDao);
         }
-        try {
-            accountDao.update(this, team);
-        } catch (RuntimeException e) {
-            throw new BusinessException("Constrains violations");
-        }
         this.encryptedPassword = encryptPassword();
         return this;
     }
 
-    public void delete(TeamDao teamDao, AccountDao accountDao) throws BusinessException {
-        final String teamId = getTeamId();
-        Team team = getTeam(teamDao);
-        try {
-            accountDao.delete(id, team);
-        } catch (RuntimeException e) {
-            throw new BusinessException("Constrains violations");
-        }
-    }
-
-    public void changePassword(String password, UserDao userDao, MailService mailService) throws BusinessException {
+    public void changePassword(String password) throws BusinessException {
         if (isNullOrEmpty(password)) {
             throw new BusinessException("User password must not be empty");
         }
         this.password = password;
         this.encryptedPassword = encryptPassword();
-        userDao.changePassword(getId(), this.encryptedPassword);
     }
 
     private String encryptPassword() {
@@ -217,11 +191,4 @@ public class User {
         return hashtext;
     }
 
-    private Team getTeam(TeamDao teamDao) throws NotFoundException {
-        Team team = teamDao.findById(this.teamId);
-        if (team == null) {
-            throw new NotFoundException("Team", this.teamId);
-        }
-        return team;
-    }
 }
