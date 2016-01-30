@@ -78,7 +78,7 @@ public class AccountService {
         final User user = getUser(id);
         user.changePassword(password);
         try {
-            userDao.changePassword(id, user.getEncryptedPassword());
+            userDao.changePassword(id, user.getPassword());
         } catch (RuntimeException e) {
             throw new BusinessException("Constrains violations");
         }

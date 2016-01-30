@@ -1,10 +1,6 @@
 package org.maxur.ddd.domain;
 
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Objects;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
@@ -16,55 +12,47 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 @SuppressWarnings("unused")
 public class User {
 
-    private static final String EMAIL_PATTERN =
-            "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
-                    + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+    private final Person person;
 
-    private static final Pattern PATTERN = Pattern.compile(EMAIL_PATTERN);
+    private final EmailAddress emailAddress;
+
+    private Password password;
 
     private String id;
 
     private String name;
 
-    private String firstName;
-
-    private String lastName;
-
-    private String email;
-
     private String teamId;
 
     private String teamName;
 
-    private String password;
-
-    private String encryptedPassword;
-
-    private User() {
+    private User(Person person, Password password, EmailAddress emailAddress) {
+        this.emailAddress = emailAddress;
+        this.password = password;
+        this.person = person;
     }
 
     public static User make(
             String id, String name, String firstName, String lastName, String email, String teamId
     ) throws BusinessException {
-        final User user = new User();
+        final Person person = Person.make(firstName, lastName);
+        final EmailAddress emailAddress = EmailAddress.make(email);
+        final Password password = Password.empty();
+        final User user = new User(person, password, emailAddress);
         user.setId(id);
         user.setName(name);
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
-        user.setEmail(email);
         user.setTeamId(teamId);
         return user;
     }
 
     public static User restore(Snapshot snapshot) throws BusinessException {
-        final User user = new User();
+        final Person person = Person.make(snapshot.firstName, snapshot.lastName);
+        final EmailAddress emailAddress = EmailAddress.make(snapshot.email);
+        final Password password = Password.restore(snapshot.password);
+        final User user = new User(person, password, emailAddress);
         user.setId(snapshot.getId());
         user.setName(snapshot.getName());
-        user.setFirstName(snapshot.getFirstName());
-        user.setLastName(snapshot.getLastName());
-        user.setEmail(snapshot.getEmail());
         user.setTeamId(snapshot.getTeamId());
-        user.setEncryptedPassword(snapshot.getPassword());
         return user;
     }
 
@@ -72,61 +60,17 @@ public class User {
         final Snapshot snapshot = new Snapshot();
         snapshot.setId(this.id);
         snapshot.setName(this.name);
-        snapshot.setFirstName(this.firstName);
-        snapshot.setLastName(this.lastName);
-        snapshot.setEmail(this.email);
+        snapshot.setFirstName(this.person.getFirstName());
+        snapshot.setLastName(this.person.getLastName());
+        snapshot.setEmail(this.emailAddress.getEmail());
         snapshot.setTeamId(this.teamId);
         snapshot.setTeamName(this.teamName);
-        snapshot.setPassword(this.encryptedPassword);
+        snapshot.setPassword(this.password.getPassword());
         return snapshot;
     }
 
     public String getId() {
         return id;
-    }
-    private void setId(String id) throws BusinessException {
-        if (isNullOrEmpty(id)) {
-            throw new BusinessException("User Id must not be empty");
-        }
-        this.id = id;
-    }
-    private void setName(String name) throws BusinessException {
-        if (isNullOrEmpty(name)) {
-            throw new BusinessException("User Name must not be empty");
-        }
-        this.name = name;
-    }
-    private void setFirstName(String firstName) throws BusinessException {
-        if (isNullOrEmpty(firstName)) {
-            throw new BusinessException("User First Name must not be empty");
-        }
-        this.firstName = firstName;
-    }
-    private void setLastName(String lastName) throws BusinessException {
-        if (isNullOrEmpty(lastName)) {
-            throw new BusinessException("User Last Name must not be empty");
-        }
-        this.lastName = lastName;
-    }
-    private void setEmail(String email) throws BusinessException {
-        if (isNullOrEmpty(email)) {
-            throw new BusinessException("User Email must not be empty");
-        }
-        Matcher matcher = PATTERN.matcher(email);
-        if (!matcher.matches()) {
-            throw new BusinessException("User Email is invalid");
-        }
-        this.email = email;
-    }
-    private void setTeamId(String teamId) {
-        this.teamId = teamId;
-    }
-    private void setPassword(String password) {
-        this.password = password;
-    }
-
-    private void setEncryptedPassword(String encryptedPassword) {
-        this.encryptedPassword = encryptedPassword;
     }
 
     public String getName() {
@@ -134,15 +78,15 @@ public class User {
     }
 
     public String getFirstName() {
-        return firstName;
+        return person.getFirstName();
     }
 
     public String getLastName() {
-        return lastName;
+        return person.getLastName();
     }
 
     public String getEmail() {
-        return email;
+        return emailAddress.getEmail();
     }
 
     public String getTeamId() {
@@ -158,16 +102,29 @@ public class User {
     }
 
     public String getPassword() {
-        return password;
+        return password.getPassword();
     }
 
-    public String getEncryptedPassword() {
-        return encryptedPassword;
+    private void setId(String id) throws BusinessException {
+        if (isNullOrEmpty(id)) {
+            throw new BusinessException("User Id must not be empty");
+        }
+        this.id = id;
     }
+    private void setName(String name) throws BusinessException {
+        if (isNullOrEmpty(name)) {
+            throw new BusinessException("User Name must not be empty");
+        }
+        this.name = name;
+    }
+
+    private void setTeamId(String teamId) {
+        this.teamId = teamId;
+    }
+
 
     public User create(Team team) throws BusinessException {
         team.checkTeamCapacity();
-        this.encryptedPassword = encryptPassword();
         return this;
     }
 
@@ -175,7 +132,6 @@ public class User {
         if (!old.getTeamId().equals(teamId)) {
             team.checkTeamCapacity();
         }
-        this.encryptedPassword = encryptPassword();
         return this;
     }
 
@@ -183,31 +139,23 @@ public class User {
         if (isNullOrEmpty(password)) {
             throw new BusinessException("User password must not be empty");
         }
-        this.password = password;
-        this.encryptedPassword = encryptPassword();
+        this.password = Password.encrypt(password);
     }
 
-    private String encryptPassword() {
-        if (this.password == null) {
-            return null;
-        }
-        MessageDigest messageDigest;
-        try {
-            messageDigest = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException(e);
-        }
-        messageDigest.reset();
-        messageDigest.update(this.password.getBytes());
-        byte[] digest = messageDigest.digest();
-        BigInteger bigInt = new BigInteger(1, digest);
-        String hashtext = bigInt.toString(16);
-        while(hashtext.length() < 32 ){
-            hashtext = "0" + hashtext;
-        }
-        return hashtext;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @SuppressWarnings("WeakerAccess")
     public static class Snapshot {
         private String id;
         private String name;

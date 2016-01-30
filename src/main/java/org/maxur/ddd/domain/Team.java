@@ -65,6 +65,20 @@ public class Team {
         return snapshot;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Team)) return false;
+        Team team = (Team) o;
+        return Objects.equals(id, team.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @SuppressWarnings("WeakerAccess")
     public static class Snapshot {
         private String id;
         private String name;
