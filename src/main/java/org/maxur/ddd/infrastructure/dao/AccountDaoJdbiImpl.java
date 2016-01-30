@@ -18,16 +18,16 @@ public abstract class AccountDaoJdbiImpl implements GetHandle, AccountDao {
     @Transaction
     public void save(User user, Team team) {
         final Handle handle = getHandle();
-        handle.attach(UserDaoJdbiImpl.class).insert(user);
-        handle.attach(TeamDaoJdbiImpl.class).update(team);
+        handle.attach(UserDaoJdbiImpl.class).insert(user.getSnapshot());
+        handle.attach(TeamDaoJdbiImpl.class).update(team.getSnapshot());
     }
 
     @Override
     @Transaction
     public void update(User user, Team team) {
         final Handle handle = getHandle();
-        handle.attach(UserDaoJdbiImpl.class).update(user);
-        handle.attach(TeamDaoJdbiImpl.class).update(team);
+        handle.attach(UserDaoJdbiImpl.class).update(user.getSnapshot());
+        handle.attach(TeamDaoJdbiImpl.class).update(team.getSnapshot());
     }
 
     @Override
@@ -35,7 +35,7 @@ public abstract class AccountDaoJdbiImpl implements GetHandle, AccountDao {
     public void delete(User user, Team team) {
         final Handle handle = getHandle();
         handle.attach(UserDaoJdbiImpl.class).delete(user.getId());
-        handle.attach(TeamDaoJdbiImpl.class).update(team);
+        handle.attach(TeamDaoJdbiImpl.class).update(team.getSnapshot());
     }
 
 }

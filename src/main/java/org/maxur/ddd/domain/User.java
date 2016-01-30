@@ -42,7 +42,7 @@ public class User {
 
     private String encryptedPassword;
 
-    public User() {
+    private User() {
     }
 
     public static User make(
@@ -58,38 +58,59 @@ public class User {
         return user;
     }
 
+    public static User restore(Snapshot snapshot) throws BusinessException {
+        final User user = new User();
+        user.setId(snapshot.id);
+        user.setName(snapshot.name);
+        user.setFirstName(snapshot.firstName);
+        user.setLastName(snapshot.lastName);
+        user.setEmail(snapshot.email);
+        user.setTeamId(snapshot.teamId);
+        user.setEncryptedPassword(snapshot.password);
+        return user;
+    }
+
+    public Snapshot getSnapshot() {
+        final Snapshot snapshot = new Snapshot();
+        snapshot.id = this.id;
+        snapshot.name = this.name;
+        snapshot.firstName = this.firstName;
+        snapshot.lastName = this.lastName;
+        snapshot.email = this.email;
+        snapshot.teamId = this.teamId;
+        snapshot.teamName = this.teamName;
+        snapshot.password = this.encryptedPassword;
+        return snapshot;
+    }
+
     public String getId() {
         return id;
     }
-
-    public void setId(String id) throws BusinessException {
+    private void setId(String id) throws BusinessException {
         if (isNullOrEmpty(id)) {
             throw new BusinessException("User Id must not be empty");
         }
         this.id = id;
     }
-
-    public void setName(String name) throws BusinessException {
+    private void setName(String name) throws BusinessException {
         if (isNullOrEmpty(name)) {
-            throw new BusinessException("User Id must not be empty");
+            throw new BusinessException("User Name must not be empty");
         }
         this.name = name;
     }
-    public void setFirstName(String firstName) throws BusinessException {
+    private void setFirstName(String firstName) throws BusinessException {
         if (isNullOrEmpty(firstName)) {
             throw new BusinessException("User First Name must not be empty");
         }
         this.firstName = firstName;
     }
-
-    public void setLastName(String lastName) throws BusinessException {
+    private void setLastName(String lastName) throws BusinessException {
         if (isNullOrEmpty(lastName)) {
             throw new BusinessException("User Last Name must not be empty");
         }
         this.lastName = lastName;
     }
-
-    public void setEmail(String email) throws BusinessException {
+    private void setEmail(String email) throws BusinessException {
         if (isNullOrEmpty(email)) {
             throw new BusinessException("User Email must not be empty");
         }
@@ -99,16 +120,14 @@ public class User {
         }
         this.email = email;
     }
-
-    public void setTeamId(String teamId) {
+    private void setTeamId(String teamId) {
         this.teamId = teamId;
     }
-
-    public void setPassword(String password) {
+    private void setPassword(String password) {
         this.password = password;
     }
 
-    public void setEncryptedPassword(String encryptedPassword) {
+    private void setEncryptedPassword(String encryptedPassword) {
         this.encryptedPassword = encryptedPassword;
     }
 
@@ -191,4 +210,14 @@ public class User {
         return hashtext;
     }
 
+    public static class Snapshot {
+        public String id;
+        public String name;
+        public String firstName;
+        public String lastName;
+        public String email;
+        public String teamId;
+        public String teamName;
+        public String password;
+    }
 }

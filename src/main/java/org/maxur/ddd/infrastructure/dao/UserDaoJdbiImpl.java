@@ -32,7 +32,7 @@ public interface UserDaoJdbiImpl extends UserDao {
             "  password,\n" +
             "  team_id\n" +
             ") VALUES (:id, :name, :firstName, :lastName, :email, :encryptedPassword, :teamId)")
-    void insert(@BindBean User user);
+    void insert(@BindBean User.Snapshot user);
 
     @SqlUpdate("DELETE FROM t_user\n" +
             "WHERE user_id = :id")
@@ -47,7 +47,7 @@ public interface UserDaoJdbiImpl extends UserDao {
             "  team_id = :teamId\n" +
             "WHERE\n" +
             "  user_id = :id")
-    void update(@BindBean User user);
+    void update(@BindBean User.Snapshot  user);
 
     @SqlUpdate("UPDATE t_user SET    \n" +
             "  password = :password \n" +
@@ -73,20 +73,20 @@ public interface UserDaoJdbiImpl extends UserDao {
 
     class Mapper implements ResultSetMapper<User> {
         public User map(int index, ResultSet r, StatementContext ctx) throws SQLException {
-            final User user = new User();
+            User.Snapshot snapshot = new User.Snapshot();
+            snapshot.id = r.getString("user_id");
+            snapshot.name = r.getString("user_name");
+            snapshot.firstName = r.getString("first_name");
+            snapshot.lastName = r.getString("last_name");
+            snapshot.email = r.getString("email");
+            snapshot.teamId = r.getString("team_id");
+            snapshot.teamName = r.getString("team_name");
+            snapshot.password = r.getString("password");
             try {
-                user.setId(r.getString("user_id"));
-                user.setName(r.getString("user_name"));
-                user.setFirstName(r.getString("first_name"));
-                user.setLastName(r.getString("last_name"));
-                user.setEmail(r.getString("email"));
+                return User.restore(snapshot);
             } catch (BusinessException e) {
                 throw new IllegalStateException(e);
             }
-            user.setTeamId(r.getString("team_id"));
-            user.setTeamName(r.getString("team_name"));
-            user.setPassword(r.getString("password"));
-            return user;
         }
     }
 
