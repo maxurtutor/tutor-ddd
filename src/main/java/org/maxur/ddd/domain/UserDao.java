@@ -1,6 +1,4 @@
-package org.maxur.ddd.service;
-
-import org.maxur.ddd.domain.User;
+package org.maxur.ddd.domain;
 
 import java.util.List;
 

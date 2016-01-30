@@ -30,7 +30,13 @@ public class AccountService {
     private final MailService mailService;
 
     @Inject
-    public AccountService(UserDao userDao, TeamDao teamDao, AccountDao accountDao, MailService mailService) {
+    public AccountService(
+            UserDao userDao,
+            TeamDao teamDao,
+            AccountDao accountDao,
+            MailService mailService,
+            ServiceLocatorProvider provider
+    ) {
         this.userDao = userDao;
         this.teamDao = teamDao;
         this.accountDao = accountDao;
@@ -47,7 +53,7 @@ public class AccountService {
 
     public User create(User user) throws BusinessException {
         Team team = getTeam(user.getTeamId());
-        User result = user.create(team, userDao);
+        User result = user.create(team);
         modify(user, team, accountDao::save);
         sendMessage(format("Welcome to team '%s' !", result.getTeamName()), result);
         return result;
@@ -62,7 +68,7 @@ public class AccountService {
 
     public User update(User user) throws BusinessException {
         Team team = getTeam(user.getTeamId());
-        User result = user.update(getUser(user.getId()), team, userDao);
+        User result = user.update(getUser(user.getId()), team);
         modify(user, team, accountDao::update);
         sendMessage(String.format("Welcome to team '%s' !", result.getTeamName()), result);
         return result;
@@ -83,11 +89,12 @@ public class AccountService {
         try {
             consumer.accept(user, team);
         } catch (RuntimeException e) {
+            logger.error("Unable to modify data: " + e.getMessage());
             throw new BusinessException("Constrains violations");
         }
     }
 
-    private void sendMessage(String message, User user) throws NotificationException {
+    private void sendMessage(String message, User user) {
         Mail mail = new Mail("TDDD System Notification", message, user.getEmail());
         try {
             mailService.send(mail);

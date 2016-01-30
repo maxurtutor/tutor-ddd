@@ -15,15 +15,18 @@ import io.dropwizard.setup.Environment;
 import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.h2.tools.RunScript;
-
+import org.maxur.ddd.domain.AccountDao;
+import org.maxur.ddd.domain.ServiceLocatorProvider;
+import org.maxur.ddd.domain.TeamDao;
+import org.maxur.ddd.domain.UserDao;
 import org.maxur.ddd.infrastructure.dao.AccountDaoJdbiImpl;
 import org.maxur.ddd.infrastructure.dao.TeamDaoJdbiImpl;
 import org.maxur.ddd.infrastructure.dao.UserDaoJdbiImpl;
-import org.maxur.ddd.service.*;
 import org.maxur.ddd.infrastructure.mail.MailServiceJavaxImpl;
+import org.maxur.ddd.infrastructure.view.BusinessExceptionHandler;
 import org.maxur.ddd.infrastructure.view.RuntimeExceptionHandler;
 import org.maxur.ddd.infrastructure.view.UserResource;
-import org.maxur.ddd.infrastructure.view.BusinessExceptionHandler;
+import org.maxur.ddd.service.*;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 
@@ -94,6 +97,7 @@ public class Launcher extends Application<Launcher.AppConfiguration> {
             @Override
             protected void configure() {
                 bind(env.lifecycle()).to(LifecycleEnvironment.class);
+                bind(ServiceLocatorProvider.class).to(ServiceLocatorProvider.class).in(Singleton.class);
                 bind(AccountService.class).to(AccountService.class).in(Singleton.class);
                 bindFactory(daoFactory(dbi, AccountDaoJdbiImpl.class)).to(AccountDao.class);
                 bindFactory(daoFactory(dbi, UserDaoJdbiImpl.class)).to(UserDao.class);

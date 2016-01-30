@@ -2,7 +2,7 @@ package org.maxur.ddd.infrastructure.dao;
 
 import org.maxur.ddd.domain.BusinessException;
 import org.maxur.ddd.domain.User;
-import org.maxur.ddd.service.UserDao;
+import org.maxur.ddd.domain.UserDao;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.BindBean;
@@ -31,7 +31,7 @@ public interface UserDaoJdbiImpl extends UserDao {
             "  email, \n" +
             "  password,\n" +
             "  team_id\n" +
-            ") VALUES (:id, :name, :firstName, :lastName, :email, :encryptedPassword, :teamId)")
+            ") VALUES (:id, :name, :firstName, :lastName, :email, :password, :teamId)")
     void insert(@BindBean User.Snapshot user);
 
     @SqlUpdate("DELETE FROM t_user\n" +
@@ -43,7 +43,7 @@ public interface UserDaoJdbiImpl extends UserDao {
             "  first_name = :firstName, \n" +
             "  last_name = :lastName, \n" +
             "  email = :email, \n" +
-            "  password = :encryptedPassword, \n" +
+            "  password = :password, \n" +
             "  team_id = :teamId\n" +
             "WHERE\n" +
             "  user_id = :id")
@@ -74,14 +74,14 @@ public interface UserDaoJdbiImpl extends UserDao {
     class Mapper implements ResultSetMapper<User> {
         public User map(int index, ResultSet r, StatementContext ctx) throws SQLException {
             User.Snapshot snapshot = new User.Snapshot();
-            snapshot.id = r.getString("user_id");
-            snapshot.name = r.getString("user_name");
-            snapshot.firstName = r.getString("first_name");
-            snapshot.lastName = r.getString("last_name");
-            snapshot.email = r.getString("email");
-            snapshot.teamId = r.getString("team_id");
-            snapshot.teamName = r.getString("team_name");
-            snapshot.password = r.getString("password");
+            snapshot.setId(r.getString("user_id"));
+            snapshot.setName(r.getString("user_name"));
+            snapshot.setFirstName(r.getString("first_name"));
+            snapshot.setLastName(r.getString("last_name"));
+            snapshot.setEmail(r.getString("email"));
+            snapshot.setTeamId(r.getString("team_id"));
+            snapshot.setTeamName(r.getString("team_name"));
+            snapshot.setPassword(r.getString("password"));
             try {
                 return User.restore(snapshot);
             } catch (BusinessException e) {

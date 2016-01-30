@@ -1,13 +1,12 @@
 package org.maxur.ddd.service
 
-import org.maxur.ddd.domain.BusinessException
-import org.maxur.ddd.domain.NotFoundException
-import org.maxur.ddd.domain.Team
-import org.maxur.ddd.domain.User
+import org.glassfish.hk2.api.ServiceLocator
+import org.maxur.ddd.domain.*
 import org.slf4j.Logger
 import spock.lang.Specification
 
 import javax.mail.MessagingException
+
 /**
  * @author myunusov
  * @version 1.0
@@ -35,14 +34,17 @@ class AccountServiceTest extends Specification {
 
     Logger logger
 
+    ServiceLocator locator
 
     void setup() {
+        locator = Mock(ServiceLocator)
+        new ServiceLocatorProvider(locator);
         mailService = Mock(MailService)
         teamDao = Mock(TeamDao)
         userDao = Mock(UserDao)
         accountDao = Mock(AccountDao)
         logger = Mock(Logger)
-        sut = new AccountService(userDao, teamDao, accountDao, mailService)
+        sut = new AccountService(userDao, teamDao, accountDao, mailService, ServiceLocatorProvider.instance)
         sut.logger = logger
         user = User.make("id", "name", "firstName", "lastName", "user@mail.org", "teamId")
         newUser = User.make("id", "name", "firstName", "lastName", "user@mail.org", "other_teamId")
@@ -118,6 +120,7 @@ class AccountServiceTest extends Specification {
         sut.create(user)
         then:
         1 * teamDao.findById("teamId") >> team
+        1 * locator.getService(UserDao) >> userDao
         1 * userDao.findCountByTeam("teamId") >> 1
         and: "System returns business error"
         thrown(BusinessException.class)
@@ -128,6 +131,7 @@ class AccountServiceTest extends Specification {
         sut.create(user)
         then:
         1 * teamDao.findById("teamId") >> team
+        1 * locator.getService(UserDao) >> userDao
         1 * userDao.findCountByTeam("teamId") >> 2
         1 * accountDao.save(user, team) >> {
             throw new RuntimeException()
@@ -141,6 +145,7 @@ class AccountServiceTest extends Specification {
         def created = sut.create(user)
         then:
         1 * teamDao.findById("teamId") >> team
+        1 * locator.getService(UserDao) >> userDao
         1 * userDao.findCountByTeam("teamId") >> 0
         and: "User Created"
         created != null
@@ -159,6 +164,7 @@ class AccountServiceTest extends Specification {
         def created = sut.create(user)
         then:
         1 * teamDao.findById("teamId") >> team
+        1 * locator.getService(UserDao) >> userDao
         1 * userDao.findCountByTeam("teamId") >> 0
         and: "User Created"
         created != null
@@ -188,6 +194,7 @@ class AccountServiceTest extends Specification {
         then:
         1 * userDao.findById("id") >> user
         1 * teamDao.findById("other_teamId") >> otherTeam
+        1 * locator.getService(UserDao) >> userDao
         1 * userDao.findCountByTeam("other_teamId") >> 0
         and: "User Updated"
         created != null

@@ -2,7 +2,7 @@ package org.maxur.ddd.infrastructure.dao;
 
 import org.maxur.ddd.domain.Team;
 import org.maxur.ddd.domain.User;
-import org.maxur.ddd.service.AccountDao;
+import org.maxur.ddd.domain.AccountDao;
 import org.skife.jdbi.v2.Handle;
 import org.skife.jdbi.v2.sqlobject.Transaction;
 import org.skife.jdbi.v2.sqlobject.mixins.GetHandle;

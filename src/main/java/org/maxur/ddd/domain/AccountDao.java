@@ -1,7 +1,4 @@
-package org.maxur.ddd.service;
-
-import org.maxur.ddd.domain.Team;
-import org.maxur.ddd.domain.User;
+package org.maxur.ddd.domain;
 
 /**
  * @author myunusov

@@ -1,7 +1,5 @@
 package org.maxur.ddd.domain;
 
-import org.maxur.ddd.service.UserDao;
-
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -60,26 +58,26 @@ public class User {
 
     public static User restore(Snapshot snapshot) throws BusinessException {
         final User user = new User();
-        user.setId(snapshot.id);
-        user.setName(snapshot.name);
-        user.setFirstName(snapshot.firstName);
-        user.setLastName(snapshot.lastName);
-        user.setEmail(snapshot.email);
-        user.setTeamId(snapshot.teamId);
-        user.setEncryptedPassword(snapshot.password);
+        user.setId(snapshot.getId());
+        user.setName(snapshot.getName());
+        user.setFirstName(snapshot.getFirstName());
+        user.setLastName(snapshot.getLastName());
+        user.setEmail(snapshot.getEmail());
+        user.setTeamId(snapshot.getTeamId());
+        user.setEncryptedPassword(snapshot.getPassword());
         return user;
     }
 
     public Snapshot getSnapshot() {
         final Snapshot snapshot = new Snapshot();
-        snapshot.id = this.id;
-        snapshot.name = this.name;
-        snapshot.firstName = this.firstName;
-        snapshot.lastName = this.lastName;
-        snapshot.email = this.email;
-        snapshot.teamId = this.teamId;
-        snapshot.teamName = this.teamName;
-        snapshot.password = this.encryptedPassword;
+        snapshot.setId(this.id);
+        snapshot.setName(this.name);
+        snapshot.setFirstName(this.firstName);
+        snapshot.setLastName(this.lastName);
+        snapshot.setEmail(this.email);
+        snapshot.setTeamId(this.teamId);
+        snapshot.setTeamName(this.teamName);
+        snapshot.setPassword(this.encryptedPassword);
         return snapshot;
     }
 
@@ -167,15 +165,15 @@ public class User {
         return encryptedPassword;
     }
 
-    public User create(Team team, UserDao userDao) throws BusinessException {
-        team.checkTeamCapacity(userDao);
+    public User create(Team team) throws BusinessException {
+        team.checkTeamCapacity();
         this.encryptedPassword = encryptPassword();
         return this;
     }
 
-    public User update(User old, Team team, UserDao userDao) throws BusinessException {
+    public User update(User old, Team team) throws BusinessException {
         if (!old.getTeamId().equals(teamId)) {
-            team.checkTeamCapacity(userDao);
+            team.checkTeamCapacity();
         }
         this.encryptedPassword = encryptPassword();
         return this;
@@ -211,13 +209,77 @@ public class User {
     }
 
     public static class Snapshot {
-        public String id;
-        public String name;
-        public String firstName;
-        public String lastName;
-        public String email;
-        public String teamId;
-        public String teamName;
-        public String password;
+        private String id;
+        private String name;
+        private String firstName;
+        private String lastName;
+        private String email;
+        private String teamId;
+        private String teamName;
+        private String password;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getFirstName() {
+            return firstName;
+        }
+
+        public void setFirstName(String firstName) {
+            this.firstName = firstName;
+        }
+
+        public String getLastName() {
+            return lastName;
+        }
+
+        public void setLastName(String lastName) {
+            this.lastName = lastName;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public String getTeamId() {
+            return teamId;
+        }
+
+        public void setTeamId(String teamId) {
+            this.teamId = teamId;
+        }
+
+        public String getTeamName() {
+            return teamName;
+        }
+
+        public void setTeamName(String teamName) {
+            this.teamName = teamName;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
     }
 }

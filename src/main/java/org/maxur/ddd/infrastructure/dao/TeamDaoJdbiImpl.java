@@ -2,7 +2,7 @@ package org.maxur.ddd.infrastructure.dao;
 
 import org.maxur.ddd.domain.BusinessException;
 import org.maxur.ddd.domain.Team;
-import org.maxur.ddd.service.TeamDao;
+import org.maxur.ddd.domain.TeamDao;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.BindBean;
@@ -40,9 +40,9 @@ public interface TeamDaoJdbiImpl extends TeamDao {
     class Mapper implements ResultSetMapper<Team> {
         public Team map(int index, ResultSet r, StatementContext ctx) throws SQLException {
             final Team.Snapshot snapshot = new Team.Snapshot();
-            snapshot.id = r.getString("team_id");
-            snapshot.name = r.getString("team_name");
-            snapshot.maxCapacity = r.getInt("max_capacity");
+            snapshot.setId(r.getString("team_id"));
+            snapshot.setName(r.getString("team_name"));
+            snapshot.setMaxCapacity(r.getInt("max_capacity"));
             try {
                 return Team.restore(snapshot);
             } catch (BusinessException e) {

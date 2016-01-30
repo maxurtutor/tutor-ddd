@@ -1,10 +1,9 @@
 package org.maxur.ddd.domain;
 
-import org.maxur.ddd.service.UserDao;
-
 import java.util.Objects;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.maxur.ddd.domain.ServiceLocatorProvider.service;
 
 /**
  * @author myunusov
@@ -24,9 +23,9 @@ public class Team {
 
     public static Team restore(Snapshot snapshot) throws BusinessException {
         final Team team = new Team();
-        team.setId(snapshot.id);
-        team.setName(snapshot.name);
-        team.setMaxCapacity(snapshot.maxCapacity);
+        team.setId(snapshot.getId());
+        team.setName(snapshot.getName());
+        team.setMaxCapacity(snapshot.getMaxCapacity());
         return team;
     }
 
@@ -51,8 +50,8 @@ public class Team {
         this.maxCapacity = maxCapacity;
     }
 
-    void checkTeamCapacity(UserDao userDao) throws BusinessException {
-        Integer count = userDao.findCountByTeam(id);
+    void checkTeamCapacity() throws BusinessException {
+        Integer count = service(UserDao.class).findCountByTeam(id);
         if (Objects.equals(count, maxCapacity)) {
             throw new BusinessException("The limit users in team is exceeded");
         }
@@ -60,15 +59,39 @@ public class Team {
 
     public Team.Snapshot getSnapshot() {
         final Snapshot snapshot = new Snapshot();
-        snapshot.id = this.id;
-        snapshot.name = this.name;
-        snapshot.maxCapacity = this.maxCapacity;
+        snapshot.setId(this.id);
+        snapshot.setName(this.name);
+        snapshot.setMaxCapacity(this.maxCapacity);
         return snapshot;
     }
 
     public static class Snapshot {
-        public String id;
-        public String name;
-        public Integer maxCapacity;
+        private String id;
+        private String name;
+        private Integer maxCapacity;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public Integer getMaxCapacity() {
+            return maxCapacity;
+        }
+
+        public void setMaxCapacity(Integer maxCapacity) {
+            this.maxCapacity = maxCapacity;
+        }
     }
 }
