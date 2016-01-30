@@ -2,13 +2,14 @@ package org.maxur.ddd.infrastructure.view;
 
 import com.codahale.metrics.annotation.Timed;
 import org.maxur.ddd.domain.BusinessException;
-import org.maxur.ddd.domain.User;
 import org.maxur.ddd.service.AccountService;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * @author myunusov
@@ -30,17 +31,16 @@ public class UserResource {
     @POST
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
-    public User add(User user) throws BusinessException {
-        service.create(user);
-        return user;
+    public UserDto add(UserDto dto) throws BusinessException {
+        return UserDto.from(service.create(dto.assemble()));
     }
 
     @Timed
     @PUT
     @Path("/{id}/password")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Boolean changePassword(@PathParam("id") String id, User user) throws BusinessException {
-        service.changePassword(id, user.getPassword());
+    public Boolean changePassword(@PathParam("id") String id, UserDto dto) throws BusinessException {
+        service.changePassword(id, dto.password);
         return true;
     }
 
@@ -48,8 +48,8 @@ public class UserResource {
     @PUT
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Boolean update(@PathParam("id") String id, User user) throws BusinessException {
-        service.update(user);
+    public Boolean update(@PathParam("id") String id, UserDto dto) throws BusinessException {
+        service.update(dto.assemble());
         return true;
     }
 
@@ -65,15 +65,15 @@ public class UserResource {
     @Timed
     @GET
     @Path("/{id}")
-    public User find(@PathParam("id") String id) throws BusinessException {
-        return service.findById(id);
+    public UserDto find(@PathParam("id") String id) throws BusinessException {
+        return UserDto.from(service.findById(id));
     }
 
     @Timed
     @GET
     @Path("/")
-    public List<User> findAll() {
-        return service.findAll();
+    public List<UserDto> findAll() {
+        return service.findAll().stream().map(UserDto::from).collect(toList());
     }
 
 }

@@ -1,6 +1,5 @@
 package org.maxur.ddd.domain;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.maxur.ddd.service.UserDao;
 
 import java.util.Objects;
@@ -10,16 +9,13 @@ import java.util.Objects;
  * @version 1.0
  * @since <pre>12.12.2015</pre>
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"unused"})
 public class Team {
 
-    @JsonProperty
     private String id;
 
-    @JsonProperty
     private String name;
 
-    @JsonProperty
     private Integer maxCapacity;
 
     public Team() {

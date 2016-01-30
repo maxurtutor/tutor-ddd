@@ -1,6 +1,5 @@
 package org.maxur.ddd.domain;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.maxur.ddd.service.AccountDao;
 import org.maxur.ddd.service.MailService;
 import org.maxur.ddd.service.TeamDao;
@@ -116,42 +115,34 @@ public class User {
         this.encryptedPassword = encryptedPassword;
     }
 
-    @JsonProperty
     public String getName() {
         return name;
     }
 
-    @JsonProperty
     public String getFirstName() {
         return firstName;
     }
 
-    @JsonProperty
     public String getLastName() {
         return lastName;
     }
 
-    @JsonProperty
     public String getEmail() {
         return email;
     }
 
-    @JsonProperty
     public String getTeamId() {
         return teamId;
     }
 
-    @JsonProperty
     public String getTeamName() {
         return teamName;
     }
 
-    @JsonProperty
     public void setTeamName(String teamName) {
         this.teamName = teamName;
     }
 
-    @JsonProperty
     public String getPassword() {
         return password;
     }
