@@ -36,7 +36,7 @@ public class AccountService {
     public User createUserBy(String name, Person person, Id<Team> teamId) throws BusinessException {
         UnitOfWork uof = uof();
         IdentificationMap im = new IdentificationMap();
-        User user = newUser(name, teamId, person);
+        User user = newUser(name, person);
         Team team = getTeam(im, teamId);
         User result = user.moveTo(team);
         uof.create(user);

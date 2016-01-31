@@ -262,6 +262,7 @@ class AccountServiceTest extends Specification {
         1 * userRepository.findCountByTeam(OTHER_TEAM_ID) >> 0
         and: "User updated"
         assert result != null
+
         and: "User updated"
         1 * unitOfWorkImpl.commit(_) >> {
             arguments -> arguments[0].run()
@@ -271,6 +272,7 @@ class AccountServiceTest extends Specification {
                 assert users.size() == 1
                 assert users[0] != null
                 assert users[0].name == baseUser.name
+                assert users[0].teamId.asString() == OTHER_TEAM_ID
         }
         and: "New and old teams updated"
         1 * unitOfWorkImpl.update(Team, _) >> {

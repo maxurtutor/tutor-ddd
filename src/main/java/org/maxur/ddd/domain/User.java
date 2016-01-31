@@ -37,11 +37,9 @@ public class User extends Entity<User> {
         this.person = person;
     }
 
-    public static User newUser(String name, Id<Team> teamId, Person person) throws BusinessException {
+    public static User newUser(String name, Person person) throws BusinessException {
         final Password password = Password.empty();
-        final User user = new User(checkName(name), person, password);
-        user.setTeamId(teamId);
-        return user;
+        return new User(checkName(name), person, password);
     }
 
     public static User oldUser(
@@ -118,7 +116,11 @@ public class User extends Entity<User> {
     }
 
     public User moveTo(Team team) throws BusinessException {
+        if (includedTo(team)) {
+            return this;
+        }
         team.checkTeamCapacity();
+        setTeamId(team.getId());
         sendNotification(WELCOME, getTeamName());
         return this;
     }
@@ -145,9 +147,7 @@ public class User extends Entity<User> {
 
     public void changeInfo(Person person, Team team) throws BusinessException {
         changePersonInfo(person);
-        if (!includedTo(team)) {
-            moveTo(team);
-        }
+        moveTo(team);
     }
 
     private void sendNotification(NotificationService.Notification notification, String... args) {
