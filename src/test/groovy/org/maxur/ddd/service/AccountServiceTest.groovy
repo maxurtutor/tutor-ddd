@@ -226,7 +226,7 @@ class AccountServiceTest extends Specification {
         def result = sut.changeUserInfo(Id.id(USER_ID), baseUser.make().getPerson(), Id.id(TEAM_ID))
         then:
         1 * userRepository.findById(USER_ID) >> baseUser.make()
-        2 * teamRepository.findById(TEAM_ID) >> baseTeam.make()
+        1 * teamRepository.findById(TEAM_ID) >> baseTeam.make()
         1 * locator.getService(UnitOfWork) >> unitOfWork
         and: "User returned"
         assert result != null
