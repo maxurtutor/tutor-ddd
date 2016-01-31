@@ -19,9 +19,9 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.servlet.ServletProperties;
 import org.h2.tools.RunScript;
 import org.maxur.ddd.domain.*;
-import org.maxur.ddd.infrastructure.dao.TeamDaoJdbiImpl;
+import org.maxur.ddd.infrastructure.dao.TeamRepositoryJdbiImpl;
 import org.maxur.ddd.infrastructure.dao.UnitOfWorkJdbiImpl;
-import org.maxur.ddd.infrastructure.dao.UserDaoJdbiImpl;
+import org.maxur.ddd.infrastructure.dao.UserRepositoryJdbiImpl;
 import org.maxur.ddd.infrastructure.mail.MailServiceJavaxImpl;
 import org.maxur.ddd.infrastructure.view.BusinessExceptionHandler;
 import org.maxur.ddd.infrastructure.view.RuntimeExceptionHandler;
@@ -132,8 +132,8 @@ public class Launcher extends Application<Launcher.AppConfiguration> {
                 bind(NotificationServiceImpl.class).to(NotificationService.class).in(Singleton.class);
                 bind(AccountService.class).to(AccountService.class).in(Singleton.class);
                 bind(PlanningService.class).to(PlanningService.class).in(Singleton.class);
-                bindFactory(daoFactory(dbi, UserDaoJdbiImpl.class)).to(UserDao.class);
-                bindFactory(daoFactory(dbi, TeamDaoJdbiImpl.class)).to(TeamDao.class);
+                bindFactory(daoFactory(dbi, UserRepositoryJdbiImpl.class)).to(UserRepository.class);
+                bindFactory(daoFactory(dbi, TeamRepositoryJdbiImpl.class)).to(TeamRepository.class);
                 bind(sender).to(MailService.class);
 
                 bind(UnitOfWork.class).to(UnitOfWork.class);

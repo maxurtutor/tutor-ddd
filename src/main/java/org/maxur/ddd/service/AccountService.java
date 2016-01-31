@@ -15,14 +15,14 @@ import static org.maxur.ddd.domain.User.newUser;
  */
 public class AccountService {
 
-    private final UserDao userDao;
+    private final UserRepository userRepository;
 
-    private final TeamDao teamDao;
+    private final TeamRepository teamRepository;
 
     @Inject
-    public AccountService(UserDao userDao, TeamDao teamDao) {
-        this.userDao = userDao;
-        this.teamDao = teamDao;
+    public AccountService(UserRepository userRepository, TeamRepository teamRepository) {
+        this.userRepository = userRepository;
+        this.teamRepository = teamRepository;
     }
 
     public User findUserById(Id<User> userId) throws BusinessException {
@@ -30,7 +30,7 @@ public class AccountService {
     }
 
     public List<User> findAllUsers() {
-        return userDao.findAll();
+        return userRepository.findAll();
     }
 
     public User createUserBy(String name, Person person, Id<Team> teamId) throws BusinessException {
@@ -57,15 +57,12 @@ public class AccountService {
         return user;
     }
 
-    public void changeUserPassword(Id<User> id1, String password) throws BusinessException {
-        final User user = findUserById(id1);
+    public void changeUserPassword(Id<User> id, String password) throws BusinessException {
+        UnitOfWork uof = uof();
+        User user = getUser(id);
         user.changePassword(password);
-        // TODO
-        try {
-            userDao.changePassword(id1.asString(), user.getPassword());
-        } catch (RuntimeException e) {
-            throw new BusinessException("Constrains violations");
-        }
+        uof.modify(user);
+        uof.commit();
     }
 
     public void deleteUserBy(Id<User> id) throws BusinessException {
@@ -79,7 +76,7 @@ public class AccountService {
     }
 
     private User getUser(Id<User> id) throws NotFoundException {
-        final User user = userDao.findById(id.asString());
+        final User user = userRepository.findById(id.asString());
         if (user == null) {
             throw new NotFoundException("User", id.asString());
         }
@@ -87,7 +84,7 @@ public class AccountService {
     }
 
     private Team getTeam(Id<Team> teamId) throws NotFoundException {
-        Team team = teamDao.findById(teamId.asString());
+        Team team = teamRepository.findById(teamId.asString());
         if (team == null) {
             throw new NotFoundException("Team", teamId.asString());
         }

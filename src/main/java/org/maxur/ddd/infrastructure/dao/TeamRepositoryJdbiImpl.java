@@ -3,7 +3,7 @@ package org.maxur.ddd.infrastructure.dao;
 import org.maxur.ddd.domain.BusinessException;
 import org.maxur.ddd.domain.Entity;
 import org.maxur.ddd.domain.Team;
-import org.maxur.ddd.domain.TeamDao;
+import org.maxur.ddd.domain.TeamRepository;
 import org.maxur.ddd.service.Dao;
 import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.StatementContext;
@@ -20,8 +20,8 @@ import java.sql.SQLException;
  * @version 1.0
  * @since <pre>04.11.2015</pre>
  */
-@RegisterMapper(TeamDaoJdbiImpl.Mapper.class)
-public interface TeamDaoJdbiImpl extends TeamDao, Dao {
+@RegisterMapper(TeamRepositoryJdbiImpl.Mapper.class)
+public interface TeamRepositoryJdbiImpl extends TeamRepository, Dao {
 
     @Override
     @SqlQuery("SELECT * \n" +

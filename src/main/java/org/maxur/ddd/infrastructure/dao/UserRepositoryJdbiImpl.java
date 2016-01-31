@@ -3,7 +3,7 @@ package org.maxur.ddd.infrastructure.dao;
 import org.maxur.ddd.domain.BusinessException;
 import org.maxur.ddd.domain.Entity;
 import org.maxur.ddd.domain.User;
-import org.maxur.ddd.domain.UserDao;
+import org.maxur.ddd.domain.UserRepository;
 import org.maxur.ddd.service.Dao;
 import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.StatementContext;
@@ -21,8 +21,8 @@ import java.util.List;
  * @version 1.0
  * @since <pre>04.11.2015</pre>
  */
-@RegisterMapper(UserDaoJdbiImpl.Mapper.class)
-public interface UserDaoJdbiImpl extends UserDao, Dao {
+@RegisterMapper(UserRepositoryJdbiImpl.Mapper.class)
+public interface UserRepositoryJdbiImpl extends UserRepository, Dao {
 
     @SqlUpdate("INSERT INTO t_user (\n" +
             "  user_id, \n" +
@@ -49,12 +49,6 @@ public interface UserDaoJdbiImpl extends UserDao, Dao {
             "WHERE\n" +
             "  user_id = :id")
     void update(@BindUser Entity user);
-
-    @SqlUpdate("UPDATE t_user SET    \n" +
-            "  password = :password \n" +
-            "WHERE\n" +
-            "  user_id = :id")
-    void changePassword(@Bind("id") String id, @Bind("password") String password);
 
     @SqlQuery("SELECT * \n" +
             "FROM t_user\n" +

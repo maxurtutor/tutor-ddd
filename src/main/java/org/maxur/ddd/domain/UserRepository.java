@@ -7,7 +7,7 @@ import java.util.List;
  * @version 1.0
  * @since <pre>28.01.2016</pre>
  */
-public interface UserDao {
+public interface UserRepository {
 
     User findById(String id);
 
@@ -15,5 +15,4 @@ public interface UserDao {
 
     Integer findCountByTeam(String id);
 
-    void changePassword(String id, String password);
 }

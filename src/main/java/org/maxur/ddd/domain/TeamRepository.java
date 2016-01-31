@@ -5,7 +5,7 @@ package org.maxur.ddd.domain;
  * @version 1.0
  * @since <pre>28.01.2016</pre>
  */
-public interface TeamDao {
+public interface TeamRepository {
 
     Team findById(String id);
 

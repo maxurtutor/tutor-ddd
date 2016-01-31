@@ -61,7 +61,7 @@ public class Team extends Entity<Team> {
     }
 
     public void checkTeamCapacity() throws BusinessException {
-        Integer count = service(UserDao.class).findCountByTeam(getId().asString());
+        Integer count = service(UserRepository.class).findCountByTeam(getId().asString());
         if (Objects.equals(count, maxCapacity)) {
             throw new BusinessException("The limit users in team is exceeded");
         }

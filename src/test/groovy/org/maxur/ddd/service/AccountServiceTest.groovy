@@ -28,9 +28,9 @@ class AccountServiceTest extends Specification {
 
     TeamBuilder baseTeam = TeamBuilder.buider(TEAM_ID)
 
-    TeamDao teamDao
+    TeamRepository teamRepository
 
-    UserDao userDao
+    UserRepository userRepository
 
     Logger logger
 
@@ -51,9 +51,9 @@ class AccountServiceTest extends Specification {
         mailService = Mock(MailService)
         notificationService = new NotificationServiceImpl(mailService)
         notificationService.logger = logger
-        teamDao = Mock(TeamDao)
-        userDao = Mock(UserDao)
-        sut = new AccountService(userDao, teamDao)
+        teamRepository = Mock(TeamRepository)
+        userRepository = Mock(UserRepository)
+        sut = new AccountService(userRepository, teamRepository)
 
     }
 
@@ -117,7 +117,7 @@ class AccountServiceTest extends Specification {
         when: "Try create user"
         sut.createUserBy(user.name, user.person(), user.teamId())
         then:
-        1 * teamDao.findById(TEAM_ID) >> null
+        1 * teamRepository.findById(TEAM_ID) >> null
         and: "System returns business error"
         thrown(NotFoundException.class)
     }
@@ -128,9 +128,9 @@ class AccountServiceTest extends Specification {
         when: "Try create user"
         sut.createUserBy(user.name, user.person(), user.teamId())
         then:
-        1 * teamDao.findById(TEAM_ID) >> baseTeam.make()
-        1 * locator.getService(UserDao) >> userDao
-        1 * userDao.findCountByTeam(TEAM_ID) >> 1
+        1 * teamRepository.findById(TEAM_ID) >> baseTeam.make()
+        1 * locator.getService(UserRepository) >> userRepository
+        1 * userRepository.findCountByTeam(TEAM_ID) >> 1
         and: "System returns business error"
         thrown(BusinessException.class)
     }
@@ -141,11 +141,11 @@ class AccountServiceTest extends Specification {
         when: "Try create user"
         sut.createUserBy(user.name, user.person(), user.teamId())
         then:
-        1 * teamDao.findById(TEAM_ID) >> baseTeam.make()
-        1 * locator.getService(UserDao) >> userDao
+        1 * teamRepository.findById(TEAM_ID) >> baseTeam.make()
+        1 * locator.getService(UserRepository) >> userRepository
         1 * locator.getService(UnitOfWork) >> unitOfWork
         1 * locator.getService(NotificationService) >> notificationService
-        1 * userDao.findCountByTeam(TEAM_ID) >> 2
+        1 * userRepository.findCountByTeam(TEAM_ID) >> 2
         1 * unitOfWorkImpl.commit(_) >> {
             arguments -> arguments[0].run()
         }
@@ -162,11 +162,11 @@ class AccountServiceTest extends Specification {
         when: "Try create user"
         def created = sut.createUserBy(user.name, user.person(), user.teamId())
         then:
-        1 * teamDao.findById(TEAM_ID) >> baseTeam.make()
-        1 * locator.getService(UserDao) >> userDao
+        1 * teamRepository.findById(TEAM_ID) >> baseTeam.make()
+        1 * locator.getService(UserRepository) >> userRepository
         1 * locator.getService(UnitOfWork) >> unitOfWork
         1 * locator.getService(NotificationService) >> notificationService
-        1 * userDao.findCountByTeam(TEAM_ID) >> 0
+        1 * userRepository.findCountByTeam(TEAM_ID) >> 0
         and: "User returned"
         assert created != null
         and: "User created"
@@ -193,11 +193,11 @@ class AccountServiceTest extends Specification {
         when: "Try create user"
         def created = sut.createUserBy(user.name, user.person(), user.teamId())
         then:
-        1 * teamDao.findById(TEAM_ID) >> baseTeam.make()
-        1 * locator.getService(UserDao) >> userDao
+        1 * teamRepository.findById(TEAM_ID) >> baseTeam.make()
+        1 * locator.getService(UserRepository) >> userRepository
         1 * locator.getService(UnitOfWork) >> unitOfWork
         1 * locator.getService(NotificationService) >> notificationService
-        1 * userDao.findCountByTeam(TEAM_ID) >> 0
+        1 * userRepository.findCountByTeam(TEAM_ID) >> 0
         and: "User returned"
         assert created != null
         and: "User created"
@@ -225,8 +225,8 @@ class AccountServiceTest extends Specification {
         when: "Try update user"
         def result = sut.changeUserInfo(Id.id(USER_ID), baseUser.make().getPerson(), Id.id(TEAM_ID))
         then:
-        1 * userDao.findById(USER_ID) >> baseUser.make()
-        2 * teamDao.findById(TEAM_ID) >> baseTeam.make()
+        1 * userRepository.findById(USER_ID) >> baseUser.make()
+        2 * teamRepository.findById(TEAM_ID) >> baseTeam.make()
         1 * locator.getService(UnitOfWork) >> unitOfWork
         and: "User returned"
         assert result != null
@@ -253,13 +253,13 @@ class AccountServiceTest extends Specification {
         when: "Try update user"
         def result = sut.changeUserInfo(Id.id(USER_ID), baseUser.person(), Id.id(OTHER_TEAM_ID))
         then:
-        1 * userDao.findById(USER_ID) >> baseUser.make()
-        1 * teamDao.findById(TEAM_ID) >> baseTeam.make()
-        1 * teamDao.findById(OTHER_TEAM_ID) >> baseTeam.but("id", OTHER_TEAM_ID).but("name", "otherTeamName").make()
-        1 * locator.getService(UserDao) >> userDao
+        1 * userRepository.findById(USER_ID) >> baseUser.make()
+        1 * teamRepository.findById(TEAM_ID) >> baseTeam.make()
+        1 * teamRepository.findById(OTHER_TEAM_ID) >> baseTeam.but("id", OTHER_TEAM_ID).but("name", "otherTeamName").make()
+        1 * locator.getService(UserRepository) >> userRepository
         1 * locator.getService(UnitOfWork) >> unitOfWork
         1 * locator.getService(NotificationService) >> notificationService
-        1 * userDao.findCountByTeam(OTHER_TEAM_ID) >> 0
+        1 * userRepository.findCountByTeam(OTHER_TEAM_ID) >> 0
         and: "User updated"
         assert result != null
         and: "User updated"
@@ -287,8 +287,8 @@ class AccountServiceTest extends Specification {
         when: "Try delete user"
         sut.deleteUserBy(Id.id(USER_ID))
         then:
-        1 * teamDao.findById(TEAM_ID) >> baseTeam.make()
-        1 * userDao.findById(USER_ID) >> baseUser.make()
+        1 * teamRepository.findById(TEAM_ID) >> baseTeam.make()
+        1 * userRepository.findById(USER_ID) >> baseUser.make()
         1 * locator.getService(UnitOfWork) >> unitOfWork
         1 * locator.getService(NotificationService) >> notificationService
         and: "User deleted"
@@ -316,10 +316,18 @@ class AccountServiceTest extends Specification {
         when: "Try change password"
         sut.changeUserPassword(Id.id(USER_ID), "password")
         then:
-        1 * userDao.findById(USER_ID) >> baseUser.make()
+        1 * userRepository.findById(USER_ID) >> baseUser.make()
+        1 * locator.getService(UnitOfWork) >> unitOfWork
         1 * locator.getService(NotificationService) >> notificationService
         and: "Password changed"
-        1 * userDao.changePassword(USER_ID, '5f4dcc3b5aa765d61d8327deb882cf99')
+        1 * unitOfWorkImpl.commit(_) >> {
+            arguments -> arguments[0].run()
+        }
+        1 * unitOfWorkImpl.update(User, _) >> {
+            arguments -> List<User> users = arguments[1]
+                assert users.size() == 1
+                assert users.stream().anyMatch({user -> user.getPassword() == '5f4dcc3b5aa765d61d8327deb882cf99'})
+        }
         and: "System sends notification"
         1 * mailService.send(_)
     }

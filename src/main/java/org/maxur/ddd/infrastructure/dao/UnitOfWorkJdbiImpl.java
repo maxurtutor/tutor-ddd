@@ -24,10 +24,10 @@ public abstract class UnitOfWorkJdbiImpl extends UnitOfWorkImpl implements GetHa
     @Override
     protected Dao makeDaoFor(Class<? extends Entity> entityClass) {
         if (entityClass == User.class ) {
-            return handle.attach(UserDaoJdbiImpl.class);
+            return handle.attach(UserRepositoryJdbiImpl.class);
         }
         if (entityClass == Team.class ) {
-            return handle.attach(TeamDaoJdbiImpl.class);
+            return handle.attach(TeamRepositoryJdbiImpl.class);
         }
         throw new IllegalStateException(format("Dao for class '%s' is not found", entityClass));
     }

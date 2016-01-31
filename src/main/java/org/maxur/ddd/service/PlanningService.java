@@ -2,7 +2,7 @@ package org.maxur.ddd.service;
 
 import org.maxur.ddd.domain.BusinessException;
 import org.maxur.ddd.domain.Team;
-import org.maxur.ddd.domain.TeamDao;
+import org.maxur.ddd.domain.TeamRepository;
 
 import javax.inject.Inject;
 
@@ -13,16 +13,16 @@ import javax.inject.Inject;
  */
 public class PlanningService {
 
-    private final TeamDao teamDao;
+    private final TeamRepository teamRepository;
 
     @Inject
-    public PlanningService(TeamDao teamDao) {
-        this.teamDao = teamDao;
+    public PlanningService(TeamRepository teamRepository) {
+        this.teamRepository = teamRepository;
     }
 
     public Team createTeam(String name, Integer maxCapacity) throws BusinessException {
         final Team team = Team.newTeam(name, maxCapacity);
-        teamDao.insert(team);
+        teamRepository.insert(team);
         return team;
     }
 }
