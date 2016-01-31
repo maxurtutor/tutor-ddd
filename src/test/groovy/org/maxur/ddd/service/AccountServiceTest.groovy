@@ -226,7 +226,9 @@ class AccountServiceTest extends Specification {
         def result = sut.changeUserInfo(Id.id(USER_ID), baseUser.make().getPerson(), Id.id(TEAM_ID))
         then:
         1 * userRepository.findById(USER_ID) >> baseUser.make()
-        1 * teamRepository.findById(TEAM_ID) >> baseTeam.make()
+        // TODO must be only one call
+        2 * teamRepository.findById(TEAM_ID) >> baseTeam.make()
+        1 * locator.getService(TeamRepository) >> teamRepository
         1 * locator.getService(UnitOfWork) >> unitOfWork
         and: "User returned"
         assert result != null
@@ -257,6 +259,7 @@ class AccountServiceTest extends Specification {
         1 * teamRepository.findById(TEAM_ID) >> baseTeam.make()
         1 * teamRepository.findById(OTHER_TEAM_ID) >> baseTeam.but("id", OTHER_TEAM_ID).but("name", "otherTeamName").make()
         1 * locator.getService(UserRepository) >> userRepository
+        1 * locator.getService(TeamRepository) >> teamRepository
         1 * locator.getService(UnitOfWork) >> unitOfWork
         1 * locator.getService(NotificationService) >> notificationService
         1 * userRepository.findCountByTeam(OTHER_TEAM_ID) >> 0
@@ -292,6 +295,7 @@ class AccountServiceTest extends Specification {
         1 * teamRepository.findById(TEAM_ID) >> baseTeam.make()
         1 * userRepository.findById(USER_ID) >> baseUser.make()
         1 * locator.getService(UnitOfWork) >> unitOfWork
+        1 * locator.getService(TeamRepository) >> teamRepository
         1 * locator.getService(NotificationService) >> notificationService
         and: "User deleted"
         1 * unitOfWorkImpl.commit(_) >> {

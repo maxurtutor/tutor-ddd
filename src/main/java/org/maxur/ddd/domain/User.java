@@ -21,7 +21,7 @@ public class User extends Entity<User> {
 
     private Id<Team> teamId;
 
-    private String teamName;
+    private Team team;
 
     private User(Id<User> id, String name, Person person, Password password) {
         super(id);
@@ -67,7 +67,6 @@ public class User extends Entity<User> {
         snapshot.setLastName(this.person.getLastName());
         snapshot.setEmail(this.person.getEmailAddress().asString());
         snapshot.setTeamId(this.teamId.asString());
-        snapshot.setTeamName(this.teamName);
         snapshot.setPassword(this.password.getPassword());
         return snapshot;
     }
@@ -96,23 +95,31 @@ public class User extends Entity<User> {
     }
 
     public Id<Team> getTeamId() {
-        return teamId;
+        return team != null ? team.getId() : teamId;
     }
 
     public String getTeamName() {
-        return teamName;
-    }
-
-    public void setTeamName(String teamName) {
-        this.teamName = teamName;
-    }
-
-    public String getPassword() {
-        return password.getPassword();
+        return getTeam().getName();
     }
 
     private void setTeamId(Id<Team> teamId) {
         this.teamId = teamId;
+    }
+
+    // LAZY LOAD
+    public Team getTeam() {
+        if (team == null) {
+            team = service(TeamRepository.class).findById(teamId.asString());
+        }
+        return team;
+    }
+
+    private void setTeam(Team team) {
+        this.team = team;
+    }
+
+    public String getPassword() {
+        return password.getPassword();
     }
 
     public User moveTo(Team team) throws BusinessException {
@@ -120,7 +127,7 @@ public class User extends Entity<User> {
             return this;
         }
         team.checkTeamCapacity();
-        setTeamId(team.getId());
+        setTeam(team);
         sendNotification(WELCOME, getTeamName());
         return this;
     }
@@ -166,7 +173,6 @@ public class User extends Entity<User> {
         private String lastName;
         private String email;
         private String teamId;
-        private String teamName;
         private String password;
 
         public String getId() {
@@ -215,14 +221,6 @@ public class User extends Entity<User> {
 
         public void setTeamId(String teamId) {
             this.teamId = teamId;
-        }
-
-        public String getTeamName() {
-            return teamName;
-        }
-
-        public void setTeamName(String teamName) {
-            this.teamName = teamName;
         }
 
         public String getPassword() {

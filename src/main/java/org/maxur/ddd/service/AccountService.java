@@ -51,7 +51,7 @@ public class AccountService {
         IdentificationMap im = new IdentificationMap();
         User user = getUser(im, id);
         Team team = getTeam(im, teamId);
-        Team oldTeam = getTeam(im, user.getTeamId());
+        Team oldTeam = user.getTeam();
         user.changeInfo(person, team);
         uof.modify(user);
         uof.modify(oldTeam);
@@ -75,10 +75,9 @@ public class AccountService {
         UnitOfWork uof = uof();
         IdentificationMap im = new IdentificationMap();
         User user = getUser(im, id);
-        Team team = getTeam(im, user.getTeamId());
         user.fire();
         uof.remove(user);
-        uof.modify(team);
+        uof.modify(user.getTeam());
         uof.commit();
         im.clear();
     }

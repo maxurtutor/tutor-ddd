@@ -52,13 +52,11 @@ public interface UserRepositoryJdbiImpl extends UserRepository, Dao {
 
     @SqlQuery("SELECT * \n" +
             "FROM t_user\n" +
-            "  JOIN t_team ON t_user.team_id = t_team.team_id\n" +
             "WHERE user_id = :id")
     User findById(@Bind("id") String id);
 
     @SqlQuery("SELECT * \n" +
-            "FROM t_user\n" +
-            "  JOIN t_team ON t_user.team_id = t_team.team_id")
+            "FROM t_user\n")
     List<User> findAll();
 
     @SqlQuery("SELECT COUNT(*) \n" +
@@ -75,7 +73,6 @@ public interface UserRepositoryJdbiImpl extends UserRepository, Dao {
             snapshot.setLastName(r.getString("last_name"));
             snapshot.setEmail(r.getString("email"));
             snapshot.setTeamId(r.getString("team_id"));
-            snapshot.setTeamName(r.getString("team_name"));
             snapshot.setPassword(r.getString("password"));
             try {
                 return User.restore(snapshot);
