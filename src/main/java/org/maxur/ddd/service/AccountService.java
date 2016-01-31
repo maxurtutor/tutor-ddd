@@ -7,9 +7,9 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.mail.MessagingException;
 import java.util.List;
-import java.util.function.BiConsumer;
 
 import static java.lang.String.format;
+import static org.maxur.ddd.domain.ServiceLocatorProvider.service;
 import static org.maxur.ddd.domain.User.newUser;
 
 /**
@@ -25,20 +25,12 @@ public class AccountService {
 
     private final TeamDao teamDao;
 
-    private final AccountDao accountDao;
-
     private final MailService mailService;
 
     @Inject
-    public AccountService(
-            UserDao userDao,
-            TeamDao teamDao,
-            AccountDao accountDao,
-            MailService mailService
-    ) {
+    public AccountService(UserDao userDao, TeamDao teamDao, MailService mailService) {
         this.userDao = userDao;
         this.teamDao = teamDao;
-        this.accountDao = accountDao;
         this.mailService = mailService;
     }
 
@@ -51,24 +43,31 @@ public class AccountService {
     }
 
     public User createUserBy(String name, Person person, Id<Team> teamId) throws BusinessException {
+        UnitOfWork uof = uof();
         User user = newUser(name, teamId, person);
         Team team = getTeam(teamId);
         User result = user.moveTo(team);
-        modify(user, team, accountDao::save);
+        uof.create(user);
+        uof.modify(team);
+        uof.commit();
         sendMessage(format("Welcome to team '%s' !", result.getTeamName()), result);
         return result;
     }
 
     public User changeUserInfo(Id<User> id, Person person, Id<Team> teamId) throws BusinessException {
+        UnitOfWork uof = uof();
         User user = getUser(id);
         Team team = getTeam(teamId);
-        Id<Team> oldTeamId = user.getTeamId();
+        Team oldTeam = getTeam(user.getTeamId());
         user.changeInfo(person, team);
         // TODO
-        if (oldTeamId.equals(team.getId())) {
+        if (!oldTeam.equals(team)) {
             sendMessage(String.format("Welcome to team '%s' !", team.getName()), user);
+            uof.modify(oldTeam);
         }
-        modify(user, team, accountDao::update);
+        uof.modify(user);
+        uof.modify(team);
+        uof.commit();
         return user;
     }
 
@@ -85,19 +84,13 @@ public class AccountService {
     }
 
     public void deleteUserBy(Id<User> id) throws BusinessException {
+        UnitOfWork uof = uof();
         User user = getUser(id);
         Team team = getTeam(user.getTeamId());
+        uof.remove(user);
+        uof.modify(team);
+        uof.commit();
         sendMessage("Good by!", user);
-        modify(user, team, accountDao::delete);
-    }
-
-    private void modify(User user, Team team, BiConsumer<User, Team> consumer) throws BusinessException {
-        try {
-            consumer.accept(user, team);
-        } catch (RuntimeException e) {
-            logger.error("Unable to modify data: " + e.getMessage());
-            throw new BusinessException("Constrains violations");
-        }
     }
 
     private void sendMessage(String message, User user) {
@@ -123,6 +116,10 @@ public class AccountService {
             throw new NotFoundException("Team", teamId.asString());
         }
         return team;
+    }
+
+    private UnitOfWork uof() {
+        return service(UnitOfWork.class);
     }
 
 

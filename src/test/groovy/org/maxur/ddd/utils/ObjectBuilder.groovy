@@ -1,4 +1,4 @@
-package org.maxur.ddd
+package org.maxur.ddd.utils
 
 /**
  * @author myunusov

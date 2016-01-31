@@ -22,7 +22,7 @@ public class PlanningService {
 
     public Team createTeam(String name, Integer maxCapacity) throws BusinessException {
         final Team team = Team.newTeam(name, maxCapacity);
-        teamDao.insert(team.getSnapshot());
+        teamDao.insert(team);
         return team;
     }
 }

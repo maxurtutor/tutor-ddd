@@ -220,4 +220,5 @@ public class User extends Entity<User> {
             this.password = password;
         }
     }
+
 }

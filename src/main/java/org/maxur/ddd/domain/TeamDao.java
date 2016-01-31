@@ -9,7 +9,5 @@ public interface TeamDao {
 
     Team findById(String id);
 
-    void update(Team.Snapshot team);
-
-    void insert(Team.Snapshot team);
+    void insert(Entity team);
 }

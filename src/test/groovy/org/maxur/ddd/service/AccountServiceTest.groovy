@@ -1,7 +1,7 @@
 package org.maxur.ddd.service
 
 import org.glassfish.hk2.api.ServiceLocator
-import org.maxur.ddd.ObjectBuilder
+import org.maxur.ddd.utils.ObjectBuilder
 import org.maxur.ddd.domain.*
 import org.slf4j.Logger
 import spock.lang.Specification
@@ -32,21 +32,24 @@ class AccountServiceTest extends Specification {
 
     UserDao userDao
 
-    AccountDao accountDao
-
     Logger logger
 
     ServiceLocator locator
 
+    UnitOfWork unitOfWork
+
+    UnitOfWorkImpl unitOfWorkImpl
+
     void setup() {
+        unitOfWorkImpl = Mock(UnitOfWorkImpl)
+        unitOfWork = new UnitOfWork(unitOfWorkImpl)
         locator = Mock(ServiceLocator)
         new ServiceLocatorProvider(locator);
         mailService = Mock(MailService)
         teamDao = Mock(TeamDao)
         userDao = Mock(UserDao)
-        accountDao = Mock(AccountDao)
         logger = Mock(Logger)
-        sut = new AccountService(userDao, teamDao, accountDao, mailService)
+        sut = new AccountService(userDao, teamDao, mailService)
         sut.logger = logger
     }
 
@@ -136,8 +139,12 @@ class AccountServiceTest extends Specification {
         then:
         1 * teamDao.findById(TEAM_ID) >> baseTeam.make()
         1 * locator.getService(UserDao) >> userDao
+        1 * locator.getService(UnitOfWork) >> unitOfWork
         1 * userDao.findCountByTeam(TEAM_ID) >> 2
-        1 * accountDao.save(_, _) >> {
+        1 * unitOfWorkImpl.commit(_) >> {
+            arguments -> arguments[0].run()
+        }
+        1 * unitOfWorkImpl.insert(_, _) >> {
             throw new RuntimeException()
         }
         and: "System returns business error"
@@ -152,11 +159,20 @@ class AccountServiceTest extends Specification {
         then:
         1 * teamDao.findById(TEAM_ID) >> baseTeam.make()
         1 * locator.getService(UserDao) >> userDao
+        1 * locator.getService(UnitOfWork) >> unitOfWork
         1 * userDao.findCountByTeam(TEAM_ID) >> 0
-        and: "User Created"
-        created != null
-        and: "User Saved"
-        1 * accountDao.save(_, _)
+        and: "User returned"
+        assert created != null
+        and: "User created"
+        1 * unitOfWorkImpl.commit(_) >> {
+            arguments -> arguments[0].run()
+        }
+        1 * unitOfWorkImpl.insert(User, _) >> {
+            arguments -> List<User> users = arguments[1]
+                assert users.size() == 1
+                assert users[0] != null
+                assert users[0].name == baseUser.name
+        }
         and: "Mail Client throws Exception "
         1 * mailService.send(_) >> {
             mail -> throw new MessagingException("message")
@@ -173,13 +189,26 @@ class AccountServiceTest extends Specification {
         then:
         1 * teamDao.findById(TEAM_ID) >> baseTeam.make()
         1 * locator.getService(UserDao) >> userDao
+        1 * locator.getService(UnitOfWork) >> unitOfWork
         1 * userDao.findCountByTeam(TEAM_ID) >> 0
-        and: "User Created"
-        created != null
-        and: "User Saved"
-        1 * accountDao.save(*_) >> {
-            arguments -> User user1 = arguments[0]
-            user1.name == baseUser.name
+        and: "User returned"
+        assert created != null
+        and: "User created"
+        1 * unitOfWorkImpl.commit(_) >> {
+            arguments -> arguments[0].run()
+        }
+        1 * unitOfWorkImpl.insert(User, _) >> {
+            arguments -> List<User> users = arguments[1]
+                assert users.size() == 1
+                assert users[0] != null
+                assert users[0].name == baseUser.name
+        }
+        and: "Team updated"
+        1 * unitOfWorkImpl.update(Team, _) >> {
+            arguments -> List<Team> teams = arguments[1]
+                assert teams.size() == 1
+                assert teams[0] != null
+                assert teams[0].name == baseTeam.name
         }
         and: "System sends notification"
         1 * mailService.send(_)
@@ -187,31 +216,61 @@ class AccountServiceTest extends Specification {
 
     def "User can be updated"() {
         when: "Try update user"
-        def created = sut.changeUserInfo(Id.id(USER_ID), baseUser.make().getPerson(), Id.id(TEAM_ID))
+        def result = sut.changeUserInfo(Id.id(USER_ID), baseUser.make().getPerson(), Id.id(TEAM_ID))
         then:
         1 * userDao.findById(USER_ID) >> baseUser.make()
-        1 * teamDao.findById(TEAM_ID) >> baseTeam.make()
-        and: "User Updated"
-        created != null
-        and: "User Saved"
-        1 * accountDao.update(baseUser.make(), baseTeam.make())
+        2 * teamDao.findById(TEAM_ID) >> baseTeam.make()
+        1 * locator.getService(UnitOfWork) >> unitOfWork
+        and: "User returned"
+        assert result != null
+        and: "User updated"
+        1 * unitOfWorkImpl.commit(_) >> {
+            arguments -> arguments[0].run()
+        }
+        1 * unitOfWorkImpl.update(User, _) >> {
+            arguments -> List<User> users = arguments[1]
+                assert users.size() == 1
+                assert users.stream().anyMatch({user -> user.getName() == "name"})
+        }
+        and: "Team updated"
+        1 * unitOfWorkImpl.update(Team, _) >> {
+            arguments -> List<Team> teams = arguments[1]
+                assert teams.size() == 1
+                assert teams.stream().anyMatch({team -> team.getName() == "teamName"})
+        }
         and: "System is not sending notification"
         0 * mailService.send(_)
     }
 
     def "User can be moved to other team"() {
         when: "Try update user"
-        def created = sut.changeUserInfo(Id.id(USER_ID), baseUser.person(), Id.id(OTHER_TEAM_ID))
+        def result = sut.changeUserInfo(Id.id(USER_ID), baseUser.person(), Id.id(OTHER_TEAM_ID))
         then:
         1 * userDao.findById(USER_ID) >> baseUser.make()
-        1 * teamDao.findById(OTHER_TEAM_ID) >> baseTeam.but("id", OTHER_TEAM_ID).but("name", "other_team_name").make()
+        1 * teamDao.findById(TEAM_ID) >> baseTeam.make()
+        1 * teamDao.findById(OTHER_TEAM_ID) >> baseTeam.but("id", OTHER_TEAM_ID).but("name", "otherTeamName").make()
         1 * locator.getService(UserDao) >> userDao
+        1 * locator.getService(UnitOfWork) >> unitOfWork
         1 * userDao.findCountByTeam(OTHER_TEAM_ID) >> 0
-        and: "User Updated"
-        created != null
-        and: "User Saved"
-        1 * accountDao.update(baseUser.but("teamId", OTHER_TEAM_ID).make(),
-                baseTeam.but("id", OTHER_TEAM_ID).but("name", "other_team_name").make())
+        and: "User updated"
+        assert result != null
+        and: "User updated"
+        1 * unitOfWorkImpl.commit(_) >> {
+            arguments -> arguments[0].run()
+        }
+        1 * unitOfWorkImpl.update(User, _) >> {
+            arguments -> List<User> users = arguments[1]
+                assert users.size() == 1
+                assert users[0] != null
+                assert users[0].name == baseUser.name
+        }
+        and: "New and old teams updated"
+        1 * unitOfWorkImpl.update(Team, _) >> {
+            arguments -> List<Team> teams = arguments[1]
+                assert teams.size() == 2
+                assert teams.stream().anyMatch({team -> team.getName() == "teamName"})
+                assert teams.stream().anyMatch({team -> team.getName() == "otherTeamName"})
+        }
         and: "System sends notification"
         1 * mailService.send(_)
     }
@@ -222,8 +281,24 @@ class AccountServiceTest extends Specification {
         then:
         1 * teamDao.findById(TEAM_ID) >> baseTeam.make()
         1 * userDao.findById(USER_ID) >> baseUser.make()
+        1 * locator.getService(UnitOfWork) >> unitOfWork
         and: "User deleted"
-        1 * accountDao.delete(baseUser.make(), baseTeam.make())
+        1 * unitOfWorkImpl.commit(_) >> {
+            arguments -> arguments[0].run()
+        }
+        1 * unitOfWorkImpl.delete(User, _) >> {
+            arguments -> List<User> users = arguments[1]
+                assert users.size() == 1
+                assert users[0] != null
+                assert users[0].name == baseUser.name
+        }
+        and: "Team updated"
+        1 * unitOfWorkImpl.update(Team, _) >> {
+            arguments -> List<Team> teams = arguments[1]
+                assert teams.size() == 1
+                assert teams[0] != null
+                assert teams[0].name == baseTeam.name
+        }
         and: "System sends notification"
         1 * mailService.send(_)
     }

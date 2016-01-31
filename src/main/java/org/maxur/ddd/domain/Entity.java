@@ -7,7 +7,7 @@ import java.util.Objects;
  * @version 1.0
  * @since <pre>30.01.2016</pre>
  */
-public class Entity<T extends Entity> {
+public abstract class Entity<T extends Entity> {
 
     private final Id<T> id;
 
@@ -35,4 +35,11 @@ public class Entity<T extends Entity> {
     public int hashCode() {
         return Objects.hash(id);
     }
+
+    public static <T> Class<T> getEntityClass(T entity) {
+        //noinspection unchecked
+        return (Class<T>) entity.getClass();
+    }
+
+    public abstract Object getSnapshot();
 }

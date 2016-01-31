@@ -19,19 +19,18 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.servlet.ServletProperties;
 import org.h2.tools.RunScript;
 import org.maxur.ddd.domain.*;
-import org.maxur.ddd.infrastructure.dao.AccountDaoJdbiImpl;
 import org.maxur.ddd.infrastructure.dao.TeamDaoJdbiImpl;
+import org.maxur.ddd.infrastructure.dao.UnitOfWorkJdbiImpl;
 import org.maxur.ddd.infrastructure.dao.UserDaoJdbiImpl;
 import org.maxur.ddd.infrastructure.mail.MailServiceJavaxImpl;
 import org.maxur.ddd.infrastructure.view.BusinessExceptionHandler;
 import org.maxur.ddd.infrastructure.view.RuntimeExceptionHandler;
 import org.maxur.ddd.infrastructure.view.UserResource;
-import org.maxur.ddd.service.AccountService;
-import org.maxur.ddd.service.MailService;
-import org.maxur.ddd.service.PlanningService;
+import org.maxur.ddd.service.*;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -132,16 +131,21 @@ public class Launcher extends Application<Launcher.AppConfiguration> {
                 bind(lifecycle).to(LifecycleEnvironment.class);
                 bind(AccountService.class).to(AccountService.class).in(Singleton.class);
                 bind(PlanningService.class).to(PlanningService.class).in(Singleton.class);
-                bindFactory(daoFactory(dbi, AccountDaoJdbiImpl.class)).to(AccountDao.class);
                 bindFactory(daoFactory(dbi, UserDaoJdbiImpl.class)).to(UserDao.class);
                 bindFactory(daoFactory(dbi, TeamDaoJdbiImpl.class)).to(TeamDao.class);
                 bind(sender).to(MailService.class);
+
+                bind(UnitOfWork.class).to(UnitOfWork.class);
+                bindFactory(daoFactory(dbi, UnitOfWorkJdbiImpl.class)).to(UnitOfWorkImpl.class);
+
             }
         };
     }
 
     private <T> Factory<T> daoFactory(final DBI dbi, final Class<T> jdbiClass) {
-        return new DaoFactory<>(dbi, jdbiClass);
+        final DaoFactory<T> factory = new DaoFactory<>(dbi, jdbiClass);
+        ServiceLocatorProvider.inject(factory);
+        return factory;
     }
 
     private void initRest(JerseyEnvironment jersey) {
@@ -167,6 +171,9 @@ public class Launcher extends Application<Launcher.AppConfiguration> {
 
         private final Class<T> jdbiClass;
 
+        @Inject
+        private ServiceLocator locator;
+
         DaoFactory(DBI dbi, Class<T> jdbiClass) {
             this.dbi = dbi;
             this.jdbiClass = jdbiClass;
@@ -174,7 +181,11 @@ public class Launcher extends Application<Launcher.AppConfiguration> {
 
         @Override
         public T provide() {
-            return dbi.onDemand(jdbiClass);
+            final T result = dbi.onDemand(jdbiClass);
+            if (result != null) {
+                locator.inject(result);
+            }
+            return result;
         }
 
         @Override

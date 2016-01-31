@@ -1,16 +1,17 @@
 package org.maxur.ddd.infrastructure.dao;
 
 import org.maxur.ddd.domain.BusinessException;
+import org.maxur.ddd.domain.Entity;
 import org.maxur.ddd.domain.User;
 import org.maxur.ddd.domain.UserDao;
+import org.maxur.ddd.service.Dao;
+import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.StatementContext;
-import org.skife.jdbi.v2.sqlobject.Bind;
-import org.skife.jdbi.v2.sqlobject.BindBean;
-import org.skife.jdbi.v2.sqlobject.SqlQuery;
-import org.skife.jdbi.v2.sqlobject.SqlUpdate;
+import org.skife.jdbi.v2.sqlobject.*;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
+import java.lang.annotation.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -21,7 +22,7 @@ import java.util.List;
  * @since <pre>04.11.2015</pre>
  */
 @RegisterMapper(UserDaoJdbiImpl.Mapper.class)
-public interface UserDaoJdbiImpl extends UserDao {
+public interface UserDaoJdbiImpl extends UserDao, Dao {
 
     @SqlUpdate("INSERT INTO t_user (\n" +
             "  user_id, \n" +
@@ -32,11 +33,11 @@ public interface UserDaoJdbiImpl extends UserDao {
             "  password,\n" +
             "  team_id\n" +
             ") VALUES (:id, :name, :firstName, :lastName, :email, :password, :teamId)")
-    void insert(@BindBean User.Snapshot user);
+    void insert(@BindUser Entity user);
 
     @SqlUpdate("DELETE FROM t_user\n" +
             "WHERE user_id = :id")
-    void delete(@Bind("id") String id);
+    void delete(@BindUser Entity user);
 
     @SqlUpdate("UPDATE t_user SET    \n" +
             "  user_name = :name, \n" +
@@ -47,7 +48,7 @@ public interface UserDaoJdbiImpl extends UserDao {
             "  team_id = :teamId\n" +
             "WHERE\n" +
             "  user_id = :id")
-    void update(@BindBean User.Snapshot  user);
+    void update(@BindUser Entity user);
 
     @SqlUpdate("UPDATE t_user SET    \n" +
             "  password = :password \n" +
@@ -86,6 +87,21 @@ public interface UserDaoJdbiImpl extends UserDao {
                 return User.restore(snapshot);
             } catch (BusinessException e) {
                 throw new IllegalStateException(e);
+            }
+        }
+    }
+
+    @BindingAnnotation(BindUser.UserBinderFactory.class)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.PARAMETER})
+    @interface BindUser {
+        class UserBinderFactory implements BinderFactory {
+            public Binder build(Annotation annotation) {
+                return new Binder<BindUser, User>() {
+                    public void bind(SQLStatement binder, BindUser bind, User user) {
+                        binder.bindFromProperties(user.getSnapshot());
+                    }
+                };
             }
         }
     }

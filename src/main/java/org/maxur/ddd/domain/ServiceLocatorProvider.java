@@ -1,6 +1,7 @@
 package org.maxur.ddd.domain;
 
 import org.glassfish.hk2.api.ServiceLocator;
+import org.maxur.ddd.Launcher;
 
 import javax.inject.Inject;
 
@@ -25,4 +26,10 @@ public class ServiceLocatorProvider {
         return instance.locator.getService(clazz);
     }
 
+    public static <T> void inject(Object bean) {
+        if (bean == null) {
+            return;
+        }
+        instance.locator.inject(bean);
+    }
 }
