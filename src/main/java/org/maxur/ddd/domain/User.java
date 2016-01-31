@@ -1,6 +1,10 @@
 package org.maxur.ddd.domain;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static org.maxur.ddd.domain.NotificationService.Notification.CHANGE_PASSWORD;
+import static org.maxur.ddd.domain.NotificationService.Notification.USER_FIRE;
+import static org.maxur.ddd.domain.NotificationService.Notification.WELCOME;
+import static org.maxur.ddd.domain.ServiceLocatorProvider.service;
 
 /**
  * @author myunusov
@@ -26,7 +30,7 @@ public class User extends Entity<User> {
         this.person = person;
     }
 
-    public User(String name, Person person, Password password) {
+    private User(String name, Person person, Password password) {
         super();
         this.name = name;
         this.password = password;
@@ -113,9 +117,9 @@ public class User extends Entity<User> {
         this.teamId = teamId;
     }
 
-
     public User moveTo(Team team) throws BusinessException {
         team.checkTeamCapacity();
+        sendNotification(WELCOME, getTeamName());
         return this;
     }
 
@@ -124,6 +128,7 @@ public class User extends Entity<User> {
             throw new BusinessException("User password must not be empty");
         }
         this.password = Password.encrypt(password);
+        sendNotification(CHANGE_PASSWORD);
     }
 
     public void changePersonInfo(Person person) {
@@ -143,6 +148,14 @@ public class User extends Entity<User> {
         if (!includedTo(team)) {
             moveTo(team);
         }
+    }
+
+    private void sendNotification(NotificationService.Notification notification, String... args) {
+        service(NotificationService.class).send(person.getEmailAddress(), notification, args);
+    }
+
+    public void fire() {
+        sendNotification(USER_FIRE);
     }
 
     @SuppressWarnings({"WeakerAccess", "unused"})

@@ -1,14 +1,10 @@
 package org.maxur.ddd.service;
 
 import org.maxur.ddd.domain.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.mail.MessagingException;
 import java.util.List;
 
-import static java.lang.String.format;
 import static org.maxur.ddd.domain.ServiceLocatorProvider.service;
 import static org.maxur.ddd.domain.User.newUser;
 
@@ -19,19 +15,14 @@ import static org.maxur.ddd.domain.User.newUser;
  */
 public class AccountService {
 
-    private Logger logger = LoggerFactory.getLogger(AccountService.class);
-
     private final UserDao userDao;
 
     private final TeamDao teamDao;
 
-    private final MailService mailService;
-
     @Inject
-    public AccountService(UserDao userDao, TeamDao teamDao, MailService mailService) {
+    public AccountService(UserDao userDao, TeamDao teamDao) {
         this.userDao = userDao;
         this.teamDao = teamDao;
-        this.mailService = mailService;
     }
 
     public User findUserById(Id<User> userId) throws BusinessException {
@@ -50,7 +41,6 @@ public class AccountService {
         uof.create(user);
         uof.modify(team);
         uof.commit();
-        sendMessage(format("Welcome to team '%s' !", result.getTeamName()), result);
         return result;
     }
 
@@ -60,12 +50,8 @@ public class AccountService {
         Team team = getTeam(teamId);
         Team oldTeam = getTeam(user.getTeamId());
         user.changeInfo(person, team);
-        // TODO
-        if (!oldTeam.equals(team)) {
-            sendMessage(String.format("Welcome to team '%s' !", team.getName()), user);
-            uof.modify(oldTeam);
-        }
         uof.modify(user);
+        uof.modify(oldTeam);
         uof.modify(team);
         uof.commit();
         return user;
@@ -80,26 +66,16 @@ public class AccountService {
         } catch (RuntimeException e) {
             throw new BusinessException("Constrains violations");
         }
-        sendMessage("You password has been changed", user);
     }
 
     public void deleteUserBy(Id<User> id) throws BusinessException {
         UnitOfWork uof = uof();
         User user = getUser(id);
         Team team = getTeam(user.getTeamId());
+        user.fire();
         uof.remove(user);
         uof.modify(team);
         uof.commit();
-        sendMessage("Good by!", user);
-    }
-
-    private void sendMessage(String message, User user) {
-        Mail mail = new Mail("TDDD System Notification", message, user.getEmail());
-        try {
-            mailService.send(mail);
-        } catch (MessagingException e) {
-            logger.error("Unable to send email: " + e.getMessage());
-        }
     }
 
     private User getUser(Id<User> id) throws NotFoundException {

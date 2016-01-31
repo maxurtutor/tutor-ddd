@@ -40,17 +40,21 @@ class AccountServiceTest extends Specification {
 
     UnitOfWorkImpl unitOfWorkImpl
 
+    NotificationService notificationService
+
     void setup() {
         unitOfWorkImpl = Mock(UnitOfWorkImpl)
         unitOfWork = new UnitOfWork(unitOfWorkImpl)
+        logger = Mock(Logger)
         locator = Mock(ServiceLocator)
         new ServiceLocatorProvider(locator);
         mailService = Mock(MailService)
+        notificationService = new NotificationServiceImpl(mailService)
+        notificationService.logger = logger
         teamDao = Mock(TeamDao)
         userDao = Mock(UserDao)
-        logger = Mock(Logger)
-        sut = new AccountService(userDao, teamDao, mailService)
-        sut.logger = logger
+        sut = new AccountService(userDao, teamDao)
+
     }
 
     def "User cannot be created without id"() {
@@ -140,6 +144,7 @@ class AccountServiceTest extends Specification {
         1 * teamDao.findById(TEAM_ID) >> baseTeam.make()
         1 * locator.getService(UserDao) >> userDao
         1 * locator.getService(UnitOfWork) >> unitOfWork
+        1 * locator.getService(NotificationService) >> notificationService
         1 * userDao.findCountByTeam(TEAM_ID) >> 2
         1 * unitOfWorkImpl.commit(_) >> {
             arguments -> arguments[0].run()
@@ -160,6 +165,7 @@ class AccountServiceTest extends Specification {
         1 * teamDao.findById(TEAM_ID) >> baseTeam.make()
         1 * locator.getService(UserDao) >> userDao
         1 * locator.getService(UnitOfWork) >> unitOfWork
+        1 * locator.getService(NotificationService) >> notificationService
         1 * userDao.findCountByTeam(TEAM_ID) >> 0
         and: "User returned"
         assert created != null
@@ -190,6 +196,7 @@ class AccountServiceTest extends Specification {
         1 * teamDao.findById(TEAM_ID) >> baseTeam.make()
         1 * locator.getService(UserDao) >> userDao
         1 * locator.getService(UnitOfWork) >> unitOfWork
+        1 * locator.getService(NotificationService) >> notificationService
         1 * userDao.findCountByTeam(TEAM_ID) >> 0
         and: "User returned"
         assert created != null
@@ -251,6 +258,7 @@ class AccountServiceTest extends Specification {
         1 * teamDao.findById(OTHER_TEAM_ID) >> baseTeam.but("id", OTHER_TEAM_ID).but("name", "otherTeamName").make()
         1 * locator.getService(UserDao) >> userDao
         1 * locator.getService(UnitOfWork) >> unitOfWork
+        1 * locator.getService(NotificationService) >> notificationService
         1 * userDao.findCountByTeam(OTHER_TEAM_ID) >> 0
         and: "User updated"
         assert result != null
@@ -282,6 +290,7 @@ class AccountServiceTest extends Specification {
         1 * teamDao.findById(TEAM_ID) >> baseTeam.make()
         1 * userDao.findById(USER_ID) >> baseUser.make()
         1 * locator.getService(UnitOfWork) >> unitOfWork
+        1 * locator.getService(NotificationService) >> notificationService
         and: "User deleted"
         1 * unitOfWorkImpl.commit(_) >> {
             arguments -> arguments[0].run()
@@ -308,6 +317,7 @@ class AccountServiceTest extends Specification {
         sut.changeUserPassword(Id.id(USER_ID), "password")
         then:
         1 * userDao.findById(USER_ID) >> baseUser.make()
+        1 * locator.getService(NotificationService) >> notificationService
         and: "Password changed"
         1 * userDao.changePassword(USER_ID, '5f4dcc3b5aa765d61d8327deb882cf99')
         and: "System sends notification"

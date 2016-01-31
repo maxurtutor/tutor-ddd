@@ -6,8 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.*;
@@ -21,11 +21,11 @@ public class UnitOfWork {
 
     private final Logger logger = LoggerFactory.getLogger(UnitOfWork.class);
 
-    private final List<Entity> inserted = new ArrayList<>();
+    private final Set<Entity> inserted = new HashSet<>();
 
-    private final List<Entity> updated = new ArrayList<>();
+    private final Set<Entity> updated = new HashSet<>();
 
-    private final List<Entity> deleted = new ArrayList<>();
+    private final Set<Entity> deleted = new HashSet<>();
 
     private final UnitOfWorkImpl unitOfWorkImpl;
 
@@ -47,9 +47,9 @@ public class UnitOfWork {
     }
 
     public void commit() throws BusinessException {
-        final List<Entity> inserted  = this.inserted;
-        final List<Entity> updated  = this.updated;
-        final List<Entity> deleted  = this.deleted;
+        final Set<Entity> inserted  = this.inserted;
+        final Set<Entity> updated  = this.updated;
+        final Set<Entity> deleted  = this.deleted;
         try {
             unitOfWorkImpl.commit(() -> {
                 inserted.stream()

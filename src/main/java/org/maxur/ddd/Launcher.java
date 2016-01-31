@@ -129,6 +129,7 @@ public class Launcher extends Application<Launcher.AppConfiguration> {
             @Override
             protected void configure() {
                 bind(lifecycle).to(LifecycleEnvironment.class);
+                bind(NotificationServiceImpl.class).to(NotificationService.class).in(Singleton.class);
                 bind(AccountService.class).to(AccountService.class).in(Singleton.class);
                 bind(PlanningService.class).to(PlanningService.class).in(Singleton.class);
                 bindFactory(daoFactory(dbi, UserDaoJdbiImpl.class)).to(UserDao.class);
