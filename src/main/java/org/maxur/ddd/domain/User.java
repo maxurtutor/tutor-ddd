@@ -7,65 +7,53 @@ import static com.google.common.base.Strings.isNullOrEmpty;
  * @version 1.0
  * @since <pre>04.11.2015</pre>
  */
-public class User extends Entity {
+public class User extends Entity<User> {
 
     private String name;
 
-    private final Person person;
-
-    private final EmailAddress emailAddress;
+    private Person person;
 
     private Password password;
 
-    private String teamId;
+    private Id<Team> teamId;
 
     private String teamName;
 
-    private User(String id, String name, Person person, Password password, EmailAddress emailAddress) {
+    private User(Id<User> id, String name, Person person, Password password) {
         super(id);
         this.name = name;
-        this.emailAddress = emailAddress;
         this.password = password;
         this.person = person;
     }
 
-    public User(String name, Person person, Password password, EmailAddress emailAddress) {
+    public User(String name, Person person, Password password) {
         super();
         this.name = name;
-        this.emailAddress = emailAddress;
         this.password = password;
         this.person = person;
     }
 
-    public static User newUser(
-            String name, String firstName, String lastName, String email, String teamId
-    ) throws BusinessException {
-        final Person person = Person.make(firstName, lastName);
-        final EmailAddress emailAddress = EmailAddress.make(email);
+    public static User newUser(String name, Id<Team> teamId, Person person) throws BusinessException {
         final Password password = Password.empty();
-        final User user = new User(checkName(name), person, password, emailAddress);
+        final User user = new User(checkName(name), person, password);
         user.setTeamId(teamId);
         return user;
     }
 
     public static User oldUser(
-            String id, String name, String firstName, String lastName, String email, String teamId
-    ) throws BusinessException {
-        final Person person = Person.make(firstName, lastName);
-        final EmailAddress emailAddress = EmailAddress.make(email);
+            Id<User> id, String name, Id<Team> teamId, Person person) throws BusinessException {
         final Password password = Password.empty();
-        final User user = new User(checkId(id), checkName(name), person, password, emailAddress);
+        final User user = new User(id, checkName(name), person, password);
         user.setTeamId(teamId);
         return user;
     }
 
     public static User restore(Snapshot snapshot) throws BusinessException {
-        final Person person = Person.make(snapshot.firstName, snapshot.lastName);
-        final EmailAddress emailAddress = EmailAddress.make(snapshot.email);
+        final Person person = Person.person(snapshot.firstName, snapshot.lastName, EmailAddress.email(snapshot.email));
         final Password password = Password.restore(snapshot.password);
         final User user =
-                new User(checkId(snapshot.getId()), checkName(snapshot.getName()), person, password, emailAddress);
-        user.setTeamId(snapshot.getTeamId());
+                new User(Id.id(snapshot.getId()), checkName(snapshot.getName()), person, password);
+        user.setTeamId(Id.id(snapshot.getTeamId()));
         return user;
     }
 
@@ -75,19 +63,13 @@ public class User extends Entity {
         snapshot.setName(this.name);
         snapshot.setFirstName(this.person.getFirstName());
         snapshot.setLastName(this.person.getLastName());
-        snapshot.setEmail(this.emailAddress.getEmail());
-        snapshot.setTeamId(this.teamId);
+        snapshot.setEmail(this.person.getEmailAddress().asString());
+        snapshot.setTeamId(this.teamId.asString());
         snapshot.setTeamName(this.teamName);
         snapshot.setPassword(this.password.getPassword());
         return snapshot;
     }
 
-    private static String checkId(String id) throws BusinessException {
-        if (isNullOrEmpty(id)) {
-            throw new BusinessException("User Id must not be empty");
-        }
-        return id;
-    }
     private static String checkName(String name) throws BusinessException {
         if (isNullOrEmpty(name)) {
             throw new BusinessException("User Name must not be empty");
@@ -108,10 +90,10 @@ public class User extends Entity {
     }
 
     public String getEmail() {
-        return emailAddress.getEmail();
+        return person.getEmailAddress().asString();
     }
 
-    public String getTeamId() {
+    public Id<Team> getTeamId() {
         return teamId;
     }
 
@@ -127,20 +109,13 @@ public class User extends Entity {
         return password.getPassword();
     }
 
-    private void setTeamId(String teamId) {
+    private void setTeamId(Id<Team> teamId) {
         this.teamId = teamId;
     }
 
 
-    public User create(Team team) throws BusinessException {
+    public User moveTo(Team team) throws BusinessException {
         team.checkTeamCapacity();
-        return this;
-    }
-
-    public User update(User old, Team team) throws BusinessException {
-        if (!old.getTeamId().equals(teamId)) {
-            team.checkTeamCapacity();
-        }
         return this;
     }
 
@@ -151,7 +126,26 @@ public class User extends Entity {
         this.password = Password.encrypt(password);
     }
 
-    @SuppressWarnings("WeakerAccess")
+    public void changePersonInfo(Person person) {
+        this.person = person;
+    }
+
+    public boolean includedTo(Team team) {
+        return java.util.Objects.equals(teamId, team.getId());
+    }
+
+    public Person getPerson() {
+        return person;
+    }
+
+    public void changeInfo(Person person, Team team) throws BusinessException {
+        changePersonInfo(person);
+        if (!includedTo(team)) {
+            moveTo(team);
+        }
+    }
+
+    @SuppressWarnings({"WeakerAccess", "unused"})
     public static class Snapshot {
         private String id;
         private String name;

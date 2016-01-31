@@ -7,7 +7,6 @@ import org.slf4j.Logger
 import spock.lang.Specification
 
 import javax.mail.MessagingException
-
 /**
  * @author myunusov
  * @version 1.0
@@ -55,7 +54,7 @@ class AccountServiceTest extends Specification {
         given:
         def user = baseUser.but("id", null)
         when: "Try create user"
-        sut.createUserBy(user.name, user.teamId, Person.person(user.firstName, user.lastName), EmailAddress.email(user.email))
+        sut.createUserBy(user.name, user.person(), user.teamId())
         then: "System returns business error"
         thrown(BusinessException.class)
     }
@@ -64,7 +63,7 @@ class AccountServiceTest extends Specification {
         given:
         def user = baseUser.but("name", null)
         when: "Try create user"
-        sut.createUserBy(user.name, user.teamId, Person.person(user.firstName, user.lastName), EmailAddress.email(user.email))
+        sut.createUserBy(user.name, user.person(), user.teamId())
         then: "System returns business error"
         thrown(BusinessException.class)
     }
@@ -73,7 +72,7 @@ class AccountServiceTest extends Specification {
         given:
         def user = baseUser.but("firstName", null)
         when: "Try create user"
-        sut.createUserBy(user.name, user.teamId, Person.person(user.firstName, user.lastName), EmailAddress.email(user.email))
+        sut.createUserBy(user.name, user.person(), user.teamId())
         then: "System returns business error"
         thrown(BusinessException.class)
     }
@@ -82,7 +81,7 @@ class AccountServiceTest extends Specification {
         given:
         def user = baseUser.but("lastName", null)
         when: "Try create user"
-        sut.createUserBy(user.name, user.teamId, Person.person(user.firstName, user.lastName), EmailAddress.email(user.email))
+        sut.createUserBy(user.name, user.person(), user.teamId())
         then: "System returns business error"
         thrown(BusinessException.class)
     }
@@ -91,7 +90,7 @@ class AccountServiceTest extends Specification {
         given:
         def user = baseUser.but("email", null)
         when: "Try create user"
-        sut.createUserBy(user.name, user.teamId, Person.person(user.firstName, user.lastName), EmailAddress.email(user.email))
+        sut.createUserBy(user.name, user.person(), user.teamId())
         then: "System returns business error"
         thrown(BusinessException.class)
     }
@@ -100,7 +99,7 @@ class AccountServiceTest extends Specification {
         given:
         def user = baseUser.but("email", "invalid")
         when: "Try create user"
-        sut.createUserBy(user.name, user.teamId, Person.person(user.firstName, user.lastName), EmailAddress.email(user.email))
+        sut.createUserBy(user.name, user.person(), user.teamId())
         then: "System returns business error"
         thrown(BusinessException.class)
     }
@@ -109,7 +108,7 @@ class AccountServiceTest extends Specification {
         given:
         def user = baseUser
         when: "Try create user"
-        sut.createUserBy(user.name, user.teamId, Person.person(user.firstName, user.lastName), EmailAddress.email(user.email))
+        sut.createUserBy(user.name, user.person(), user.teamId())
         then:
         1 * teamDao.findById(TEAM_ID) >> null
         and: "System returns business error"
@@ -120,7 +119,7 @@ class AccountServiceTest extends Specification {
         given:
         def user = baseUser
         when: "Try create user"
-        sut.createUserBy(user.name, user.teamId, Person.person(user.firstName, user.lastName), EmailAddress.email(user.email))
+        sut.createUserBy(user.name, user.person(), user.teamId())
         then:
         1 * teamDao.findById(TEAM_ID) >> baseTeam.make()
         1 * locator.getService(UserDao) >> userDao
@@ -133,7 +132,7 @@ class AccountServiceTest extends Specification {
         given:
         def user = baseUser
         when: "Try create user"
-        sut.createUserBy(user.name, user.teamId, Person.person(user.firstName, user.lastName), EmailAddress.email(user.email))
+        sut.createUserBy(user.name, user.person(), user.teamId())
         then:
         1 * teamDao.findById(TEAM_ID) >> baseTeam.make()
         1 * locator.getService(UserDao) >> userDao
@@ -149,7 +148,7 @@ class AccountServiceTest extends Specification {
         given:
         def user = baseUser
         when: "Try create user"
-        def created = sut.createUserBy(user.name, user.teamId, Person.person(user.firstName, user.lastName), EmailAddress.email(user.email))
+        def created = sut.createUserBy(user.name, user.person(), user.teamId())
         then:
         1 * teamDao.findById(TEAM_ID) >> baseTeam.make()
         1 * locator.getService(UserDao) >> userDao
@@ -170,7 +169,7 @@ class AccountServiceTest extends Specification {
         given:
         def user = baseUser
         when: "Try create user"
-        def created = sut.createUserBy(user.name, user.teamId, Person.person(user.firstName, user.lastName), EmailAddress.email(user.email))
+        def created = sut.createUserBy(user.name, user.person(), user.teamId())
         then:
         1 * teamDao.findById(TEAM_ID) >> baseTeam.make()
         1 * locator.getService(UserDao) >> userDao
@@ -188,7 +187,7 @@ class AccountServiceTest extends Specification {
 
     def "User can be updated"() {
         when: "Try update user"
-        def created = sut.update(USER_ID, baseUser.make())
+        def created = sut.changeUserInfo(Id.id(USER_ID), baseUser.make().getPerson(), Id.id(TEAM_ID))
         then:
         1 * userDao.findById(USER_ID) >> baseUser.make()
         1 * teamDao.findById(TEAM_ID) >> baseTeam.make()
@@ -196,13 +195,13 @@ class AccountServiceTest extends Specification {
         created != null
         and: "User Saved"
         1 * accountDao.update(baseUser.make(), baseTeam.make())
-        and: "System sends notification"
-        1 * mailService.send(_)
+        and: "System is not sending notification"
+        0 * mailService.send(_)
     }
 
-    def "User can be removed to other team"() {
+    def "User can be moved to other team"() {
         when: "Try update user"
-        def created = sut.update(USER_ID, baseUser.but("teamId", OTHER_TEAM_ID).make())
+        def created = sut.changeUserInfo(Id.id(USER_ID), baseUser.person(), Id.id(OTHER_TEAM_ID))
         then:
         1 * userDao.findById(USER_ID) >> baseUser.make()
         1 * teamDao.findById(OTHER_TEAM_ID) >> baseTeam.but("id", OTHER_TEAM_ID).but("name", "other_team_name").make()
@@ -219,7 +218,7 @@ class AccountServiceTest extends Specification {
 
     def "User can be deleted"() {
         when: "Try delete user"
-        sut.deleteUserBy(USER_ID)
+        sut.deleteUserBy(Id.id(USER_ID))
         then:
         1 * teamDao.findById(TEAM_ID) >> baseTeam.make()
         1 * userDao.findById(USER_ID) >> baseUser.make()
@@ -231,7 +230,7 @@ class AccountServiceTest extends Specification {
 
     def "User can change password"() {
         when: "Try change password"
-        sut.changeUserPassword(USER_ID, "password")
+        sut.changeUserPassword(Id.id(USER_ID), "password")
         then:
         1 * userDao.findById(USER_ID) >> baseUser.make()
         and: "Password changed"
@@ -253,9 +252,21 @@ class AccountServiceTest extends Specification {
             return builder;
         }
 
+        Person person() {
+            Person.person(this.firstName, this.lastName, EmailAddress.email(this.email))
+        }
+
+        private Id teamId() {
+            Id.id(this.teamId)
+        }
+
+        private Id userId() {
+            Id.id(this.id)
+        }
+
         @Override
         User make() {
-            User.oldUser(this.id, this.name, this.teamId, Person.person(this.firstName, this.lastName), EmailAddress.email(this.email))
+            User.oldUser(userId(), this.name, teamId(), person())
         }
     }
 
@@ -269,9 +280,13 @@ class AccountServiceTest extends Specification {
             return builder;
         }
 
+        private Id teamId() {
+            Id.id(this.id)
+        }
+
         @Override
         Team make() {
-            return new Team(this.id, this.name, this.maxCapacity)
+            return new Team(teamId(), this.name, this.maxCapacity)
         }
     }
 

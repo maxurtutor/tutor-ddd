@@ -2,6 +2,8 @@ package org.maxur.ddd.infrastructure.view;
 
 import com.codahale.metrics.annotation.Timed;
 import org.maxur.ddd.domain.BusinessException;
+import org.maxur.ddd.domain.EmailAddress;
+import org.maxur.ddd.domain.Id;
 import org.maxur.ddd.service.AccountService;
 
 import javax.inject.Inject;
@@ -10,7 +12,8 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
-import static org.maxur.ddd.domain.User.oldUser;
+import static org.maxur.ddd.domain.Id.id;
+import static org.maxur.ddd.domain.Person.person;
 
 /**
  * @author myunusov
@@ -33,8 +36,12 @@ public class UserResource {
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     public UserDto add(UserDto dto) throws BusinessException {
-
-        return UserDto.from(service.create(dto.name, dto.firstName, dto.lastName, dto.email, dto.teamId));
+        return UserDto.from(
+                service.createUserBy(
+                        dto.name,
+                        person(dto.firstName, dto.lastName, EmailAddress.email(dto.email)), id(dto.teamId)
+                )
+        );
     }
 
     @Timed
@@ -42,7 +49,7 @@ public class UserResource {
     @Path("/{id}/password")
     @Consumes(MediaType.APPLICATION_JSON)
     public Boolean changePassword(@PathParam("id") String id, UserDto dto) throws BusinessException {
-        service.changePassword(id, dto.password);
+        service.changeUserPassword(id(id), dto.password);
         return true;
     }
 
@@ -51,7 +58,9 @@ public class UserResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Boolean update(@PathParam("id") String id, UserDto dto) throws BusinessException {
-        service.update(id, oldUser(dto.id, dto.name, dto.firstName, dto.lastName, dto.email, dto.teamId));
+        service.changeUserInfo(
+                id(id), person(dto.firstName, dto.lastName, EmailAddress.email(dto.email)), Id.id(dto.teamId)
+        );
         return true;
     }
 
@@ -60,7 +69,7 @@ public class UserResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Boolean delete(@PathParam("id") String id) throws BusinessException {
-        service.delete(id);
+        service.deleteUserBy(id(id));
         return true;
     }
 
@@ -68,14 +77,14 @@ public class UserResource {
     @GET
     @Path("/{id}")
     public UserDto find(@PathParam("id") String id) throws BusinessException {
-        return UserDto.from(service.findById(id));
+        return UserDto.from(service.findUserById(id(id)));
     }
 
     @Timed
     @GET
     @Path("/")
     public List<UserDto> findAll() {
-        return service.findAll().stream().map(UserDto::from).collect(toList());
+        return service.findAllUsers().stream().map(UserDto::from).collect(toList());
     }
 
 }

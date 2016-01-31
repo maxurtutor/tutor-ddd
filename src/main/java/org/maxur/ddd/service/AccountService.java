@@ -9,7 +9,6 @@ import javax.mail.MessagingException;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static org.maxur.ddd.domain.User.newUser;
 
@@ -43,49 +42,53 @@ public class AccountService {
         this.mailService = mailService;
     }
 
-    public User findById(String id) throws BusinessException {
-        return getUser(id);
+    public User findUserById(Id<User> userId) throws BusinessException {
+        return getUser(userId);
     }
 
-    public List<User> findAll() {
+    public List<User> findAllUsers() {
         return userDao.findAll();
     }
 
-    public User create(
-            String name, String firstName, String lastName, String email, String teamId
-    ) throws BusinessException {
-        User user = newUser(name, firstName, lastName, email, teamId);
-        Team team = getTeam(user.getTeamId());
-        User result = user.create(team);
+    public User createUserBy(String name, Person person, Id<Team> teamId) throws BusinessException {
+        User user = newUser(name, teamId, person);
+        Team team = getTeam(teamId);
+        User result = user.moveTo(team);
         modify(user, team, accountDao::save);
         sendMessage(format("Welcome to team '%s' !", result.getTeamName()), result);
         return result;
     }
 
-    public Entity update(String id, User user) throws BusinessException {
-        Team team = getTeam(user.getTeamId());
-        User result = user.update(getUser(user.getId().asString()), team);
-        modify(user, team, accountDao::update);
-        sendMessage(String.format("Welcome to team '%s' !", result.getTeamName()), result);
-        return result;
-    }
-
-    public void delete(String id) throws BusinessException {
+    public User changeUserInfo(Id<User> id, Person person, Id<Team> teamId) throws BusinessException {
         User user = getUser(id);
-        Team team = getTeam(user.getTeamId());
-        modify(user, team, accountDao::delete);
-        sendMessage("Good by!", user);
+        Team team = getTeam(teamId);
+        Id<Team> oldTeamId = user.getTeamId();
+        user.changeInfo(person, team);
+        // TODO
+        if (oldTeamId.equals(team.getId())) {
+            sendMessage(String.format("Welcome to team '%s' !", team.getName()), user);
+        }
+        modify(user, team, accountDao::update);
+        return user;
     }
 
-    public void changePassword(String id, String password) throws BusinessException {
-        final User user = getUser(id);
+    public void changeUserPassword(Id<User> id1, String password) throws BusinessException {
+        final User user = findUserById(id1);
         user.changePassword(password);
+        // TODO
         try {
-            userDao.changePassword(id, user.getPassword());
+            userDao.changePassword(id1.asString(), user.getPassword());
         } catch (RuntimeException e) {
             throw new BusinessException("Constrains violations");
         }
         sendMessage("You password has been changed", user);
+    }
+
+    public void deleteUserBy(Id<User> id) throws BusinessException {
+        User user = getUser(id);
+        Team team = getTeam(user.getTeamId());
+        sendMessage("Good by!", user);
+        modify(user, team, accountDao::delete);
     }
 
     private void modify(User user, Team team, BiConsumer<User, Team> consumer) throws BusinessException {
@@ -106,21 +109,18 @@ public class AccountService {
         }
     }
 
-    private User getUser(String id) throws BusinessException {
-        if (isNullOrEmpty(id)) {
-            throw new BusinessException("User Id must not be empty");
-        }
-        final User user = userDao.findById(id);
+    private User getUser(Id<User> id) throws NotFoundException {
+        final User user = userDao.findById(id.asString());
         if (user == null) {
-            throw new NotFoundException("User", id);
+            throw new NotFoundException("User", id.asString());
         }
         return user;
     }
 
-    private Team getTeam(String teamId) throws NotFoundException {
-        Team team = teamDao.findById(teamId);
+    private Team getTeam(Id<Team> teamId) throws NotFoundException {
+        Team team = teamDao.findById(teamId.asString());
         if (team == null) {
-            throw new NotFoundException("Team", teamId);
+            throw new NotFoundException("Team", teamId.asString());
         }
         return team;
     }

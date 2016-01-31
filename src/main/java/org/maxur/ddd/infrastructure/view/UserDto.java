@@ -42,7 +42,7 @@ public class UserDto {
         result.firstName = user.getFirstName();
         result.lastName = user.getLastName();
         result.email = user.getEmail();
-        result.teamId = user.getTeamId();
+        result.teamId = user.getTeamId().asString();
         result.teamName = user.getTeamName();
         return result;
     }

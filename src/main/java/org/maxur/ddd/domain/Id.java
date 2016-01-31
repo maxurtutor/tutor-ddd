@@ -12,6 +12,8 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 /**
  * <p>A globally unique identifier for objects.</p>
  * <p>
@@ -251,6 +253,20 @@ public final class Id<T> implements Comparable<Id>, Serializable {
      */
     Id(final int timestamp, final int machineAndProcessIdentifier, final int counter) {
         this(legacyToBytes(timestamp, machineAndProcessIdentifier, counter));
+    }
+
+    public static <S> Id<S> id(String id) throws BusinessException {
+        return new Id<>(checkId(id));
+    }
+
+    private static String checkId(String id) throws BusinessException {
+        if (isNullOrEmpty(id)) {
+            throw new BusinessException("Identifier must not be empty");
+        }
+        if (!isValid(id)) {
+            throw new BusinessException("Identifier %s is invalid", id);
+        }
+        return id;
     }
 
     private static byte[] legacyToBytes(final int timestamp, final int machineAndProcessIdentifier, final int counter) {

@@ -10,13 +10,13 @@ import static org.maxur.ddd.domain.ServiceLocatorProvider.service;
  * @version 1.0
  * @since <pre>12.12.2015</pre>
  */
-public class Team extends Entity {
+public class Team extends Entity<Team> {
 
     private String name;
 
     private Integer maxCapacity;
 
-    private Team(String id, String name, Integer maxCapacity) {
+    private Team(Id<Team> id, String name, Integer maxCapacity) {
         super(id);
         this.name = name;
         this.maxCapacity = maxCapacity;
@@ -36,17 +36,10 @@ public class Team extends Entity {
 
     public static Team restore(Snapshot snapshot) throws BusinessException {
         return new Team(
-                checkId(snapshot.getId()),
+                Id.id(snapshot.getId()),
                 checkName(snapshot.getName()),
                 checkMaxCapacity(snapshot.getMaxCapacity())
         );
-    }
-
-    private static String checkId(String id) throws BusinessException {
-        if (isNullOrEmpty(id)) {
-            throw new BusinessException("Team Id must not be empty");
-        }
-        return id;
     }
 
     private static String  checkName(String name) throws BusinessException {
@@ -61,6 +54,10 @@ public class Team extends Entity {
             throw new BusinessException("Team max Capacity must be more than 0");
         }
         return maxCapacity;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public void checkTeamCapacity() throws BusinessException {

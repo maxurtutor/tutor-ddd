@@ -16,7 +16,7 @@ public class EmailAddress {
 
     private final String email;
 
-    public static EmailAddress make(String email) throws BusinessException {
+    public static EmailAddress email(String email) throws BusinessException {
         return new EmailAddress(checkEmail(email));
     }
 
@@ -35,7 +35,7 @@ public class EmailAddress {
         return email;
     }
 
-    public String getEmail() {
+    public String asString() {
         return email;
     }
 

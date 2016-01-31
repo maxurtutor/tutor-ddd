@@ -15,8 +15,8 @@ public class Entity<T extends Entity> {
         this.id = new Id<>();
     }
 
-    public Entity(String id) {
-        this.id = new Id<>(id);
+    public Entity(Id<T> id) {
+        this.id = id;
     }
 
     public Id<T> getId() {

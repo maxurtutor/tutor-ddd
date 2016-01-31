@@ -10,13 +10,16 @@ public class Person {
 
     private final String lastName;
 
-    public static Person make(String firstName, String lastName) throws BusinessException {
-        return new Person(checkFirstName(firstName), checkLastName(lastName));
+    private final EmailAddress emailAddress;
+
+    public static Person person(String firstName, String lastName, EmailAddress email) throws BusinessException {
+        return new Person(checkFirstName(firstName), checkLastName(lastName), email);
     }
 
-    private Person(String firstName, String lastName) {
+    private Person(String firstName, String lastName, EmailAddress email) {
         this.firstName = firstName;
         this.lastName = lastName;
+        this.emailAddress = email;
     }
 
     private static String checkFirstName(String firstName) throws BusinessException {
@@ -41,17 +44,22 @@ public class Person {
         return lastName;
     }
 
+    public EmailAddress getEmailAddress() {
+        return emailAddress;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Person)) return false;
         Person person = (Person) o;
         return Objects.equals(firstName, person.firstName) &&
-                Objects.equals(lastName, person.lastName);
+                Objects.equals(lastName, person.lastName) &&
+                Objects.equals(emailAddress, person.emailAddress);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(firstName, lastName);
+        return Objects.hash(firstName, lastName, emailAddress);
     }
 }

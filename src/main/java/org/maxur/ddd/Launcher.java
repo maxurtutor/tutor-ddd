@@ -43,6 +43,9 @@ import java.net.URL;
 import java.sql.SQLException;
 
 import static org.glassfish.hk2.utilities.ServiceLocatorUtilities.bind;
+import static org.maxur.ddd.domain.EmailAddress.email;
+import static org.maxur.ddd.domain.Id.id;
+import static org.maxur.ddd.domain.Person.person;
 
 /**
  * @author myunusov
@@ -87,9 +90,18 @@ public class Launcher extends Application<Launcher.AppConfiguration> {
         try {
             Team tddd = planningService.createTeam("T_DDD", 5);
             Team tcqrs = planningService.createTeam("T_CQRS", 3);
-            accountService.create("iv", "Ivan", "Ivanov", "ivan@mail.com", tddd.getId().toString());
-            accountService.create("petr", "Petr", "Petrov", "petr@mail.com", tddd.getId().toString());
-            accountService.create("sidor", "Sidor", "Sidorov", "sidor@mail.com", tcqrs.getId().toString());
+            accountService.createUserBy(
+                    "iv",
+                    person("Ivan", "Ivanov", email("ivan@mail.com")), id(tddd.getId().toString())
+            );
+            accountService.createUserBy(
+                    "petr",
+                    person("Petr", "Petrov", email("petr@mail.com")), id(tddd.getId().toString())
+            );
+            accountService.createUserBy(
+                    "sidor",
+                    person("Sidor", "Sidorov", email("sidor@mail.com")), id(tcqrs.getId().toString())
+            );
         } catch (BusinessException e) {
             e.printStackTrace();
         }
