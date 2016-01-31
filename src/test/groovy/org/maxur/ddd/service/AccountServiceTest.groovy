@@ -61,7 +61,7 @@ class AccountServiceTest extends Specification {
         given:
         def user = baseUser.but("id", null)
         when: "Try create user"
-        sut.createUserBy(user.name, user.person(), user.teamId())
+        sut.createUserBy(user.name, user.person(), Id.id(TEAM_ID))
         then: "System returns business error"
         thrown(BusinessException.class)
     }
@@ -70,7 +70,7 @@ class AccountServiceTest extends Specification {
         given:
         def user = baseUser.but("name", null)
         when: "Try create user"
-        sut.createUserBy(user.name, user.person(), user.teamId())
+        sut.createUserBy(user.name, user.person(), Id.id(TEAM_ID))
         then: "System returns business error"
         thrown(BusinessException.class)
     }
@@ -79,7 +79,7 @@ class AccountServiceTest extends Specification {
         given:
         def user = baseUser.but("firstName", null)
         when: "Try create user"
-        sut.createUserBy(user.name, user.person(), user.teamId())
+        sut.createUserBy(user.name, user.person(), Id.id(TEAM_ID))
         then: "System returns business error"
         thrown(BusinessException.class)
     }
@@ -88,7 +88,7 @@ class AccountServiceTest extends Specification {
         given:
         def user = baseUser.but("lastName", null)
         when: "Try create user"
-        sut.createUserBy(user.name, user.person(), user.teamId())
+        sut.createUserBy(user.name, user.person(), Id.id(TEAM_ID))
         then: "System returns business error"
         thrown(BusinessException.class)
     }
@@ -97,7 +97,7 @@ class AccountServiceTest extends Specification {
         given:
         def user = baseUser.but("email", null)
         when: "Try create user"
-        sut.createUserBy(user.name, user.person(), user.teamId())
+        sut.createUserBy(user.name, user.person(), Id.id(TEAM_ID))
         then: "System returns business error"
         thrown(BusinessException.class)
     }
@@ -106,7 +106,7 @@ class AccountServiceTest extends Specification {
         given:
         def user = baseUser.but("email", "invalid")
         when: "Try create user"
-        sut.createUserBy(user.name, user.person(), user.teamId())
+        sut.createUserBy(user.name, user.person(), Id.id(TEAM_ID))
         then: "System returns business error"
         thrown(BusinessException.class)
     }
@@ -115,7 +115,7 @@ class AccountServiceTest extends Specification {
         given:
         def user = baseUser
         when: "Try create user"
-        sut.createUserBy(user.name, user.person(), user.teamId())
+        sut.createUserBy(user.name, user.person(), Id.id(TEAM_ID))
         then:
         1 * teamRepository.findById(TEAM_ID) >> null
         and: "System returns business error"
@@ -126,7 +126,7 @@ class AccountServiceTest extends Specification {
         given:
         def user = baseUser
         when: "Try create user"
-        sut.createUserBy(user.name, user.person(), user.teamId())
+        sut.createUserBy(user.name, user.person(), Id.id(TEAM_ID))
         then:
         1 * teamRepository.findById(TEAM_ID) >> baseTeam.make()
         1 * locator.getService(UserRepository) >> userRepository
@@ -139,7 +139,7 @@ class AccountServiceTest extends Specification {
         given:
         def user = baseUser
         when: "Try create user"
-        sut.createUserBy(user.name, user.person(), user.teamId())
+        sut.createUserBy(user.name, user.person(), Id.id(TEAM_ID))
         then:
         1 * teamRepository.findById(TEAM_ID) >> baseTeam.make()
         1 * locator.getService(UserRepository) >> userRepository
@@ -160,7 +160,7 @@ class AccountServiceTest extends Specification {
         given:
         def user = baseUser
         when: "Try create user"
-        def created = sut.createUserBy(user.name, user.person(), user.teamId())
+        def created = sut.createUserBy(user.name, user.person(), Id.id(TEAM_ID))
         then:
         1 * teamRepository.findById(TEAM_ID) >> baseTeam.make()
         1 * locator.getService(UserRepository) >> userRepository
@@ -191,7 +191,7 @@ class AccountServiceTest extends Specification {
         given:
         def user = baseUser
         when: "Try create user"
-        def created = sut.createUserBy(user.name, user.person(), user.teamId())
+        def created = sut.createUserBy(user.name, user.person(), Id.id(TEAM_ID))
         then:
         1 * teamRepository.findById(TEAM_ID) >> baseTeam.make()
         1 * locator.getService(UserRepository) >> userRepository
@@ -226,9 +226,7 @@ class AccountServiceTest extends Specification {
         def result = sut.changeUserInfo(Id.id(USER_ID), baseUser.make().getPerson(), Id.id(TEAM_ID))
         then:
         1 * userRepository.findById(USER_ID) >> baseUser.make()
-        // TODO must be only one call
-        2 * teamRepository.findById(TEAM_ID) >> baseTeam.make()
-        1 * locator.getService(TeamRepository) >> teamRepository
+        1 * teamRepository.findById(TEAM_ID) >> baseTeam.make()
         1 * locator.getService(UnitOfWork) >> unitOfWork
         and: "User returned"
         assert result != null
@@ -256,10 +254,8 @@ class AccountServiceTest extends Specification {
         def result = sut.changeUserInfo(Id.id(USER_ID), baseUser.person(), Id.id(OTHER_TEAM_ID))
         then:
         1 * userRepository.findById(USER_ID) >> baseUser.make()
-        1 * teamRepository.findById(TEAM_ID) >> baseTeam.make()
         1 * teamRepository.findById(OTHER_TEAM_ID) >> baseTeam.but("id", OTHER_TEAM_ID).but("name", "otherTeamName").make()
         1 * locator.getService(UserRepository) >> userRepository
-        1 * locator.getService(TeamRepository) >> teamRepository
         1 * locator.getService(UnitOfWork) >> unitOfWork
         1 * locator.getService(NotificationService) >> notificationService
         1 * userRepository.findCountByTeam(OTHER_TEAM_ID) >> 0
@@ -292,10 +288,8 @@ class AccountServiceTest extends Specification {
         when: "Try delete user"
         sut.deleteUserBy(Id.id(USER_ID))
         then:
-        1 * teamRepository.findById(TEAM_ID) >> baseTeam.make()
         1 * userRepository.findById(USER_ID) >> baseUser.make()
         1 * locator.getService(UnitOfWork) >> unitOfWork
-        1 * locator.getService(TeamRepository) >> teamRepository
         1 * locator.getService(NotificationService) >> notificationService
         and: "User deleted"
         1 * unitOfWorkImpl.commit(_) >> {
@@ -347,7 +341,10 @@ class AccountServiceTest extends Specification {
             builder.set("firstName", "firstName");
             builder.set("lastName", "lastName");
             builder.set("email", "user@mail.org");
+            builder.set("password", "password");
             builder.set("teamId", teamId);
+            builder.set("teamName", "teamName");
+            builder.set("maxCapacity", 2);
             return builder;
         }
 
@@ -355,17 +352,22 @@ class AccountServiceTest extends Specification {
             Person.person(this.firstName, this.lastName, EmailAddress.email(this.email))
         }
 
-        private Id teamId() {
-            Id.id(this.teamId)
-        }
-
-        private Id userId() {
-            Id.id(this.id)
-        }
-
         @Override
         User make() {
-            User.oldUser(userId(), this.name, teamId(), person())
+            User.Snapshot snapshot = new User.Snapshot();
+            snapshot.setId(this.id);
+            snapshot.setName(this.name);
+            snapshot.setFirstName(this.firstName);
+            snapshot.setLastName(this.lastName);
+            snapshot.setEmail(this.email);
+            snapshot.setPassword(this.password);
+
+            Team.Snapshot team = new Team.Snapshot();
+            team.setId(this.teamId);
+            team.setName(this.teamName);
+            team.setMaxCapacity(this.maxCapacity);
+            snapshot.setTeam(team);
+            User.restore(snapshot)
         }
     }
 
@@ -379,13 +381,13 @@ class AccountServiceTest extends Specification {
             return builder;
         }
 
-        private Id teamId() {
-            Id.id(this.id)
-        }
-
         @Override
         Team make() {
-            return new Team(teamId(), this.name, this.maxCapacity)
+            Team.Snapshot team = new Team.Snapshot();
+            team.setId(this.id);
+            team.setName(this.name);
+            team.setMaxCapacity(this.maxCapacity);
+            return Team.restore(team)
         }
     }
 

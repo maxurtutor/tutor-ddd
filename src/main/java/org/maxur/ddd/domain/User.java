@@ -19,8 +19,6 @@ public class User extends Entity<User> {
 
     private Password password;
 
-    private Id<Team> teamId;
-
     private Team team;
 
     private User(Id<User> id, String name, Person person, Password password) {
@@ -42,20 +40,12 @@ public class User extends Entity<User> {
         return new User(checkName(name), person, password);
     }
 
-    public static User oldUser(
-            Id<User> id, String name, Id<Team> teamId, Person person) throws BusinessException {
-        final Password password = Password.empty();
-        final User user = new User(id, checkName(name), person, password);
-        user.setTeamId(teamId);
-        return user;
-    }
-
     public static User restore(Snapshot snapshot) throws BusinessException {
         final Person person = Person.person(snapshot.firstName, snapshot.lastName, EmailAddress.email(snapshot.email));
         final Password password = Password.restore(snapshot.password);
         final User user =
                 new User(Id.id(snapshot.getId()), checkName(snapshot.getName()), person, password);
-        user.setTeamId(Id.id(snapshot.getTeamId()));
+        user.setTeam(Team.restore(snapshot.getTeam()));
         return user;
     }
 
@@ -66,7 +56,7 @@ public class User extends Entity<User> {
         snapshot.setFirstName(this.person.getFirstName());
         snapshot.setLastName(this.person.getLastName());
         snapshot.setEmail(this.person.getEmailAddress().asString());
-        snapshot.setTeamId(this.teamId.asString());
+        snapshot.setTeam(this.team.getSnapshot());
         snapshot.setPassword(this.password.getPassword());
         return snapshot;
     }
@@ -95,22 +85,14 @@ public class User extends Entity<User> {
     }
 
     public Id<Team> getTeamId() {
-        return team != null ? team.getId() : teamId;
+        return team != null ? team.getId() : null;
     }
 
     public String getTeamName() {
         return getTeam().getName();
     }
 
-    private void setTeamId(Id<Team> teamId) {
-        this.teamId = teamId;
-    }
-
-    // LAZY LOAD
     public Team getTeam() {
-        if (team == null) {
-            team = service(TeamRepository.class).findById(teamId.asString());
-        }
         return team;
     }
 
@@ -140,12 +122,12 @@ public class User extends Entity<User> {
         sendNotification(CHANGE_PASSWORD);
     }
 
-    public void changePersonInfo(Person person) {
+    private void changePersonInfo(Person person) {
         this.person = person;
     }
 
-    public boolean includedTo(Team team) {
-        return java.util.Objects.equals(teamId, team.getId());
+    private boolean includedTo(Team team) {
+        return java.util.Objects.equals(this.team, team);
     }
 
     public Person getPerson() {
@@ -172,8 +154,8 @@ public class User extends Entity<User> {
         private String firstName;
         private String lastName;
         private String email;
-        private String teamId;
         private String password;
+        private Team.Snapshot team;
 
         public String getId() {
             return id;
@@ -215,20 +197,24 @@ public class User extends Entity<User> {
             this.email = email;
         }
 
-        public String getTeamId() {
-            return teamId;
-        }
-
-        public void setTeamId(String teamId) {
-            this.teamId = teamId;
-        }
-
         public String getPassword() {
             return password;
         }
 
         public void setPassword(String password) {
             this.password = password;
+        }
+
+        public String getTeamId() {
+            return team.getId();
+        }
+
+        public Team.Snapshot getTeam() {
+            return team;
+        }
+
+        public void setTeam(Team.Snapshot team) {
+            this.team = team;
         }
     }
 

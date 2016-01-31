@@ -1,9 +1,6 @@
 package org.maxur.ddd.infrastructure.dao;
 
-import org.maxur.ddd.domain.BusinessException;
-import org.maxur.ddd.domain.Entity;
-import org.maxur.ddd.domain.User;
-import org.maxur.ddd.domain.UserRepository;
+import org.maxur.ddd.domain.*;
 import org.maxur.ddd.service.Dao;
 import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.StatementContext;
@@ -56,12 +53,14 @@ public interface UserRepositoryJdbiImpl extends UserRepository, Dao {
     User findById(@Bind("id") String id);
 
     @SqlQuery("SELECT * \n" +
-            "FROM t_user\n")
+            "FROM t_user u \n" +
+            "  JOIN t_team t ON u.team_id = t.team_id\n")
     List<User> findAll();
 
-    @SqlQuery("SELECT COUNT(*) \n" +
-            "FROM t_user\n" +
-            "WHERE team_id = :id")
+    @SqlQuery("SELECT * \n" +
+            "FROM t_user u\n" +
+            "  JOIN t_team t ON u.team_id = t.team_id\n" +
+            "WHERE u.user_id = :id")
     Integer findCountByTeam(@Bind("id") String id);
 
     class Mapper implements ResultSetMapper<User> {
@@ -72,8 +71,14 @@ public interface UserRepositoryJdbiImpl extends UserRepository, Dao {
             snapshot.setFirstName(r.getString("first_name"));
             snapshot.setLastName(r.getString("last_name"));
             snapshot.setEmail(r.getString("email"));
-            snapshot.setTeamId(r.getString("team_id"));
             snapshot.setPassword(r.getString("password"));
+
+            Team.Snapshot team = new Team.Snapshot();
+            team.setId(r.getString("team_id"));
+            team.setName(r.getString("team_name"));
+            team.setMaxCapacity(r.getInt("max_capacity"));
+            snapshot.setTeam(team);
+
             try {
                 return User.restore(snapshot);
             } catch (BusinessException e) {
