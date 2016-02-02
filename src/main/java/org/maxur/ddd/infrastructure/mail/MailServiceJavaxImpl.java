@@ -1,9 +1,14 @@
 package org.maxur.ddd.infrastructure.mail;
 
-import org.maxur.ddd.domain.Mail;
-import org.maxur.ddd.account.service.MailService;
+import org.maxur.ddd.admin.domain.Mail;
+import org.maxur.ddd.admin.service.MailService;
 
-import javax.mail.*;
+import javax.mail.BodyPart;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.Session;
+import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;

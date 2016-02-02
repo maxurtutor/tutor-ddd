@@ -1,4 +1,6 @@
-package org.maxur.ddd.domain;
+package org.maxur.ddd.admin.domain;
+
+import org.maxur.ddd.commons.domain.EmailAddress;
 
 import static java.lang.String.format;
 

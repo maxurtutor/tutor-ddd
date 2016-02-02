@@ -1,7 +1,6 @@
-package org.maxur.ddd.domain;
+package org.maxur.ddd.commons.domain;
 
 import org.glassfish.hk2.api.ServiceLocator;
-import org.maxur.ddd.Launcher;
 
 import javax.inject.Inject;
 

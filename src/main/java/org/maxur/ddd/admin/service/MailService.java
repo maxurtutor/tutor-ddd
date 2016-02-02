@@ -1,6 +1,7 @@
-package org.maxur.ddd.account.service;
+package org.maxur.ddd.admin.service;
 
-import org.maxur.ddd.domain.Mail;
+
+import org.maxur.ddd.admin.domain.Mail;
 
 import javax.mail.MessagingException;
 

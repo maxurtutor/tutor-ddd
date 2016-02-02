@@ -1,7 +1,7 @@
 package org.maxur.ddd.commons.service;
 
-import org.maxur.ddd.domain.Entity;
-import org.maxur.ddd.domain.Id;
+import org.maxur.ddd.commons.domain.Entity;
+import org.maxur.ddd.commons.domain.Id;
 
 import java.util.HashMap;
 import java.util.Map;

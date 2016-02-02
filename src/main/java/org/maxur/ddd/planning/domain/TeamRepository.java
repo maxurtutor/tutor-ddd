@@ -1,4 +1,6 @@
-package org.maxur.ddd.domain;
+package org.maxur.ddd.planning.domain;
+
+import org.maxur.ddd.commons.domain.Entity;
 
 /**
  * @author myunusov

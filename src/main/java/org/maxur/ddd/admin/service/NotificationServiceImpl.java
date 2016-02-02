@@ -1,7 +1,7 @@
-package org.maxur.ddd.account.service;
+package org.maxur.ddd.admin.service;
 
-import org.maxur.ddd.domain.Mail;
-import org.maxur.ddd.domain.NotificationService;
+import org.maxur.ddd.admin.domain.Mail;
+import org.maxur.ddd.admin.domain.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

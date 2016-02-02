@@ -1,7 +1,7 @@
 package org.maxur.ddd.commons.service;
 
-import org.maxur.ddd.domain.BusinessException;
-import org.maxur.ddd.domain.Entity;
+import org.maxur.ddd.commons.domain.BusinessException;
+import org.maxur.ddd.commons.domain.Entity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

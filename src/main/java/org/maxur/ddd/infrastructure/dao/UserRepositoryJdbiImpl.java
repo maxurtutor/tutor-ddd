@@ -1,14 +1,27 @@
 package org.maxur.ddd.infrastructure.dao;
 
-import org.maxur.ddd.domain.*;
-import org.maxur.ddd.commons.Dao;
+import org.maxur.ddd.admin.domain.User;
+import org.maxur.ddd.admin.domain.UserRepository;
+import org.maxur.ddd.commons.domain.BusinessException;
+import org.maxur.ddd.commons.domain.Entity;
+import org.maxur.ddd.commons.service.Dao;
+import org.maxur.ddd.planning.domain.Team;
 import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.StatementContext;
-import org.skife.jdbi.v2.sqlobject.*;
+import org.skife.jdbi.v2.sqlobject.Bind;
+import org.skife.jdbi.v2.sqlobject.Binder;
+import org.skife.jdbi.v2.sqlobject.BinderFactory;
+import org.skife.jdbi.v2.sqlobject.BindingAnnotation;
+import org.skife.jdbi.v2.sqlobject.SqlQuery;
+import org.skife.jdbi.v2.sqlobject.SqlUpdate;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 import org.skife.jdbi.v2.tweak.ResultSetMapper;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Annotation;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -48,8 +61,9 @@ public interface UserRepositoryJdbiImpl extends UserRepository, Dao {
     void update(@BindUser Entity user);
 
     @SqlQuery("SELECT * \n" +
-            "FROM t_user\n" +
-            "WHERE user_id = :id")
+        "FROM t_user u\n" +
+        "  JOIN t_team t ON u.team_id = t.team_id\n" +
+        "WHERE user_id = :id")
     User findById(@Bind("id") String id);
 
     @SqlQuery("SELECT * \n" +

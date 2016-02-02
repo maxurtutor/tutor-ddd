@@ -1,20 +1,30 @@
-package org.maxur.ddd.account.service
+package org.maxur.ddd.admin.service
 
 import org.glassfish.hk2.api.ServiceLocator
+import org.maxur.ddd.admin.domain.*
+import org.maxur.ddd.commons.domain.BusinessException
+import org.maxur.ddd.commons.domain.EmailAddress
+import org.maxur.ddd.commons.domain.Id
+import org.maxur.ddd.commons.domain.NotFoundException
+import org.maxur.ddd.commons.domain.Person
+import org.maxur.ddd.commons.domain.ServiceLocatorProvider
 import org.maxur.ddd.commons.service.UnitOfWork
 import org.maxur.ddd.commons.service.UnitOfWorkImpl
+import org.maxur.ddd.planning.domain.Team
+import org.maxur.ddd.planning.domain.TeamRepository
 import org.maxur.ddd.utils.ObjectBuilder
-import org.maxur.ddd.domain.*
 import org.slf4j.Logger
 import spock.lang.Specification
 
 import javax.mail.MessagingException
+
 /**
  * @author myunusov
  * @version 1.0
  * @since <pre>06.01.2016</pre>
  */
-class AccountServiceTest extends Specification {
+@SuppressWarnings("GroovyAssignabilityCheck")
+class AccountServiceSpec extends Specification {
 
     static USER_ID = new Id<User>().asString()
 

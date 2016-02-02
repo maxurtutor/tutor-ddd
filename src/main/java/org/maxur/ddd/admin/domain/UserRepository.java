@@ -1,4 +1,4 @@
-package org.maxur.ddd.domain;
+package org.maxur.ddd.admin.domain;
 
 import java.util.List;
 

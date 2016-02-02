@@ -1,6 +1,4 @@
-package org.maxur.ddd.domain;
-
-import org.maxur.ddd.domain.BusinessException;
+package org.maxur.ddd.commons.domain;
 
 import static java.lang.String.format;
 

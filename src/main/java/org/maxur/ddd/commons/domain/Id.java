@@ -1,4 +1,4 @@
-package org.maxur.ddd.domain;
+package org.maxur.ddd.commons.domain;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,10 +1,17 @@
-package org.maxur.ddd.domain;
+package org.maxur.ddd.admin.domain;
+
+import org.maxur.ddd.commons.domain.BusinessException;
+import org.maxur.ddd.commons.domain.EmailAddress;
+import org.maxur.ddd.commons.domain.Entity;
+import org.maxur.ddd.commons.domain.Id;
+import org.maxur.ddd.commons.domain.Person;
+import org.maxur.ddd.planning.domain.Team;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static org.maxur.ddd.domain.NotificationService.Notification.CHANGE_PASSWORD;
-import static org.maxur.ddd.domain.NotificationService.Notification.USER_FIRE;
-import static org.maxur.ddd.domain.NotificationService.Notification.WELCOME;
-import static org.maxur.ddd.domain.ServiceLocatorProvider.service;
+import static org.maxur.ddd.admin.domain.NotificationService.Notification.CHANGE_PASSWORD;
+import static org.maxur.ddd.admin.domain.NotificationService.Notification.USER_FIRE;
+import static org.maxur.ddd.admin.domain.NotificationService.Notification.WELCOME;
+import static org.maxur.ddd.commons.domain.ServiceLocatorProvider.service;
 
 /**
  * @author myunusov

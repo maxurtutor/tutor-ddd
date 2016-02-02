@@ -1,9 +1,17 @@
-package org.maxur.ddd.domain;
+package org.maxur.ddd.planning.domain;
 
+import org.maxur.ddd.admin.domain.UserRepository;
+import org.maxur.ddd.commons.domain.BusinessException;
+import org.maxur.ddd.commons.domain.Entity;
+import org.maxur.ddd.commons.domain.Id;
+
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static org.maxur.ddd.domain.ServiceLocatorProvider.service;
+import static java.util.stream.Collectors.toList;
+import static org.maxur.ddd.commons.domain.ServiceLocatorProvider.service;
 
 /**
  * @author myunusov
@@ -15,6 +23,8 @@ public class Team extends Entity<Team> {
     private String name;
 
     private Integer maxCapacity;
+
+    private Collection<TeamMember> members = new HashSet<>();
 
     private Team(Id<Team> id, String name, Integer maxCapacity) {
         super(id);
@@ -35,11 +45,20 @@ public class Team extends Entity<Team> {
     }
 
     public static Team restore(Snapshot snapshot) throws BusinessException {
-        return new Team(
-                Id.id(snapshot.getId()),
-                checkName(snapshot.getName()),
-                checkMaxCapacity(snapshot.getMaxCapacity())
+        final Team team = new Team(
+            Id.id(snapshot.getId()),
+            checkName(snapshot.getName()),
+            checkMaxCapacity(snapshot.getMaxCapacity())
         );
+        if (snapshot.getMembers() != null)
+        for(TeamMember.Snapshot member : snapshot.getMembers()){
+            team.addTeamMember(TeamMember.restore(member));
+        }
+        return team;
+    }
+
+    private void addTeamMember(TeamMember member) {
+        members.add(member);
     }
 
     private static String  checkName(String name) throws BusinessException {
@@ -72,6 +91,7 @@ public class Team extends Entity<Team> {
         snapshot.setId(getId().asString());
         snapshot.setName(this.name);
         snapshot.setMaxCapacity(this.maxCapacity);
+        snapshot.setMembers(members.stream().map(TeamMember::getSnapshot).collect(toList()));
         return snapshot;
     }
 
@@ -80,6 +100,7 @@ public class Team extends Entity<Team> {
         private String id;
         private String name;
         private Integer maxCapacity;
+        private Collection<TeamMember.Snapshot> members;
 
         public String getId() {
             return id;
@@ -103,6 +124,14 @@ public class Team extends Entity<Team> {
 
         public void setMaxCapacity(Integer maxCapacity) {
             this.maxCapacity = maxCapacity;
+        }
+
+        public Collection<TeamMember.Snapshot> getMembers() {
+            return members;
+        }
+
+        public void setMembers(Collection<TeamMember.Snapshot> members) {
+            this.members = members;
         }
     }
 }

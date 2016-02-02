@@ -1,4 +1,4 @@
-package org.maxur.ddd.domain;
+package org.maxur.ddd.commons.domain;
 
 import com.google.common.base.Strings;
 

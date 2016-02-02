@@ -1,12 +1,18 @@
 package org.maxur.ddd.planning.service;
 
+import org.maxur.ddd.admin.domain.User;
+import org.maxur.ddd.admin.domain.UserRepository;
+import org.maxur.ddd.commons.domain.BusinessException;
+import org.maxur.ddd.commons.domain.Id;
+import org.maxur.ddd.commons.domain.NotFoundException;
 import org.maxur.ddd.commons.service.IdentificationMap;
 import org.maxur.ddd.commons.service.UnitOfWork;
-import org.maxur.ddd.domain.*;
+import org.maxur.ddd.planning.domain.Team;
+import org.maxur.ddd.planning.domain.TeamRepository;
 
 import javax.inject.Inject;
 
-import static org.maxur.ddd.domain.ServiceLocatorProvider.service;
+import static org.maxur.ddd.commons.domain.ServiceLocatorProvider.service;
 
 /**
  * @author myunusov

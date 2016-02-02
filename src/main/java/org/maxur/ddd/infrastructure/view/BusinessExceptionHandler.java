@@ -1,7 +1,7 @@
 package org.maxur.ddd.infrastructure.view;
 
-import org.maxur.ddd.domain.NotFoundException;
-import org.maxur.ddd.domain.BusinessException;
+import org.maxur.ddd.commons.domain.NotFoundException;
+import org.maxur.ddd.commons.domain.BusinessException;
 import org.slf4j.Logger;
 
 import javax.ws.rs.core.GenericEntity;

@@ -1,7 +1,7 @@
 package org.maxur.ddd.infrastructure.view;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.maxur.ddd.domain.User;
+import org.maxur.ddd.admin.domain.User;
 
 /**
  * @author myunusov

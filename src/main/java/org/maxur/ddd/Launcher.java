@@ -18,9 +18,15 @@ import org.glassfish.hk2.api.ServiceLocatorFactory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.servlet.ServletProperties;
 import org.h2.tools.RunScript;
+import org.maxur.ddd.admin.domain.NotificationService;
+import org.maxur.ddd.admin.domain.UserRepository;
+import org.maxur.ddd.admin.service.AccountService;
+import org.maxur.ddd.admin.service.MailService;
+import org.maxur.ddd.admin.service.NotificationServiceImpl;
+import org.maxur.ddd.commons.domain.BusinessException;
+import org.maxur.ddd.commons.domain.ServiceLocatorProvider;
 import org.maxur.ddd.commons.service.UnitOfWork;
 import org.maxur.ddd.commons.service.UnitOfWorkImpl;
-import org.maxur.ddd.domain.*;
 import org.maxur.ddd.infrastructure.dao.TeamRepositoryJdbiImpl;
 import org.maxur.ddd.infrastructure.dao.UnitOfWorkJdbiImpl;
 import org.maxur.ddd.infrastructure.dao.UserRepositoryJdbiImpl;
@@ -28,7 +34,8 @@ import org.maxur.ddd.infrastructure.mail.MailServiceJavaxImpl;
 import org.maxur.ddd.infrastructure.view.BusinessExceptionHandler;
 import org.maxur.ddd.infrastructure.view.RuntimeExceptionHandler;
 import org.maxur.ddd.infrastructure.view.UserResource;
-import org.maxur.ddd.account.service.*;
+import org.maxur.ddd.planning.domain.Team;
+import org.maxur.ddd.planning.domain.TeamRepository;
 import org.maxur.ddd.planning.service.PlanningService;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
@@ -45,9 +52,9 @@ import java.net.URL;
 import java.sql.SQLException;
 
 import static org.glassfish.hk2.utilities.ServiceLocatorUtilities.bind;
-import static org.maxur.ddd.domain.EmailAddress.email;
-import static org.maxur.ddd.domain.Id.id;
-import static org.maxur.ddd.domain.Person.person;
+import static org.maxur.ddd.commons.domain.EmailAddress.email;
+import static org.maxur.ddd.commons.domain.Person.person;
+import static org.maxur.ddd.commons.domain.Id.id;
 
 /**
  * @author myunusov
