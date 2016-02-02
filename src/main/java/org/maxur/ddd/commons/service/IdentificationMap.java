@@ -1,4 +1,4 @@
-package org.maxur.ddd.service;
+package org.maxur.ddd.commons.service;
 
 import org.maxur.ddd.domain.Entity;
 import org.maxur.ddd.domain.Id;

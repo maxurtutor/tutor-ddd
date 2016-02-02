@@ -1,6 +1,8 @@
-package org.maxur.ddd.service
+package org.maxur.ddd.account.service
 
 import org.glassfish.hk2.api.ServiceLocator
+import org.maxur.ddd.commons.service.UnitOfWork
+import org.maxur.ddd.commons.service.UnitOfWorkImpl
 import org.maxur.ddd.utils.ObjectBuilder
 import org.maxur.ddd.domain.*
 import org.slf4j.Logger

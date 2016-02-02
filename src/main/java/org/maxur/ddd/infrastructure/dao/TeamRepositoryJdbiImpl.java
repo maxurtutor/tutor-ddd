@@ -4,7 +4,7 @@ import org.maxur.ddd.domain.BusinessException;
 import org.maxur.ddd.domain.Entity;
 import org.maxur.ddd.domain.Team;
 import org.maxur.ddd.domain.TeamRepository;
-import org.maxur.ddd.service.Dao;
+import org.maxur.ddd.commons.Dao;
 import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.*;

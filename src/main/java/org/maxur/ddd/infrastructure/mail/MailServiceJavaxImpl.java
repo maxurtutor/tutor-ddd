@@ -1,7 +1,7 @@
 package org.maxur.ddd.infrastructure.mail;
 
 import org.maxur.ddd.domain.Mail;
-import org.maxur.ddd.service.MailService;
+import org.maxur.ddd.account.service.MailService;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;

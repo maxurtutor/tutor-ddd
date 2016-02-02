@@ -18,6 +18,8 @@ import org.glassfish.hk2.api.ServiceLocatorFactory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.servlet.ServletProperties;
 import org.h2.tools.RunScript;
+import org.maxur.ddd.commons.service.UnitOfWork;
+import org.maxur.ddd.commons.service.UnitOfWorkImpl;
 import org.maxur.ddd.domain.*;
 import org.maxur.ddd.infrastructure.dao.TeamRepositoryJdbiImpl;
 import org.maxur.ddd.infrastructure.dao.UnitOfWorkJdbiImpl;
@@ -26,7 +28,8 @@ import org.maxur.ddd.infrastructure.mail.MailServiceJavaxImpl;
 import org.maxur.ddd.infrastructure.view.BusinessExceptionHandler;
 import org.maxur.ddd.infrastructure.view.RuntimeExceptionHandler;
 import org.maxur.ddd.infrastructure.view.UserResource;
-import org.maxur.ddd.service.*;
+import org.maxur.ddd.account.service.*;
+import org.maxur.ddd.planning.service.PlanningService;
 import org.skife.jdbi.v2.DBI;
 import org.skife.jdbi.v2.Handle;
 

@@ -1,4 +1,4 @@
-package org.maxur.ddd.service;
+package org.maxur.ddd.account.service;
 
 import org.maxur.ddd.domain.Mail;
 

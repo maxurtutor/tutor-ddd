@@ -4,7 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import org.maxur.ddd.domain.BusinessException;
 import org.maxur.ddd.domain.EmailAddress;
 import org.maxur.ddd.domain.Id;
-import org.maxur.ddd.service.AccountService;
+import org.maxur.ddd.account.service.AccountService;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;

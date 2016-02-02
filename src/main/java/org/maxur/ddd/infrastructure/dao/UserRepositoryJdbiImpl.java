@@ -1,7 +1,7 @@
 package org.maxur.ddd.infrastructure.dao;
 
 import org.maxur.ddd.domain.*;
-import org.maxur.ddd.service.Dao;
+import org.maxur.ddd.commons.Dao;
 import org.skife.jdbi.v2.SQLStatement;
 import org.skife.jdbi.v2.StatementContext;
 import org.skife.jdbi.v2.sqlobject.*;
