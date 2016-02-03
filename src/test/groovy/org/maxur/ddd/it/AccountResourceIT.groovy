@@ -78,7 +78,6 @@ class AccountResourceIT extends Specification {
         2     || "sidor" | "Sidor"   | "Sidorov"  | "sidor@mail.com" | "T_CQRS" | null
     }
 
-
     def "should be find user by it's id"() {
         given:
         Response response = client.target(
@@ -229,26 +228,14 @@ class AccountResourceIT extends Specification {
     def "should be returns current user"() {
         given:
         Response response = client.target(
-            String.format("http://localhost:%d/api/users/me" + userIds[index], 8080))
+            String.format("http://localhost:%d/api/users/me", 8080))
             .request()
             .get();
         UserDto result = response.readEntity(UserDto.class)
         expect:
-        assert response.getStatus() == 200;
+        assert response.getStatus() == 204;
         and:
-        assert result != null
-        and:
-        result.name == name
-        result.firstName == firstName
-        result.lastName == lastName
-        result.email == email
-        result.teamName == teamName
-        result.password == password
-        where:
-        index || name    | firstName | lastName   | email            | teamName | password
-        0     || "iv"    | "Ivan"    | "Ivanov"   | "ivan@mail.com"  | "T_DDD"  | null
-        1     || "petr"  | "Petr"    | "Petrov"   | "petr@mail.com"  | "T_DDD"  | null
-        2     || "sidor" | "Sidor"   | "Sidorov"  | "sidor@mail.com" | "T_CQRS" | null
+        assert result == null
     }
 
 
