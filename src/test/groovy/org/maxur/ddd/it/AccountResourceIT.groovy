@@ -23,8 +23,8 @@ import static org.maxur.ddd.utils.DBUtils.runScript
  */
 class AccountResourceIT extends Specification {
 
-    def teamIds = ['56ae13d3efa1681bd099e177', '56ae13d3efa1681bd099e178']
-    def userIds = ['56ae13d3efa1681bd099e179', '56ae13d3efa1681bd099e180', '56ae13d3efa1681bd099e181']
+    def static teamIds = ['56ae13d3efa1681bd099e177', '56ae13d3efa1681bd099e178']
+    def static userIds = ['56ae13d3efa1681bd099e179', '56ae13d3efa1681bd099e180', '56ae13d3efa1681bd099e181']
 
     @Shared
     DropwizardTestSupport<Config> SUPPORT =
@@ -97,7 +97,6 @@ class AccountResourceIT extends Specification {
         result.email == email
         result.teamName == teamName
         result.password == password
-
         where:
         index || name    | firstName | lastName   | email            | teamName | password
         0     || "iv"    | "Ivan"    | "Ivanov"   | "ivan@mail.com"  | "T_DDD"  | null
@@ -137,6 +136,38 @@ class AccountResourceIT extends Specification {
         result.password == null
     }
 
+    def "should be update users personal data if it's valid "() {
+        given:
+        def dto = new UserDto();
+        dto.name = name
+        dto.firstName = firstName
+        dto.lastName = lastName
+        dto.email = email
+        dto.teamId = teamId
+        Response response = client.target(
+            String.format("http://localhost:%d/api/users/" + userIds[0], 8080))
+            .request()
+            .put(Entity.json(dto));
+        expect:
+        response.getStatus() == resultCode
+
+        where:
+         name    | firstName | lastName   | email            | teamId      ||  resultCode
+         "iv"    | "Ivan"    | "Ivanov"   | "ivan@mail.com"  | teamIds[0]  ||  200
+         null    | "Ivan"    | "Ivanov"   | "ivan@mail.com"  | teamIds[0]  ||  422
+         ""      | "Ivan"    | "Ivanov"   | "ivan@mail.com"  | teamIds[0]  ||  422
+         "iv"    | null      | "Ivanov"   | "ivan@mail.com"  | teamIds[0]  ||  422
+         "iv"    | ""        | "Ivanov"   | "ivan@mail.com"  | teamIds[0]  ||  422
+         "iv"    | "Ivan"    | null       | "ivan@mail.com"  | teamIds[0]  ||  422
+         "iv"    | "Ivan"    | ""         | "ivan@mail.com"  | teamIds[0]  ||  422
+         "iv"    | "Ivan"    | "Ivanov"   | "invalid"        | teamIds[0]  ||  422
+         "iv"    | "Ivan"    | "Ivanov"   | null             | teamIds[0]  ||  422
+         "iv"    | "Ivan"    | "Ivanov"   | ""               | teamIds[0]  ||  422
+         "iv"    | "Ivan"    | "Ivanov"   | "ivan@mail.com"  | null        ||  422
+         "iv"    | "Ivan"    | "Ivanov"   | "ivan@mail.com"  | ""          ||  422
+         "iv"    | "Ivan"    | "Ivanov"   | "ivan@mail.com"  | "invalid"   ||  400
+    }
+
 
     def "should be change users password"() {
         given:
@@ -171,6 +202,54 @@ class AccountResourceIT extends Specification {
         result.password == null
     }
 
+    def "should be change users password if it's valid "() {
+        given:
+        def dto = new UserDto();
+        dto.name = name
+        dto.firstName = firstName
+        dto.lastName = lastName
+        dto.email = email
+        dto.teamId = teamId
+        dto.password = password
+        Response response = client.target(
+            String.format("http://localhost:%d/api/users/" + userIds[0] + "/password", 8080))
+            .request()
+            .put(Entity.json(dto));
+        expect:
+        response.getStatus() == resultCode
+
+        where:
+        name    | firstName | lastName   | email            | teamId     | password   ||  resultCode
+        "iv"    | "Ivan"    | "Ivanov"   | "ivan@mail.com"  | teamIds[0] | "password" ||  200
+        "iv"    | "Ivan"    | "Ivanov"   | "ivan@mail.com"  | teamIds[0] | null       ||  422
+        "iv"    | "Ivan"    | "Ivanov"   | "ivan@mail.com"  | teamIds[0] | ""         ||  422
+    }
+
+
+    def "should be returns current user"() {
+        given:
+        Response response = client.target(
+            String.format("http://localhost:%d/api/users/me" + userIds[index], 8080))
+            .request()
+            .get();
+        UserDto result = response.readEntity(UserDto.class)
+        expect:
+        assert response.getStatus() == 200;
+        and:
+        assert result != null
+        and:
+        result.name == name
+        result.firstName == firstName
+        result.lastName == lastName
+        result.email == email
+        result.teamName == teamName
+        result.password == password
+        where:
+        index || name    | firstName | lastName   | email            | teamName | password
+        0     || "iv"    | "Ivan"    | "Ivanov"   | "ivan@mail.com"  | "T_DDD"  | null
+        1     || "petr"  | "Petr"    | "Petrov"   | "petr@mail.com"  | "T_DDD"  | null
+        2     || "sidor" | "Sidor"   | "Sidorov"  | "sidor@mail.com" | "T_CQRS" | null
+    }
 
 
 }

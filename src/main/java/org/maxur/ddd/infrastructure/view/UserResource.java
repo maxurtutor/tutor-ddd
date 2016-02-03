@@ -1,12 +1,13 @@
 package org.maxur.ddd.infrastructure.view;
 
 import com.codahale.metrics.annotation.Timed;
-import org.maxur.ddd.commons.domain.EmailAddress;
 import org.maxur.ddd.admin.service.AccountService;
 import org.maxur.ddd.commons.domain.BusinessException;
+import org.maxur.ddd.commons.domain.EmailAddress;
 import org.maxur.ddd.commons.domain.Id;
 
 import javax.inject.Inject;
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -19,8 +20,8 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
-import static org.maxur.ddd.commons.domain.Person.person;
 import static org.maxur.ddd.commons.domain.Id.id;
+import static org.maxur.ddd.commons.domain.Person.person;
 
 
 /**
@@ -43,7 +44,7 @@ public class UserResource {
     @POST
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
-    public UserDto add(UserDto dto) throws BusinessException {
+    public UserDto add(@Valid UserDto dto) throws BusinessException {
         return UserDto.from(
                 service.createUserBy(
                         dto.name,
@@ -56,7 +57,7 @@ public class UserResource {
     @PUT
     @Path("/{id}/password")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Boolean changePassword(@PathParam("id") String id, UserDto dto) throws BusinessException {
+    public Boolean changePassword(@PathParam("id") String id, @Valid UserDto dto) throws BusinessException {
         service.changeUserPassword(id(id), dto.password);
         return true;
     }
@@ -65,7 +66,7 @@ public class UserResource {
     @PUT
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Boolean update(@PathParam("id") String id, UserDto dto) throws BusinessException {
+    public Boolean update(@PathParam("id") String id, @Valid UserDto dto) throws BusinessException {
         service.changeUserInfo(
                 id(id), person(dto.firstName, dto.lastName, EmailAddress.email(dto.email)), Id.id(dto.teamId)
         );

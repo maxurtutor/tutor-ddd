@@ -1,6 +1,8 @@
 package org.maxur.ddd.infrastructure.view;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.maxur.ddd.admin.domain.User;
 
 /**
@@ -15,18 +17,24 @@ public class UserDto {
     public String id;
 
     @JsonProperty
+    @NotEmpty
     public String name;
 
     @JsonProperty
+    @NotEmpty
     public String firstName;
 
     @JsonProperty
+    @NotEmpty
     public String lastName;
 
     @JsonProperty
+    @NotEmpty
+    @Email
     public String email;
 
     @JsonProperty
+    @NotEmpty
     public String teamId;
 
     @JsonProperty
