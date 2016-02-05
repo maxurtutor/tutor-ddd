@@ -74,6 +74,14 @@
             <version>0.9.10</version>
         </dependency>
 
+        <!-- Unit Tests-->
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib</artifactId>
+            <version>3.2.0</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

@@ -10,6 +10,7 @@ DDD Course tutorial
 
 Step by step
 
+Step 0-2: Unit Test (BDD) Support (Spock Framework)
 Step 0-1: Rest Application Template
 
 ## Links  
