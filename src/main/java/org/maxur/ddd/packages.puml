@@ -1,0 +1,7 @@
+@startuml
+package DAO
+package Domain
+package UI
+Domain <-- UI
+DAO <-- Domain
+@enduml

@@ -315,8 +315,93 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <doclet>ch.raffael.doclets.pegdown.PegdownDoclet</doclet>
+                    <docletArtifact>
+                        <groupId>ch.raffael.pegdown-doclet</groupId>
+                        <artifactId>pegdown-doclet</artifactId>
+                        <version>1.2.1</version>
+                    </docletArtifact>
+                    <useStandardDocletOptions>true</useStandardDocletOptions>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+            <!--
+            API documentation builder. It will produce documentation
+            which is then to be used in site:site. It will be
+            located at target/site/apidocs.
+            -->
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>${maven-javadoc-plugin.version}</version>
+            <configuration>
+                <doclet>ch.raffael.doclets.pegdown.PegdownDoclet</doclet>
+                <docletArtifact>
+                    <groupId>ch.raffael.pegdown-doclet</groupId>
+                    <artifactId>pegdown-doclet</artifactId>
+                    <version>1.2.1</version>
+                </docletArtifact>
+                <useStandardDocletOptions>true</useStandardDocletOptions>
+
+                <failOnError>true</failOnError>
+                <detectLinks>true</detectLinks>
+                <tags>
+                    <!--
+                    Here we instruct plugin to use custom tag
+                    @link http://maven.apache.org/plugins/maven-javadoc-plugin/examples/tag-configuration.html
+                    -->
+                    <tag>
+                        <name>todo</name>
+                        <placement>a</placement>
+                        <head>To do:</head>
+                    </tag>
+                    <tag>
+                        <name>checkstyle</name>
+                        <placement>a</placement>
+                        <head>Suppressed Checkstyle violations:</head>
+                    </tag>
+                </tags>
+
+                <source>${project.source.compile}</source>
+                <encoding>${project.source.encoding}</encoding>
+                <charset>${project.source.encoding}</charset>
+                <docencoding>${project.source.encoding}</docencoding>
+                <breakiterator>true</breakiterator>
+                <version>true</version>
+                <author>true</author>
+                <keywords>true</keywords>
+
+                <linksource>true</linksource>
+                <excludePackageNames>*.it,*.test</excludePackageNames>
+                <aggregate>true</aggregate>
+
+                <additionalparam>
+                    -inferrel -inferdep -quiet -hide java.*
+                    -collpackages java.util.* -qualify
+                    -postfixpackage -nodefontsize 9
+                    -nodefontpackagesize 7
+                    -edgefontname "Trebuchet MS"
+                    -nodefontabstractname "Trebuchet MS"
+                    -nodefontclassabstractname "Trebuchet MS"
+                    -nodefontclassname "Trebuchet MS"
+                    -nodefontname "Trebuchet MS"
+                    -nodefontpackagename "Trebuchet MS"
+                    -nodefonttagname "Trebuchet MS"
+                    -view
+                </additionalparam>
+
+            </configuration>
+        </plugin>
+        </plugins>
+    </reporting>
 
     <repositories>
         <repository>

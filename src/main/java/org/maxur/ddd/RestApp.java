@@ -2,11 +2,14 @@ package org.maxur.ddd;
 
 import com.codahale.metrics.JmxReporter;
 import io.dropwizard.Application;
+import io.dropwizard.Bundle;
+import io.dropwizard.Configuration;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.UrlConfigurationSourceProvider;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.maxur.ddd.config.Config;
 
 import java.io.IOException;
@@ -16,8 +19,12 @@ import static org.maxur.ddd.config.Binder.binder;
 import static org.maxur.ddd.config.Rest.initRest;
 import static org.maxur.ddd.util.DBUtils.runScripts;
 
-
 /**
+ * ## This class represents T-DDD application.
+ *
+ * ### T-DDD Application is One-Jar Standalone Rest Application.
+ * It's uses Dropwizard as core rest framework.
+ *
  * @author Maxim Yunusov
  * @version 1.0
  * @since <pre>2/4/2016</pre>
@@ -27,32 +34,39 @@ public class RestApp extends Application<Config> {
     private static final AssetsBundle ASSETS_BUNDLE = new AssetsBundle("/assets", "/", "index.html");
     private static final AssetsBundle SWAGGER_BUNDLE = new AssetsBundle("/swagger-ui", "/api-docs", "index.html");
 
-
     @Contract(" -> !null")
     static RestApp application() {
         return new RestApp();
     }
 
-    @SuppressWarnings("WeakerAccess")
-    public RestApp() {
-    }
-
     @Override
-    public void initialize(Bootstrap<Config> bootstrap) {
+    /**
+     * Initializes the application bootstrap.
+     *
+     * @param bootstrap the application bootstrap
+     */
+    public void initialize(@NotNull final Bootstrap<Config> bootstrap) {
         bootstrap.setConfigurationSourceProvider(new UrlConfigurationSourceProvider());
         bootstrap.addBundle(ASSETS_BUNDLE);
         bootstrap.addBundle(SWAGGER_BUNDLE);
     }
 
     @Override
-    public void run(final Config cfg, final Environment env) {
+    /**
+     * When the application runs, this is called after the {@link Bundle}s are run.
+     *
+     * @param configuration the parsed {@link Configuration} object
+     * @param environment   the application's {@link Environment}
+     *
+     */
+    public void run(@NotNull final Config cfg, @NotNull final Environment env) {
         JmxReporter.forRegistry(env.metrics()).build().start();
         binder(cfg, env);
         initRest(cfg, env);
         initDatabase(cfg);
     }
 
-    private void initDatabase(Config cfg)  {
+    private void initDatabase(@NotNull final Config cfg)  {
         try {
             runScripts(cfg.getScripts());
         } catch (IOException | SQLException e) {

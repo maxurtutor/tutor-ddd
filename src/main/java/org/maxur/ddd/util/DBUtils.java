@@ -15,15 +15,40 @@ import java.util.List;
 import static org.maxur.ddd.config.ServiceLocatorProvider.service;
 
 /**
+ * ## A collection of JDBI helper methods.
+ *
  * @author myunusov
  * @version 1.0
  * @since <pre>02.02.2016</pre>
  */
 public final class DBUtils {
 
+    /**
+     * Utils class with private constructor.
+     */
     private DBUtils() {
     }
 
+    /**
+     * # Executes SQL queries by scripts files names.
+     *
+     * Example:
+     *
+     * ```java
+     * runScripts("ddl.sql", "dml.sql");
+     * ```
+     *
+     * ![Example Diagram](example.png)
+     *
+     * @startuml example.png
+     * Alice -> Bob: Authentication Request
+     * Bob --> Alice: Authentication Response
+     * @enduml
+     *
+     * @param scripts scripts files names.
+     * @throws IOException On file read error.
+     * @throws SQLException On SQL execute error.
+     */
     public static void runScripts(List<String> scripts) throws IOException, SQLException {
         DBI dbi = service(DBI.class);
         try (Handle handle = dbi.open()) {
