@@ -282,7 +282,7 @@
                             <springmvc>false</springmvc>
                             <locations>org.maxur.ddd.ui</locations>
                             <schemes>http</schemes>
-                            <host>127.0.0.1:8080</host>
+                            <host>baseurl</host>
                             <basePath>/api</basePath>
                             <info>
                                 <title>T-DDD</title>
@@ -307,11 +307,20 @@
                                 "${basedir}/src/main/resources/template/hello.html" -->
                             <templatePath>${basedir}/src/site/resources/strapdown.html.hbs</templatePath>
                             <outputPath>${basedir}/target/site/swagger/document.html</outputPath>
-                            <swaggerDirectory>${basedir}/target/classes/swagger-ui</swaggerDirectory>
+                            <swaggerDirectory>${basedir}/target/classes</swaggerDirectory>
                             <swaggerApiReader>com.wordnik.swagger.jaxrs.reader.DefaultJaxrsApiReader</swaggerApiReader>
                         </apiSource>
                     </apiSources>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>swagger-generate</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

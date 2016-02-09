@@ -4,7 +4,7 @@ server:
   applicationContextPath: /
   connector:
     type: http
-    bindHost: 127.0.0.1
+    bindHost: 172.30.204.181
     port: 8080
   requestLog:
     timeZone: UTC
