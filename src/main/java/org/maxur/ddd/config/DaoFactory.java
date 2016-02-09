@@ -11,7 +11,7 @@ import javax.inject.Inject;
  * @version 1.0
  * @since <pre>02.02.2016</pre>
  */
-public class DaoFactory<T> implements Factory<T> {
+class DaoFactory<T> implements Factory<T> {
 
     private final DBI dbi;
 
@@ -20,7 +20,7 @@ public class DaoFactory<T> implements Factory<T> {
     @Inject
     private ServiceLocator locator;
 
-    public DaoFactory(DBI dbi, Class<T> jdbiClass) {
+    DaoFactory(DBI dbi, Class<T> jdbiClass) {
         this.dbi = dbi;
         this.jdbiClass = jdbiClass;
     }

@@ -30,4 +30,8 @@ database:
   password: p
 
 scripts:
-  - /sql/db.ddl
+  - /sql/test.sql
+
+security:
+  tokens:
+    - test

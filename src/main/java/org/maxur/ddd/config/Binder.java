@@ -11,6 +11,8 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.servlet.ServletProperties;
 import org.maxur.ddd.dao.UserDao;
 import org.maxur.ddd.service.AccountService;
+import org.maxur.ddd.service.components.LoggerFactory;
+import org.maxur.ddd.ui.components.BaseAuthenticator;
 import org.skife.jdbi.v2.DBI;
 
 import javax.inject.Singleton;
@@ -46,6 +48,8 @@ public final class Binder extends AbstractBinder {
     protected void configure() {
         bind(env.lifecycle()).to(LifecycleEnvironment.class);
         bind(dbi).to(DBI.class);
+        bind(LoggerFactory.class).to(LoggerFactory.class).in(Singleton.class);
+        bind(BaseAuthenticator.class).to(BaseAuthenticator.class).in(Singleton.class);
         bind(AccountService.class).to(AccountService.class).in(Singleton.class);
         bindFactory(daoFactory(dbi, UserDao.class)).to(UserDao.class);
     }

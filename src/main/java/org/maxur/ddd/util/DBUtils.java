@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.sql.SQLException;
+import java.util.List;
 
 import static org.maxur.ddd.config.ServiceLocatorProvider.service;
 
@@ -23,7 +24,7 @@ public final class DBUtils {
     private DBUtils() {
     }
 
-    public static void runScripts(String... scripts) throws IOException, SQLException {
+    public static void runScripts(List<String> scripts) throws IOException, SQLException {
         DBI dbi = service(DBI.class);
         try (Handle handle = dbi.open()) {
             for (String script : scripts) {

@@ -1,4 +1,4 @@
-package org.maxur.ddd.service;
+package org.maxur.ddd.service.components;
 
 /**
  * @author Maxim Yunusov

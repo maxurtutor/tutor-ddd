@@ -2,10 +2,11 @@ package org.maxur.ddd.service;
 
 import org.maxur.ddd.dao.UserDao;
 import org.maxur.ddd.domain.User;
+import org.maxur.ddd.service.components.LoggerFactory;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.util.Collection;
 
 /**
  * @author myunusov
@@ -14,17 +15,25 @@ import javax.inject.Inject;
  */
 public class AccountService {
 
-    private Logger logger = LoggerFactory.getLogger(AccountService.class);
+    private final Logger logger;
 
     private final UserDao dao;
 
     @Inject
-    public AccountService(UserDao dao) {
+    public AccountService(UserDao dao, LoggerFactory loggerFactory) {
         this.dao = dao;
-
+        this.logger = loggerFactory.loggerFor(AccountService.class);
     }
 
-    public User getCurrentUser() {
-        return null;
+    public Collection<User> findAll() {
+        return dao.findAll();
+    }
+
+    public User findById(String id) {
+        return dao.findById(id);
+    }
+
+    public User findUserByEmail(String email) {
+        return dao.findByEmail(email);
     }
 }

@@ -24,15 +24,14 @@ import static org.maxur.ddd.util.DBUtils.runScripts;
  */
 public class RestApp extends Application<Config> {
 
-    public static final AssetsBundle ASSETS_BUNDLE = new AssetsBundle("/assets", "/", "index.html");
-
-    public static final String[] DB_SCRIPTS = {"/db.ddl"};
+    private static final AssetsBundle ASSETS_BUNDLE = new AssetsBundle("/assets", "/", "index.html");
 
     @Contract(" -> !null")
     static RestApp application() {
         return new RestApp();
     }
 
+    @SuppressWarnings("WeakerAccess")
     public RestApp() {
     }
 
@@ -46,13 +45,13 @@ public class RestApp extends Application<Config> {
     public void run(final Config cfg, final Environment env) {
         JmxReporter.forRegistry(env.metrics()).build().start();
         binder(cfg, env);
-        initRest(env.jersey());
-        initDatabase();
+        initRest(cfg, env);
+        initDatabase(cfg);
     }
 
-    private void initDatabase()  {
+    private void initDatabase(Config cfg)  {
         try {
-            runScripts(DB_SCRIPTS);
+            runScripts(cfg.getScripts());
         } catch (IOException | SQLException e) {
             throw new IllegalStateException(e);
         }

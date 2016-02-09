@@ -1,4 +1,4 @@
-package org.maxur.ddd.ui;
+package org.maxur.ddd.ui.components;
 
 import org.slf4j.Logger;
 
@@ -9,7 +9,7 @@ import java.util.List;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-import static org.maxur.ddd.ui.Incident.incidents;
+import static org.maxur.ddd.ui.components.Incident.incidents;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -17,6 +17,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  * @version 1.0
  * @since <pre>11/6/2015</pre>
  */
+@SuppressWarnings("unused")
 public class RuntimeExceptionHandler implements ExceptionMapper<RuntimeException> {
 
     private static final Logger LOGGER = getLogger(RuntimeExceptionHandler.class);

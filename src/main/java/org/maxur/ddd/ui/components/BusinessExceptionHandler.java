@@ -1,7 +1,7 @@
-package org.maxur.ddd.ui;
+package org.maxur.ddd.ui.components;
 
-import org.maxur.ddd.service.NotFoundException;
-import org.maxur.ddd.service.BusinessException;
+import org.maxur.ddd.service.components.NotFoundException;
+import org.maxur.ddd.service.components.BusinessException;
 import org.slf4j.Logger;
 
 import javax.ws.rs.core.GenericEntity;
@@ -12,7 +12,6 @@ import java.util.List;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-import static org.maxur.ddd.ui.Incident.incidents;
 import static org.slf4j.LoggerFactory.getLogger;
 
 /**
@@ -20,6 +19,7 @@ import static org.slf4j.LoggerFactory.getLogger;
  * @version 1.0
  * @since <pre>11/6/2015</pre>
  */
+@SuppressWarnings("unused")
 public class BusinessExceptionHandler implements ExceptionMapper<BusinessException> {
 
     private static final Logger LOGGER = getLogger(BusinessExceptionHandler.class);
@@ -45,7 +45,7 @@ public class BusinessExceptionHandler implements ExceptionMapper<BusinessExcepti
     }
 
     private GenericEntity<List<Incident>> makeErrorEntity(final BusinessException exception) {
-        return new GenericEntity<List<Incident>>(incidents("Invalid data", exception.getMessage())) {
+        return new GenericEntity<List<Incident>>(Incident.incidents("Invalid data", exception.getMessage())) {
         };
     }
 }
