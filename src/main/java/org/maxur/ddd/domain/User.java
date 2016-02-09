@@ -1,6 +1,8 @@
 package org.maxur.ddd.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -11,15 +13,19 @@ import java.util.HashSet;
  * @since <pre>04.11.2015</pre>
  */
 @SuppressWarnings("unused")
+@ApiModel(value = "User Details")
 public class User {
 
     @JsonProperty
+    @ApiModelProperty(value = "The User's identifier.", required = true)
     private String id;
 
     @JsonProperty
+    @ApiModelProperty(value = "The User's email.", required = true)
     private String email;
 
     @JsonProperty
+    @ApiModelProperty(value = "The User's password.", required = false)
     private String password;
 
     @JsonProperty

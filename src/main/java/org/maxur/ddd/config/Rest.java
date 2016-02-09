@@ -9,8 +9,13 @@ import io.dropwizard.auth.chained.ChainedAuthFilter;
 import io.dropwizard.auth.oauth.OAuthCredentialAuthFilter;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.setup.Environment;
+import io.swagger.config.ScannerFactory;
+import io.swagger.jaxrs.config.DefaultJaxrsScanner;
+import io.swagger.jaxrs.listing.SwaggerSerializers;
+import io.swagger.jersey.listing.ApiListingResourceJSON;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.jetbrains.annotations.NotNull;
+import org.maxur.ddd.ui.ApiDefinition;
 import org.maxur.ddd.ui.components.BaseAuthenticator;
 import org.maxur.ddd.ui.components.BaseAuthorizer;
 import org.maxur.ddd.ui.components.OAuthAuthenticator;
@@ -37,6 +42,13 @@ public final class Rest {
         jersey.register(new AuthDynamicFeature(new ChainedAuthFilter(makeAuthFilters(cfg))));
         jersey.register(RolesAllowedDynamicFeature.class);
         jersey.register(new AuthValueFactoryProvider.Binder<>(UserPrincipal.class));
+
+        // Swagger
+        jersey.register(ApiListingResourceJSON.class);
+        jersey.register(SwaggerSerializers.class);
+        ScannerFactory.setScanner(new DefaultJaxrsScanner());
+        jersey.register(ApiDefinition.class);
+
 
         Set<Class<? extends ExceptionMapper>> exceptionMappers = reflections.getSubTypesOf(ExceptionMapper.class);
         exceptionMappers.forEach(jersey::register);

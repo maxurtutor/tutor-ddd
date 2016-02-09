@@ -3,6 +3,7 @@ package org.maxur.ddd.service;
 import org.maxur.ddd.dao.UserDao;
 import org.maxur.ddd.domain.User;
 import org.maxur.ddd.service.components.LoggerFactory;
+import org.maxur.ddd.service.components.NotFoundException;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
@@ -29,11 +30,19 @@ public class AccountService {
         return dao.findAll();
     }
 
-    public User findById(String id) {
-        return dao.findById(id);
+    public User findById(String id) throws NotFoundException {
+        final User user = dao.findById(id);
+        if (user == null) {
+            throw new NotFoundException("User", id);
+        }
+        return user;
     }
 
-    public User findUserByEmail(String email) {
-        return dao.findByEmail(email);
+    public User findUserByEmail(String email) throws NotFoundException {
+        final User user = dao.findByEmail(email);
+        if (user == null) {
+            throw new NotFoundException("User", email);
+        }
+        return user;
     }
 }

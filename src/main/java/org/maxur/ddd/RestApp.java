@@ -25,6 +25,8 @@ import static org.maxur.ddd.util.DBUtils.runScripts;
 public class RestApp extends Application<Config> {
 
     private static final AssetsBundle ASSETS_BUNDLE = new AssetsBundle("/assets", "/", "index.html");
+    private static final AssetsBundle SWAGGER_BUNDLE = new AssetsBundle("/swagger-ui", "/api-docs", "index.html");
+
 
     @Contract(" -> !null")
     static RestApp application() {
@@ -39,6 +41,7 @@ public class RestApp extends Application<Config> {
     public void initialize(Bootstrap<Config> bootstrap) {
         bootstrap.setConfigurationSourceProvider(new UrlConfigurationSourceProvider());
         bootstrap.addBundle(ASSETS_BUNDLE);
+        bootstrap.addBundle(SWAGGER_BUNDLE);
     }
 
     @Override

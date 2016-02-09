@@ -21,4 +21,11 @@ CREATE TABLE t_user_role (
 );
 
 
+INSERT INTO t_user (user_id, email, password)
+VALUES ('u1', 'ivan@mail.com', 'p1');
 
+INSERT INTO t_role (role_id)
+VALUES ('ADMIN');
+
+INSERT INTO t_user_role (user_id, role_id)
+VALUES ('u1', 'ADMIN');
