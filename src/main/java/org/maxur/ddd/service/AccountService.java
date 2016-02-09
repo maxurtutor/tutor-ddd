@@ -38,11 +38,5 @@ public class AccountService {
         return user;
     }
 
-    public User findUserByEmail(String email) throws NotFoundException {
-        final User user = dao.findByEmail(email);
-        if (user == null) {
-            throw new NotFoundException("User", email);
-        }
-        return user;
-    }
+
 }
