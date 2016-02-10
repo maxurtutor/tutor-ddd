@@ -1,7 +1,9 @@
 @startuml
-package DAO
-package Domain
 package UI
-Domain <-- UI
-DAO <-- Domain
+package Service
+package Domain
+package DAO
+UI --> Service
+Service --> Domain
+Domain --> DAO
 @enduml

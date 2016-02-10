@@ -188,6 +188,8 @@
             <scope>test</scope>
         </dependency>
 
+
+
     </dependencies>
 
     <build>
@@ -222,43 +224,94 @@
                 <configuration>
                     <!--suppress MavenModelInspection -->
                     <repoToken>${env.coveralls_repo_token}</repoToken>
+                    <jacocoReports>
+                        <jacocoReport>${project.reporting.outputDirectory}/jacoco-ut/jacoco.xml</jacocoReport>
+                        <jacocoReport>${project.reporting.outputDirectory}/jacoco-it/jacoco.xml</jacocoReport>
+                    </jacocoReports>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.7.5.201505241946</version>
-                <configuration>
-                    <destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>
-                    <dataFile>${basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>
-                </configuration>
                 <executions>
                     <execution>
-                        <id>jacoco-initialize</id>
+                        <id>pre-unit-test</id>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
+                        <configuration>
+                            <destFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</destFile>
+                            <propertyName>surefireArgLine</propertyName>
+                        </configuration>
                     </execution>
                     <execution>
-                        <id>jacoco-site</id>
-                        <phase>package</phase>
+                        <id>post-unit-test</id>
+                        <phase>test</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
+                        <configuration>
+                            <dataFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</dataFile>
+                            <outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
+                        </configuration>
                     </execution>
+
+                    <execution>
+                        <id>pre-integration-test</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <destFile>${project.build.directory}/coverage-reports/jacoco-it.exec</destFile>
+                            <propertyName>failsafeArgLine</propertyName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>post-integration-test</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${project.build.directory}/coverage-reports/jacoco-it.exec</dataFile>
+                            <outputDirectory>${project.reporting.outputDirectory}/jacoco-it</outputDirectory>
+                        </configuration>
+                    </execution>
+
                 </executions>
             </plugin>
 
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>${surefireArgLine}</argLine>
+                    <excludes>
+                        <exclude>**/IT*.java</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
 
             <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <perCoreThreadCount>true</perCoreThreadCount>
+                    <threadCount>1</threadCount>
+                    <argLine>${failsafeArgLine}</argLine>
+                </configuration>
                 <executions>
                     <execution>
+                        <id>integration-test</id>
                         <goals>
                             <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>verify</id>
+                        <goals>
                             <goal>verify</goal>
                         </goals>
                     </execution>
@@ -335,71 +388,71 @@
     <reporting>
         <plugins>
             <plugin>
-            <!--
-            API documentation builder. It will produce documentation
-            which is then to be used in site:site. It will be
-            located at target/site/apidocs.
-            -->
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>${maven-javadoc-plugin.version}</version>
-            <configuration>
-                <doclet>ch.raffael.doclets.pegdown.PegdownDoclet</doclet>
-                <docletArtifact>
-                    <groupId>ch.raffael.pegdown-doclet</groupId>
-                    <artifactId>pegdown-doclet</artifactId>
-                    <version>1.2.1</version>
-                </docletArtifact>
-                <useStandardDocletOptions>true</useStandardDocletOptions>
+                <!--
+                API documentation builder. It will produce documentation
+                which is then to be used in site:site. It will be
+                located at target/site/apidocs.
+                -->
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven-javadoc-plugin.version}</version>
+                <configuration>
+                    <doclet>ch.raffael.doclets.pegdown.PegdownDoclet</doclet>
+                    <docletArtifact>
+                        <groupId>ch.raffael.pegdown-doclet</groupId>
+                        <artifactId>pegdown-doclet</artifactId>
+                        <version>1.2.1</version>
+                    </docletArtifact>
+                    <useStandardDocletOptions>true</useStandardDocletOptions>
 
-                <failOnError>true</failOnError>
-                <detectLinks>true</detectLinks>
-                <tags>
-                    <!--
-                    Here we instruct plugin to use custom tag
-                    @link http://maven.apache.org/plugins/maven-javadoc-plugin/examples/tag-configuration.html
-                    -->
-                    <tag>
-                        <name>todo</name>
-                        <placement>a</placement>
-                        <head>To do:</head>
-                    </tag>
-                    <tag>
-                        <name>checkstyle</name>
-                        <placement>a</placement>
-                        <head>Suppressed Checkstyle violations:</head>
-                    </tag>
-                </tags>
+                    <failOnError>true</failOnError>
+                    <detectLinks>true</detectLinks>
+                    <tags>
+                        <!--
+                        Here we instruct plugin to use custom tag
+                        @link http://maven.apache.org/plugins/maven-javadoc-plugin/examples/tag-configuration.html
+                        -->
+                        <tag>
+                            <name>todo</name>
+                            <placement>a</placement>
+                            <head>To do:</head>
+                        </tag>
+                        <tag>
+                            <name>checkstyle</name>
+                            <placement>a</placement>
+                            <head>Suppressed Checkstyle violations:</head>
+                        </tag>
+                    </tags>
 
-                <source>${project.source.compile}</source>
-                <encoding>${project.source.encoding}</encoding>
-                <charset>${project.source.encoding}</charset>
-                <docencoding>${project.source.encoding}</docencoding>
-                <breakiterator>true</breakiterator>
-                <version>true</version>
-                <author>true</author>
-                <keywords>true</keywords>
+                    <source>${project.source.compile}</source>
+                    <encoding>${project.source.encoding}</encoding>
+                    <charset>${project.source.encoding}</charset>
+                    <docencoding>${project.source.encoding}</docencoding>
+                    <breakiterator>true</breakiterator>
+                    <version>true</version>
+                    <author>true</author>
+                    <keywords>true</keywords>
 
-                <linksource>true</linksource>
-                <excludePackageNames>*.it,*.test</excludePackageNames>
-                <aggregate>true</aggregate>
+                    <linksource>true</linksource>
+                    <excludePackageNames>*.it,*.test</excludePackageNames>
+                    <aggregate>true</aggregate>
 
-                <additionalparam>
-                    -inferrel -inferdep -quiet -hide java.*
-                    -collpackages java.util.* -qualify
-                    -postfixpackage -nodefontsize 9
-                    -nodefontpackagesize 7
-                    -edgefontname "Trebuchet MS"
-                    -nodefontabstractname "Trebuchet MS"
-                    -nodefontclassabstractname "Trebuchet MS"
-                    -nodefontclassname "Trebuchet MS"
-                    -nodefontname "Trebuchet MS"
-                    -nodefontpackagename "Trebuchet MS"
-                    -nodefonttagname "Trebuchet MS"
-                    -view
-                </additionalparam>
+                    <additionalparam>
+                        -inferrel -inferdep -quiet -hide java.*
+                        -collpackages java.util.* -qualify
+                        -postfixpackage -nodefontsize 9
+                        -nodefontpackagesize 7
+                        -edgefontname "Trebuchet MS"
+                        -nodefontabstractname "Trebuchet MS"
+                        -nodefontclassabstractname "Trebuchet MS"
+                        -nodefontclassname "Trebuchet MS"
+                        -nodefontname "Trebuchet MS"
+                        -nodefontpackagename "Trebuchet MS"
+                        -nodefonttagname "Trebuchet MS"
+                        -view
+                    </additionalparam>
 
-            </configuration>
-        </plugin>
+                </configuration>
+            </plugin>
         </plugins>
     </reporting>
 

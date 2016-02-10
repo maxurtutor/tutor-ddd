@@ -12,25 +12,11 @@
  *
  */
 
-package org.maxur.ddd.service.components;
-
 /**
- * The type Business exception.
+ * domain package contains business logic layer's classes.
  *
- * @author Maxim Yunusov
+ * @author myunusov
  * @version 1.0
- * @since <pre>9/18/2015</pre>
+ * @since <pre>10.02.2016</pre>
  */
-public class BusinessException extends Exception {
-
-    private static final long serialVersionUID = -7189064682665335451L;
-
-    /**
-     * Instantiates a new Business exception.
-     *
-     * @param message the message
-     */
-    BusinessException(final String message) {
-        super(message);
-    }
-}
+package org.maxur.ddd.domain;

@@ -1,11 +1,15 @@
 /*
- * Copyright 2015 Russian Post
+ * Copyright (c) 2016 Maxim Yunusov
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  *
- * This source code is Russian Post Confidential Proprietary.
- * This software is protected by copyright. All rights and titles are reserved.
- * You shall not use, copy, distribute, modify, decompile, disassemble or reverse engineer the software.
- * Otherwise this violation would be treated by law and would be subject to legal prosecution.
- * Legal use of the software provides receipt of a license from the right holder only.
  */
 
 package org.maxur.ddd.ui;
@@ -32,6 +36,8 @@ import static com.google.common.io.Resources.getResource;
 import static java.lang.String.format;
 
 /**
+ * The type Application resource. Operations on or related to this Application.
+ *
  * @author Maxim Yunusov
  * @version 1.0
  * @since <pre>11/29/13</pre>
@@ -42,6 +48,8 @@ public class ApplicationResource {
 
     /**
      * Gets a application documentation
+     *
+     * @param uriInfo the uri info
      * @return response ok
      */
     @Timed
