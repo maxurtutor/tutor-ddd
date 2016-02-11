@@ -33,4 +33,11 @@ class AccountServiceSpec extends Specification {
     }
 
 
+    def "should be return null current user without authentication"() {
+        when: "Try get current user"
+        def user = sut.findAll()
+        then: "System returns business error"
+        assert user == null
+    }
+
 }

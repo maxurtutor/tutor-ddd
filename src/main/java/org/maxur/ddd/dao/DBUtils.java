@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -62,9 +63,10 @@ public final class DBUtils {
     private static void runScript(Handle h, String script) throws IOException, SQLException {
         try (
             InputStream is = Launcher.class.getResourceAsStream(script);
-            Reader reader = new InputStreamReader(is)
+            Reader reader = new InputStreamReader(is);
+            Connection connection = h.getConnection();
         ) {
-            RunScript.execute(h.getConnection(), reader);
+            RunScript.execute(connection, reader);
         }
     }
 }
