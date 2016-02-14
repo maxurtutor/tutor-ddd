@@ -27,9 +27,12 @@ import static org.maxur.ddd.RestApp.application;
  * @version 1.0
  * @since <pre>04.11.2015</pre>
  */
-public class Launcher {
+public final class Launcher {
 
     private static final String CONFIG_FILE = "dropwizard.yml";
+
+    private Launcher() {
+    }
 
     /**
      * # Command line entry point. This method kicks off the building of a application  object and executes it.

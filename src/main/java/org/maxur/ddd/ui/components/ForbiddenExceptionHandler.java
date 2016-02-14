@@ -49,7 +49,7 @@ public class ForbiddenExceptionHandler implements ExceptionMapper<ForbiddenExcep
     }
 
     @Contract("_ -> !null")
-    private GenericEntity<List<Incident>> makeErrorEntity(final ForbiddenException exception) {
+    private static GenericEntity<List<Incident>> makeErrorEntity(final ForbiddenException exception) {
         return new GenericEntity<List<Incident>>(Incident.incidents("Forbidden", exception.getMessage())) {
         };
     }

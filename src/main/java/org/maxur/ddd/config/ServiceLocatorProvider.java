@@ -15,8 +15,7 @@
 package org.maxur.ddd.config;
 
 import org.glassfish.hk2.api.ServiceLocator;
-
-import javax.inject.Inject;
+import org.jetbrains.annotations.Contract;
 
 /**
  * The type Service locator provider.
@@ -36,10 +35,20 @@ public class ServiceLocatorProvider {
      *
      * @param locator the locator
      */
-    @Inject
-    public ServiceLocatorProvider(final ServiceLocator locator) {
-        instance = this;
+    private ServiceLocatorProvider(final ServiceLocator locator) {
         this.locator = locator;
+    }
+
+    @Contract("!null -> !null")
+    static ServiceLocatorProvider makeSingleton(final ServiceLocator locator) {
+        if (locator == null) {
+            throw  new IllegalArgumentException("Service Locator must not be null");
+        }
+        if (instance != null) {
+            return instance;
+        }
+        instance = new ServiceLocatorProvider(locator);
+        return instance;
     }
 
     /**
@@ -56,10 +65,9 @@ public class ServiceLocatorProvider {
     /**
      * Inject.
      *
-     * @param <T>  the type parameter
      * @param bean the bean
      */
-    public static <T> void inject(Object bean) {
+    public static void inject(Object bean) {
         if (bean == null) {
             return;
         }

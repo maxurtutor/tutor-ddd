@@ -36,7 +36,7 @@ import java.util.Set;
  * @version 1.0
  * @since <pre>04.11.2015</pre>
  */
-public abstract class UserDao implements GetHandle {
+public abstract class UserDao implements GetHandle { // NOSONAR
 
     /**
      * Find all Users.
@@ -130,10 +130,11 @@ public abstract class UserDao implements GetHandle {
              */
             Map<String, User> users = new HashMap<>();
 
+            @Override
             public User map(int index, ResultSet r, StatementContext ctx) throws SQLException {
                 final String email = r.getString("email");
                 final String password = r.getString("password");
-                final User user = users.computeIfAbsent(r.getString("user_id"), (id) -> new User(id, email, password));
+                final User user = users.computeIfAbsent(r.getString("user_id"), id -> new User(id, email, password));
                 final String role = r.getString("role_id");
                 if (role != null) {
                     user.addRole(role);

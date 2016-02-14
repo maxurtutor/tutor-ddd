@@ -43,7 +43,7 @@ import static org.maxur.ddd.config.ServiceLocatorProvider.service;
  */
 public final class Rest {
 
-    private final static Reflections reflections = new Reflections("org.maxur.ddd");
+    private static final Reflections reflections = new Reflections("org.maxur.ddd");
 
     private Rest() {
     }

@@ -26,9 +26,6 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.maxur.ddd.config.Config;
 
-import java.io.IOException;
-import java.sql.SQLException;
-
 import static org.maxur.ddd.config.Binder.binder;
 import static org.maxur.ddd.config.Rest.initRest;
 import static org.maxur.ddd.dao.DBUtils.runScripts;
@@ -80,12 +77,8 @@ public class RestApp extends Application<Config> {
         initDatabase(cfg);
     }
 
-    private void initDatabase(@NotNull final Config cfg)  {
-        try {
-            runScripts(cfg.getScripts());
-        } catch (IOException | SQLException e) {
-            throw new IllegalStateException(e);
-        }
+    private static void initDatabase(@NotNull final Config cfg)  {
+        runScripts(cfg.getScripts());
     }
 
 }

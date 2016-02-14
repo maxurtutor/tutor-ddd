@@ -51,7 +51,8 @@ public class RuntimeExceptionHandler implements ExceptionMapper<RuntimeException
     }
 
     @Contract("_ -> !null")
-    private GenericEntity<List<Incident>> makeErrorEntity(final RuntimeException exception) {
+    private static GenericEntity<List<Incident>> makeErrorEntity(final RuntimeException exception) {
+        LOGGER.error("System error", exception);
         return new GenericEntity<List<Incident>>(
                 incidents("System error: For more information consult your system administrator.")
         ) {

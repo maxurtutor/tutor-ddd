@@ -24,9 +24,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import static java.lang.String.format;
 import static org.maxur.ddd.config.ServiceLocatorProvider.service;
 
 /**
@@ -48,10 +50,8 @@ public final class DBUtils {
      * Executes SQL queries by scripts files names.
      *
      * @param scripts scripts files names.
-     * @throws IOException On file read error.
-     * @throws SQLException On SQL execute error.
      */
-    public static void runScripts(List<String> scripts) throws IOException, SQLException {
+    public static void runScripts(List<String> scripts) {
         DBI dbi = service(DBI.class);
         try (Handle handle = dbi.open()) {
             for (String script : scripts) {
@@ -60,13 +60,20 @@ public final class DBUtils {
         }
     }
 
-    private static void runScript(Handle h, String script) throws IOException, SQLException {
+    private static void runScript(Handle h, String script) {
         try (
-            InputStream is = Launcher.class.getResourceAsStream(script);
-            Reader reader = new InputStreamReader(is);
-            Connection connection = h.getConnection();
+                InputStream is = Launcher.class.getResourceAsStream(script);
+                Reader reader = new InputStreamReader(is);
+                Connection connection = h.getConnection();
         ) {
-            RunScript.execute(connection, reader);
+            final ResultSet resultSet = RunScript.execute(connection, reader);
+            if (resultSet != null) { // NOSONAR
+                resultSet.close();
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException(format("Error reading from file %s", script), e);
+        } catch (SQLException e) {
+            throw new IllegalStateException(format("Error executing SQL script from %s", script), e);
         }
     }
 }

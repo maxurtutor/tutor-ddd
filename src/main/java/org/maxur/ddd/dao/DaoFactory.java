@@ -74,6 +74,6 @@ public class DaoFactory<T> implements Factory<T> {
 
     @Override
     public void dispose(T instance) {
-
+        // NOOP
     }
 }

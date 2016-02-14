@@ -52,18 +52,16 @@ public class BusinessExceptionHandler implements ExceptionMapper<BusinessExcepti
     }
 
     @Contract(pure = true)
-    private Response.Status makeStatus(BusinessException exception) {
-        final Response.Status status;
+    private static Response.Status makeStatus(BusinessException exception) {
         if (exception instanceof NotFoundException) {
-            status = NOT_FOUND;
+            return NOT_FOUND;
         } else {
-            status = BAD_REQUEST;
+            return BAD_REQUEST;
         }
-        return status;
     }
 
     @Contract("_ -> !null")
-    private GenericEntity<List<Incident>> makeErrorEntity(final BusinessException exception) {
+    private static GenericEntity<List<Incident>> makeErrorEntity(final BusinessException exception) {
         return new GenericEntity<List<Incident>>(Incident.incidents("Invalid data", exception.getMessage())) {
         };
     }

@@ -46,19 +46,26 @@ public final class Binder extends AbstractBinder {
 
     private final DBI dbi;
 
+    private Binder(Config cfg, Environment env) {
+        this.env = env;
+        this.dbi = new DBIFactory().build(env, cfg.getDataSourceFactory(), "db");
+    }
+
+    /**
+     * Binder abstract binder.
+     *
+     * @param cfg the cfg
+     * @param env the env
+     * @return the abstract binder
+     */
     public static AbstractBinder binder(Config cfg, Environment env) {
         ServiceLocatorFactory locatorFactory = ServiceLocatorFactory.getInstance();
         ServiceLocator locator = locatorFactory.create("ServiceLocator");
-        new ServiceLocatorProvider(locator);
+        ServiceLocatorProvider.makeSingleton(locator);
         env.getApplicationContext().getAttributes().setAttribute(ServletProperties.SERVICE_LOCATOR, locator);
         Binder binder = new Binder(cfg, env);
         ServiceLocatorUtilities.bind(locator, binder);
         return binder;
-    }
-
-    private Binder(Config cfg, Environment env) {
-        this.env = env;
-        this.dbi = new DBIFactory().build(env, cfg.getDataSourceFactory(), "db");
     }
 
     @SuppressWarnings("RedundantToBinding")

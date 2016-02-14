@@ -41,7 +41,7 @@ public class User {
     private String email;
 
     @JsonProperty
-    @ApiModelProperty(value = "The User's password.", required = false)
+    @ApiModelProperty(value = "The User's password.")
     private String password;
 
     @JsonProperty
@@ -50,7 +50,7 @@ public class User {
     /**
      * Instantiates a new User.
      */
-    public User() {
+    public User() { // NOSONAR
     }
 
     /**

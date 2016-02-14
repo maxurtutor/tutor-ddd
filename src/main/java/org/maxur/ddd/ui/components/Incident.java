@@ -40,9 +40,10 @@ class Incident implements Serializable {
      * Instantiates a new Incident.
      */
     public Incident() {
+        // NOPE
     }
 
-    private Incident(final String message) {
+    private Incident(final String message) { // NOSONAR
         this.message = message;
     }
 
