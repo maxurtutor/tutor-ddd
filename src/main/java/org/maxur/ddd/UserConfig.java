@@ -2,6 +2,7 @@ package org.maxur.ddd;
 
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
@@ -11,8 +12,12 @@ import java.util.Date;
  */
 @Data
 public class UserConfig {
+    @NotNull
     private Date released;
+    @NotNull
     private String version;
+
     private RestConfig rest;
+    @NotNull
     private JdbcConfig jdbc;
 }

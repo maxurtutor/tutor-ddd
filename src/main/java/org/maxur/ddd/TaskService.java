@@ -2,6 +2,7 @@ package org.maxur.ddd;
 
 import io.baratine.service.Result;
 import io.baratine.service.Service;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
@@ -26,6 +27,7 @@ import static org.maxur.ddd.data.sql.Tables.TASK;
 public class TaskService {
 
     @Inject
+    @Setter
     private DataSource dataSource;
 
     /**
@@ -48,4 +50,5 @@ public class TaskService {
         final Connection connection = dataSource.getConnection();
         return DSL.using(connection, SQLDialect.H2);
     }
+
 }

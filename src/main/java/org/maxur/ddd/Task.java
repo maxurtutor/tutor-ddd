@@ -1,5 +1,8 @@
 package org.maxur.ddd;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
 /**
  * The type Task.
  *
@@ -7,6 +10,8 @@ package org.maxur.ddd;
  * @version 1.0
  * @since <pre>10.07.2016</pre>
  */
+@ToString
+@EqualsAndHashCode
 public class Task {
 
     private String summary;
