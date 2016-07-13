@@ -6,11 +6,38 @@
 
     <artifactId>tutor-ddd</artifactId>
     <version>0.1-SNAPSHOT</version>
+    <name>DDD tutorial</name>
+    <description>DDD tutorial</description>
+
+    <inceptionYear>2015</inceptionYear>
+
+    <url>http://myunusov.github.io/tutor-ddd/</url>
+
+    <scm>
+        <connection>scm:git:https://github.com/myunusov/tutor-ddd.git</connection>
+        <developerConnection>scm:git:git@github.com:myunusov/tutor-ddd.git</developerConnection>
+        <url>https://github.com/myunusov/tutor-ddd/tree/master/</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/myunusov/tutor-ddd/issues</url>
+    </issueManagement>
+
+    <ciManagement>
+        <system>travis</system>
+        <url>https://travis-ci.org/myunusov/tutor-ddd</url>
+    </ciManagement>
+
+    <prerequisites>
+        <maven>3.0.4</maven>
+    </prerequisites>
 
     <parent>
         <groupId>org.maxur</groupId>
         <artifactId>maxur-base</artifactId>
-        <version>0.18</version>
+        <version>0.19-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -24,6 +51,8 @@
         <HikariCP.version>2.4.5</HikariCP.version>
         <hibernate-validator.version>5.2.4.Final</hibernate-validator.version>
         <javax.el.version>2.2.4</javax.el.version>
+        <spock-reports.version>1.2.12</spock-reports.version>
+        <pegdown-doclet.version>1.2.1</pegdown-doclet.version>
     </properties>
 
     <dependencies>
@@ -79,6 +108,23 @@
             <version>${HikariCP.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.athaydes</groupId>
+            <artifactId>spock-reports</artifactId>
+            <version>${spock-reports.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>groovy-all</artifactId>
+                    <groupId>org.codehaus.groovy</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>spock-core</artifactId>
+                    <groupId>org.spockframework</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -89,47 +135,6 @@
                 <version>4.0.0</version>
                 <configuration>
                     <repoToken>${env.coveralls_repo_token}</repoToken>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.5.201505241946</version>
-                <configuration>
-                    <destFile>${basedir}/target/coverage-reports/jacoco-unit.exec</destFile>
-                    <dataFile>${basedir}/target/coverage-reports/jacoco-unit.exec</dataFile>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>jacoco-initialize</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>jacoco-site</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.19</version>
-                <configuration>
-                    <useFile>false</useFile>
-                    <runOrder>random</runOrder>
-                    <trimStackTrace>false</trimStackTrace>
-                    <failIfNoTests>false</failIfNoTests>
-                    <failIfNoSpecifiedTests>true</failIfNoSpecifiedTests>
-                    <parallel>none</parallel>
-                    <parallelTestsTimeoutInSeconds>0</parallelTestsTimeoutInSeconds>
-                    <parallelTestsTimeoutForcedInSeconds>0</parallelTestsTimeoutForcedInSeconds>
-                    <perCoreThreadCount>true</perCoreThreadCount>
-                    <threadCount>1</threadCount>
                 </configuration>
             </plugin>
 
@@ -150,6 +155,9 @@
                     <url>jdbc:h2:./data/tasks</url>
                     <user>user</user>
                     <password>password</password>
+                    <schemas>
+                        <schema>public</schema>
+                    </schemas>
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -204,11 +212,74 @@
                         <version>${h2.version}</version>
                     </dependency>
                 </dependencies>
+            </plugin>
 
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <doclet>ch.raffael.doclets.pegdown.PegdownDoclet</doclet>
+                    <docletArtifact>
+                        <groupId>ch.raffael.pegdown-doclet</groupId>
+                        <artifactId>pegdown-doclet</artifactId>
+                        <version>${maven-javadoc-plugin.version}</version>
+                    </docletArtifact>
+                    <useStandardDocletOptions>true</useStandardDocletOptions>
+                </configuration>
             </plugin>
 
         </plugins>
     </build>
 
+    <reporting>
+        <plugins>
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven-javadoc-plugin.version}</version>
+                <configuration>
+                    <doclet>ch.raffael.doclets.pegdown.PegdownDoclet</doclet>
+                    <docletArtifact>
+                        <groupId>ch.raffael.pegdown-doclet</groupId>
+                        <artifactId>pegdown-doclet</artifactId>
+                        <version>${pegdown-doclet.version}</version>
+                    </docletArtifact>
+                    <useStandardDocletOptions>true</useStandardDocletOptions>
+
+                    <failOnError>true</failOnError>
+                    <detectLinks>false</detectLinks>
+                    <tags>
+                        <tag>
+                            <name>todo</name>
+                            <placement>a</placement>
+                            <head>To do:</head>
+                        </tag>
+                        <tag>
+                            <name>checkstyle</name>
+                            <placement>a</placement>
+                            <head>Suppressed Checkstyle violations:</head>
+                        </tag>
+                    </tags>
+
+                    <source>${project.source.compile}</source>
+                    <encoding>${project.source.encoding}</encoding>
+                    <charset>${project.source.encoding}</charset>
+                    <docencoding>${project.source.encoding}</docencoding>
+                    <breakiterator>true</breakiterator>
+                    <version>true</version>
+                    <author>true</author>
+                    <keywords>true</keywords>
+
+                    <linksource>true</linksource>
+                    <excludePackageNames>*.it,*.test</excludePackageNames>
+                    <aggregate>true</aggregate>
+
+                    <additionalparam>
+                        -version
+                        -author
+                    </additionalparam>
+
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
 
 </project>

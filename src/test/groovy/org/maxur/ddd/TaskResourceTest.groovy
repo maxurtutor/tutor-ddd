@@ -2,6 +2,7 @@ package org.maxur.ddd
 
 import io.baratine.service.Result
 import org.jooq.DSLContext
+import org.jooq.Record
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL
 import org.jooq.tools.jdbc.MockConnection
@@ -35,9 +36,9 @@ class TaskResourceTest extends Specification {
 
             if (sql.toUpperCase().startsWith("SELECT")) {
 
-                org.jooq.Result<Task> result = create.newResult(TASK);
+                org.jooq.Result<Record> result = create.newResult(TASK);
                 result.add(create.newRecord(TASK));
-                result.get(0).setValue(TASK.ID, 1);
+                result.get(0).setValue(TASK.ID, "1");
                 result.get(0).setValue(TASK.SUMMARY, "first");
                 mock[0] = new MockResult(1, result);
             }
