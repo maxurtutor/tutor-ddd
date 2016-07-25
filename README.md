@@ -2,19 +2,17 @@
 
 [![Build Status](https://travis-ci.org/myunusov/tutor-ddd.svg?branch=master)](https://travis-ci.org/myunusov/tutor-ddd)
 
-[![Coverage Status](https://coveralls.io/repos/myunusov/tutor-ddd/badge.svg?branch=master&service=github)](https://coveralls.io/github/myunusov/tutor-ddd?branch=master)
+[![Coverage Status](https://coveralls.io/repos/myunusov/tutor-ddd/badge.svg?branch=master&amp;service=github)](https://coveralls.io/github/myunusov/tutor-ddd?branch=master)
 
 ## Overview
 
-DDD Course tutorial
+### Step by step
 
-Step by step
-
-Step 0-5: Add Swagger Support
-Step 0-4: Add Authentication Support
-Step 0-3: Add Integration Test Support
-Step 0-2: Unit Test (BDD) Support (Spock Framework)
-Step 0-1: Rest Application Template
+* Step 0-5: Add Swagger Support
+* Step 0-4: Add Authentication Support
+* Step 0-3: Add Integration Test Support
+* Step 0-2: Unit Test (BDD) Support (Spock Framework)
+* Step 0-1: Rest Application Template
 
 ## Links  
 
