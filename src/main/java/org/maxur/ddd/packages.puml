@@ -1,0 +1,9 @@
+@startuml
+package UI
+package Service
+package Domain
+package DAO
+UI --> Service
+Service --> Domain
+Domain --> DAO
+@enduml
