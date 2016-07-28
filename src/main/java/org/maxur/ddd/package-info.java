@@ -15,16 +15,24 @@
 /**
  * ## This packageis root package of T-DDD application.
  *
- * ![Example Diagram](packages.png)
+ * ![Service Layers](packages.png)
  *
  * @startuml packages.png
+ * note "Contains utility classes" as N1
+ * package Util
  * package UI
+ * package Config
  * package Service
  * package Domain
  * package DAO
+ * Util .. N1
  * UI --> Service
+ * UI ..> Util
  * Service --> Domain
+ * Service ..> Util
  * Domain --> DAO
+ * Domain ..> Util
+ * DAO ..> Util
  * @enduml
  *
  * @author myunusov
