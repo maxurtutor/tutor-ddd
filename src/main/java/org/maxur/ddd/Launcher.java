@@ -14,10 +14,35 @@
 
 package org.maxur.ddd;
 
+import org.maxur.ddd.service.MicroService;
+
+import static org.maxur.ddd.service.ioc.ServiceLocatorFactoryHk2Impl.locator;
+
 /**
+ * The Application Launcher.
+ *
  * @author Maxim Yunusov
  * @version 1.0
  * @since <pre>7/28/2016</pre>
  */
-public class Launcher {
+public final class Launcher {
+
+    /**
+     * Utils class.
+     */
+    private Launcher() {
+    }
+
+    /**
+     * Command line entry point. This method kicks off the building of a application  object
+     * and executes it.
+     *
+     * @param args - arguments of command.
+     */
+    public static void main(String[] args) {
+        locator("tddd", new Binder())
+            .bean(MicroService.class)
+            .start();
+    }
+
 }
