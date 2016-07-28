@@ -1,8 +1,6 @@
 package org.maxur.ddd.service
 
 import org.maxur.ddd.dao.UserDao
-import org.maxur.ddd.service.components.LoggerFactory
-import org.slf4j.Logger
 import spock.lang.Specification
 /**
  * @author myunusov
@@ -13,23 +11,13 @@ class AccountServiceSpec extends Specification {
 
     UserDao userDao
 
-    Logger logger
 
     AccountService sut
 
     void setup() {
         userDao = Mock(UserDao)
 
-        logger = Mock(Logger)
-
-        def factory = new LoggerFactory() {
-            @Override
-            Logger loggerFor(Class<?> clazz) {
-                return logger
-            }
-        }
-
-        sut = new AccountService(userDao, factory)
+        sut = new AccountService(userDao)
     }
 
 

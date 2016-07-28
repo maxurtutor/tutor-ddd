@@ -6,8 +6,6 @@ server:
     type: http
     bindHost: 127.0.0.1
     port: 8080
-  requestLog:
-    timeZone: UTC
 
 metrics:
   frequency: 30 minute
@@ -23,11 +21,37 @@ logging:
   appenders:
     - type: console
 
-database:
-  driverClass: org.h2.Driver
-  url: jdbc:h2:mem:test
-  user: u
-  password: p
+datasource:
+  jdbcUrl:  jdbc:h2:./data/tasks
+  username: user
+  password: password
+  dataSourceProperty:
+      cachePrepStmts:         true
+      prepStmtCacheSize:      250
+      prepStmtCacheSqlLimit:  2048
 
-scripts:
-  - /sql/db.ddl
+jooqFactory:
+  # The flavor of SQL to generate. If not specified, it will be inferred from the JDBC connection URL.  (default: null)
+  dialect: H2
+  # Whether to write generated SQL to a logger before execution.  (default: no)
+  logExecutedSql: yes
+  # Whether to include schema names in generated SQL.  (default: yes)
+  renderSchema: yes
+  # How names should be rendered in generated SQL.  One of QUOTED, AS_IS, LOWER, or UPPER.  (default: QUOTED)
+  renderNameStyle: QUOTED
+  # How keywords should be rendered in generated SQL.  One of LOWER, UPPER.  (default: UPPER)
+  renderKeywordStyle: LOWER
+  # Whether generated SQL should be pretty-printed.  (default: no)
+  renderFormatted: no
+  # How parameters should be represented.  One of INDEXED, NAMED, or INLINE.  (default: INDEXED)
+  paramType: INDEXED
+  # How statements should be generated; one of PREPARED_STATEMENT or STATIC_STATEMENT.  (default: PREPARED_STATEMENT)
+  statementType: PREPARED_STATEMENT
+  # Whether internal jOOQ logging should be enabled.  (default: no)
+  executeLogging: no
+  # Whether optimistic locking should be enabled.  (default: no)
+  executeWithOptimisticLocking: no
+  # Whether returned records should be 'attached' to the jOOQ context.  (default: yes)
+  attachRecords: yes
+  # Whether primary-key fields should be updatable.  (default: no)
+  updatablePrimaryKeys: no

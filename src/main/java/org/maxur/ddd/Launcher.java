@@ -14,6 +14,8 @@
 
 package org.maxur.ddd;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.net.URL;
 
 import static org.maxur.ddd.RestApp.application;
@@ -27,6 +29,7 @@ import static org.maxur.ddd.RestApp.application;
  * @version 1.0
  * @since <pre>04.11.2015</pre>
  */
+@Slf4j
 public final class Launcher {
 
     private static final String CONFIG_FILE = "dropwizard.yml";
@@ -39,9 +42,10 @@ public final class Launcher {
      * <p>
      * @param args - arguments of command. (Ignored)
      */
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         URL resource = Launcher.class.getClassLoader().getResource(CONFIG_FILE);
         if (resource == null) {
+            log.error("Config file '%s' is not found", CONFIG_FILE);
             return;
         }
         application().run("server", resource.toString());

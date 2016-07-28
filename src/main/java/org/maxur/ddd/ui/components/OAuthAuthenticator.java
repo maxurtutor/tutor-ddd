@@ -14,13 +14,13 @@
 
 package org.maxur.ddd.ui.components;
 
-import com.google.common.base.Optional;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
 import org.jetbrains.annotations.NotNull;
 import org.maxur.ddd.config.Config;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * The type O auth authenticator.
@@ -42,12 +42,11 @@ public class OAuthAuthenticator implements Authenticator<String, UserPrincipal> 
         tokens = security.getTokens();
     }
 
-    @SuppressWarnings("Guava")
     @Override
     public Optional<UserPrincipal> authenticate(@NotNull String token) throws AuthenticationException {
         return tokens.contains(token) ?
             Optional.of(new UserPrincipal(token)) :
-            Optional.absent();
+            Optional.empty();
     }
 
 }

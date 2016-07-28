@@ -1,0 +1,2 @@
+INSERT INTO TTASK (TASK_ID, SUMMARY, DESCRIPTION)
+VALUES ('id1', 'first task', null);

@@ -14,7 +14,6 @@
 
 package org.maxur.ddd.config;
 
-import io.dropwizard.jdbi.DBIFactory;
 import io.dropwizard.lifecycle.setup.LifecycleEnvironment;
 import io.dropwizard.setup.Environment;
 import org.glassfish.hk2.api.ServiceLocator;
@@ -24,13 +23,9 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.servlet.ServletProperties;
 import org.maxur.ddd.dao.UserDao;
 import org.maxur.ddd.service.AccountService;
-import org.maxur.ddd.service.components.LoggerFactory;
 import org.maxur.ddd.ui.components.BaseAuthenticator;
-import org.skife.jdbi.v2.DBI;
 
 import javax.inject.Singleton;
-
-import static org.maxur.ddd.dao.DaoFactory.daoFactory;
 
 /**
  * Implementation of injection binder with convenience methods for
@@ -44,11 +39,8 @@ public final class Binder extends AbstractBinder {
 
     private final Environment env;
 
-    private final DBI dbi;
-
-    private Binder(Config cfg, Environment env) {
+    private Binder(final Config cfg, final Environment env) {
         this.env = env;
-        this.dbi = new DBIFactory().build(env, cfg.getDataSourceFactory(), "db");
     }
 
     /**
@@ -58,7 +50,7 @@ public final class Binder extends AbstractBinder {
      * @param env the env
      * @return the abstract binder
      */
-    public static AbstractBinder binder(Config cfg, Environment env) {
+    public static AbstractBinder binder(final Config cfg, final Environment env) {
         ServiceLocatorFactory locatorFactory = ServiceLocatorFactory.getInstance();
         ServiceLocator locator = locatorFactory.create("ServiceLocator");
         ServiceLocatorProvider.makeSingleton(locator);
@@ -72,10 +64,9 @@ public final class Binder extends AbstractBinder {
     @Override
     protected void configure() {
         bind(env.lifecycle()).to(LifecycleEnvironment.class);
-        bind(dbi).to(DBI.class);
-        bind(LoggerFactory.class).to(LoggerFactory.class).in(Singleton.class);
+      //  bind(new Configurati).to(Configuration.class);
         bind(BaseAuthenticator.class).to(BaseAuthenticator.class).in(Singleton.class);
         bind(AccountService.class).to(AccountService.class).in(Singleton.class);
-        bindFactory(daoFactory(dbi, UserDao.class)).to(UserDao.class);
+        bind(UserDao.class).to(UserDao.class).in(Singleton.class);
     }
 }

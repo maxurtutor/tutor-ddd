@@ -16,11 +16,11 @@ package org.maxur.ddd.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
-import io.dropwizard.db.DataSourceFactory;
+import lombok.Data;
+import lombok.Getter;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -34,72 +34,63 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class Config extends Configuration {
 
+/*
     @Valid
     @NotNull
     @JsonProperty
-    private DataSourceFactory database = new DataSourceFactory();
+    @Getter
+    private HikariConfig datasource = new HikariConfig();
+*/
+
+/*
+    public DataSource dataSource() {
+        final HikariConfig config = new HikariConfig();
+
+        return new HikariDataSource(config);
+    }
+*/
+
+
 
     @Valid
     @NotNull
     @JsonProperty
+    @Getter
+    private JooqFactory jooqFactory = new JooqFactory();
+
+    @Valid
+    @NotNull
+    @JsonProperty
+    @Getter
     private Security security = new Security();
 
-    @Valid
-    @NotNull
-    @JsonProperty
-    private List<String> scripts = new ArrayList<>();
-
-    /**
-     * Gets data source factory.
-     *
-     * @return the data source factory
-     */
-    DataSourceFactory getDataSourceFactory() {
-        return database;
-    }
-
-    /**
-     * Gets security.
-     *
-     * @return the security
-     */
-    Security getSecurity() {
-        return security;
-    }
-
-    /**
-     * Gets scripts.
-     *
-     * @return the scripts
-     */
-    public List<String> getScripts() {
-        return scripts;
-    }
 
     /**
      * The type Security.
      */
+    @Data
     public static class Security {
 
         @NotNull
         private List<String> tokens = newArrayList();
 
-        /**
-         * Sets tokens.
-         *
-         * @param tokens the tokens
-         */
-        public void setTokens(List<String> tokens) {
-            this.tokens = tokens;
-        }
+    }
 
-        /**
-         * Gets tokens.
-         *
-         * @return the tokens
-         */
-        public List<String> getTokens() {
-            return tokens;
-        }
+    @Data
+    public static class JooqFactory {
+
+        private String dialect;
+        private String logExecutedSql;
+        private String renderSchema;
+        private String renderNameStyle;
+        private String renderKeywordStyle;
+        private String renderFormatted;
+        private String paramType;
+        private String statementType;
+        private String executeLogging;
+        private String executeWithOptimisticLocking;
+        private String attachRecords;
+        private String updatablePrimaryKeys;
+
     }
 }

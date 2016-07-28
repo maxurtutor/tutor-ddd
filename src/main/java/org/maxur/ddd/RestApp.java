@@ -28,7 +28,6 @@ import org.maxur.ddd.config.Config;
 
 import static org.maxur.ddd.config.Binder.binder;
 import static org.maxur.ddd.config.Rest.initRest;
-import static org.maxur.ddd.dao.DBUtils.runScripts;
 
 /**
  * ## This class represents T-DDD application.
@@ -50,35 +49,35 @@ public class RestApp extends Application<Config> {
         return new RestApp();
     }
 
-    @Override
+
     /**
      * Initializes the application bootstrap.
      *
      * @param bootstrap the application bootstrap
      */
+    @Override
     public void initialize(@NotNull final Bootstrap<Config> bootstrap) {
         bootstrap.setConfigurationSourceProvider(new UrlConfigurationSourceProvider());
         bootstrap.addBundle(ASSETS_BUNDLE);
         bootstrap.addBundle(SWAGGER_BUNDLE);
     }
 
-    @Override
+
+
+
     /**
      * When the application runs, this is called after the {@link Bundle}s are run.
      *
-     * @param configuration the parsed {@link Configuration} object
-     * @param environment   the application's {@link Environment}
+     * @param cfg the parsed {@link Configuration} object
+     * @param env   the application's {@link Environment}
      *
      */
+    @Override
     public void run(@NotNull final Config cfg, @NotNull final Environment env) {
         JmxReporter.forRegistry(env.metrics()).build().start();
         binder(cfg, env);
         initRest(cfg, env);
-        initDatabase(cfg);
     }
 
-    private static void initDatabase(@NotNull final Config cfg)  {
-        runScripts(cfg.getScripts());
-    }
 
 }
