@@ -9,7 +9,7 @@
  */
 
 
-package org.maxur.ddd.service;
+package org.maxur.ddd.service.aop;
 
 import com.ecyrd.speed4j.StopWatch;
 import com.ecyrd.speed4j.StopWatchFactory;
@@ -32,7 +32,6 @@ import java.lang.reflect.Method;
 class BenchmarkMethodInterceptor implements MethodInterceptor {
 
     private final StopWatchFactory stopWatchFactory = StopWatchFactory.getInstance("loggingFactory");
-
 
     /*
      * (non-Javadoc)

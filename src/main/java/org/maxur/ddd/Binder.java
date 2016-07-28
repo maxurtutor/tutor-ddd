@@ -10,8 +10,10 @@
 
 package org.maxur.ddd;
 
+import org.glassfish.hk2.api.InterceptionService;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.maxur.ddd.service.EventLogger;
+import org.maxur.ddd.service.aop.HK2InterceptionService;
 import org.maxur.ddd.service.MicroService;
 import org.maxur.ddd.service.bus.Bus;
 import org.maxur.ddd.service.impl.MicroServiceRestImpl;
@@ -32,6 +34,11 @@ public final class Binder extends AbstractBinder {
     @SuppressWarnings("RedundantToBinding")
     @Override
     protected void configure() {
+
+        bind(HK2InterceptionService.class)
+            .to(InterceptionService.class)
+            .in(Singleton.class);
+
         final Bus bus = bus();
 
         bind(bus).to(Bus.class);
@@ -43,9 +50,7 @@ public final class Binder extends AbstractBinder {
             .to(MicroService.class)
             .in(Singleton.class);
 
-/*        bind(HK2InterceptionService.class)
-            .to(InterceptionService.class)
-            .in(Singleton.class);*/
+
 
 /*        bind(ConfigurationInjectionResolver.class)
             .to(new TypeLiteral<InjectionResolver<Named>>() {

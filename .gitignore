@@ -1,6 +1,6 @@
 *.iml
 
-logs
+log
 sonar.properties
 node_modules
 .*

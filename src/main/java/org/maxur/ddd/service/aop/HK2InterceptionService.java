@@ -8,14 +8,13 @@
  * Legal use of the software provides receipt of a license from the right holder only.
  */
 
-package org.maxur.ddd.service;
+package org.maxur.ddd.service.aop;
 
 import org.aopalliance.intercept.ConstructorInterceptor;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.glassfish.hk2.api.Filter;
 import org.glassfish.hk2.api.InterceptionService;
 import org.glassfish.hk2.utilities.BuilderHelper;
-import org.jvnet.hk2.annotations.Service;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -31,7 +30,7 @@ import static java.util.Collections.emptyList;
  * @version 1.0
  * @since <pre>02.09.2015</pre>
  */
-@Service
+
 public class HK2InterceptionService implements InterceptionService {
 
     private static final MethodInterceptor METHOD_INTERCEPTOR = new BenchmarkMethodInterceptor();
@@ -53,7 +52,7 @@ public class HK2InterceptionService implements InterceptionService {
         if (method.isAnnotationPresent(Benchmark.class)) {
             return METHOD_LIST;
         }
-        return  emptyList();
+        return emptyList();
     }
 
 }

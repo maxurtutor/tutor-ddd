@@ -35,6 +35,8 @@ public class MicroServiceRestImpl implements MicroService {
 
     private final Bus bus;
 
+    private volatile boolean keepRunning = true;
+
     /**
      * Instantiates a new Micro service rest.
      *
@@ -51,8 +53,28 @@ public class MicroServiceRestImpl implements MicroService {
     //    this.webServer = webServer;
     //    this.configParamsLogger = configParamsLogger;
         this.bus = bus;
+
+        final Thread mainThread = Thread.currentThread();
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+
+            @Override
+            public void run() {
+                keepRunning = false;
+                try {
+                    mainThread.join();
+                    bus.post(serviceStoppedEvent());
+                } catch (InterruptedException e) {
+                    new IllegalStateException(e.getMessage(), e);
+                }
+            }
+        });
+
     }
 
+    public boolean isKeepRunning() {
+        return keepRunning;
+    }
 
     /**
      * init on post construct
@@ -73,7 +95,6 @@ public class MicroServiceRestImpl implements MicroService {
     @Override
     public final void stop() {
 //        webServer.stop();
-        bus.post(serviceStoppedEvent());
         System.exit(0);
     }
 
