@@ -56,6 +56,7 @@
         <coveralls-maven-plugin.version>4.1.0</coveralls-maven-plugin.version>
         <swagger-maven-plugin.version>3.1.1</swagger-maven-plugin.version>
         <flyway-maven-plugin.version>4.0.3</flyway-maven-plugin.version>
+        <hk2.version>2.4.0-b34</hk2.version>
     </properties>
 
     <dependencies>
@@ -95,17 +96,45 @@
                     <artifactId>javassist</artifactId>
                     <groupId>org.javassist</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>hk2-locator</artifactId>
+                    <groupId>org.glassfish.hk2</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>hk2-api</artifactId>
+                    <groupId>org.glassfish.hk2</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-common</artifactId>
             <version>${jersey.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>hk2-locator</artifactId>
+                    <groupId>org.glassfish.hk2</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>hk2-api</artifactId>
+                    <groupId>org.glassfish.hk2</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
             <version>${jersey.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>hk2-locator</artifactId>
+                    <groupId>org.glassfish.hk2</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>hk2-api</artifactId>
+                    <groupId>org.glassfish.hk2</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -113,6 +142,7 @@
             <artifactId>jersey-container-grizzly2-http</artifactId>
             <version>${jersey.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
@@ -133,10 +163,26 @@
             </exclusions>
         </dependency>
 
+        <!-- Jackson -->
+
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
             <version>${jackson.version}</version>
+        </dependency>
+
+        <!-- HK2 -->
+
+        <dependency>
+            <groupId>org.glassfish.hk2</groupId>
+            <artifactId>hk2-locator</artifactId>
+            <version>${hk2.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>javassist</artifactId>
+                    <groupId>org.javassist</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- DB -->
@@ -415,9 +461,23 @@
                         <version>${h2.version}</version>
                     </dependency>
                 </dependencies>
-
             </plugin>
 
+            <plugin>
+                <groupId>org.glassfish.hk2</groupId>
+                <artifactId>hk2-inhabitant-generator</artifactId>
+                <version>${hk2.version}</version>
+                <configuration>
+                    <verbose>true</verbose>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate-inhabitants</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
         </plugins>
     </build>
@@ -482,6 +542,7 @@
 
                 </configuration>
             </plugin>
+
         </plugins>
     </reporting>
 

@@ -1,7 +1,7 @@
 package org.maxur.ddd.service.ioc;
 
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
-import org.maxur.ddd.Binder;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
 /**
  * The type Service locator factory hk 2.
@@ -10,35 +10,42 @@ import org.maxur.ddd.Binder;
  * @version 1.0
  * @since <pre>7/28/2016</pre>
  */
-public class ServiceLocatorFactoryHk2Impl {
+public final class ServiceLocatorFactoryHk2Impl {
 
-    private final org.glassfish.hk2.api.ServiceLocatorFactory locatorFactory;
-
-    /**
-     * Instantiates a new Service locator factory hk 2.
-     */
     private ServiceLocatorFactoryHk2Impl() {
-        locatorFactory = org.glassfish.hk2.api.ServiceLocatorFactory.getInstance();
     }
 
     /**
      * Locator service locator.
      *
-     * @param name   the name
-     * @param binder the binder
+     * @param name the name
      * @return the service locator
      */
-    public static ServiceLocator locator(final String name, final Binder binder) {
-        return new ServiceLocatorFactoryHk2Impl().newLocator(name, binder);
+    public static ServiceLocator locator(final String name) {
+        return new ServiceLocatorFactoryHk2Impl().newLocator(name);
     }
 
 
-    private ServiceLocator newLocator(final String name, final Binder binder) {
-        final org.glassfish.hk2.api.ServiceLocator serviceLocator = locatorFactory.create(name);
-        ServiceLocatorUtilities.bind(serviceLocator, binder);
+    private ServiceLocator newLocator(final String name) {
+        final org.glassfish.hk2.api.ServiceLocator serviceLocator =
+                ServiceLocatorUtilities.createAndPopulateServiceLocator(name);
         final ServiceLocatorHk2Impl result = new ServiceLocatorHk2Impl(serviceLocator);
-        binder.bind(result).to(ServiceLocator.class);
+        ServiceLocatorUtilities.bind(serviceLocator, new Hk2Binder(result));
         return result;
     }
 
+    private static class Hk2Binder extends AbstractBinder {
+
+        private final ServiceLocator serviceLocator;
+
+        private Hk2Binder(final ServiceLocator serviceLocator) {
+            this.serviceLocator = serviceLocator;
+        }
+
+        @Override
+        protected void configure() {
+            bind(serviceLocator).to(ServiceLocator.class);
+        }
+
+    }
 }

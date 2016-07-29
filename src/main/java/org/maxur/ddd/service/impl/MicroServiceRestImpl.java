@@ -10,6 +10,8 @@
 
 package org.maxur.ddd.service.impl;
 
+import org.jvnet.hk2.annotations.Service;
+import org.maxur.ddd.service.EventLogger;
 import org.maxur.ddd.service.MicroService;
 import org.maxur.ddd.service.bus.Bus;
 
@@ -27,6 +29,7 @@ import static org.maxur.ddd.service.ServiceStoppedEvent.serviceStoppedEvent;
  * @version 1.0
  * @since <pre>9/15/2015</pre>
  */
+@Service
 public class MicroServiceRestImpl implements MicroService {
 
   //  private final WebServer webServer;
@@ -48,7 +51,8 @@ public class MicroServiceRestImpl implements MicroService {
     public MicroServiceRestImpl(
        // final WebServer webServer,
        // final ConfigParamsLogger configParamsLogger,
-        final Bus bus
+        final Bus bus,
+       EventLogger logger
     ) {
     //    this.webServer = webServer;
     //    this.configParamsLogger = configParamsLogger;
@@ -65,7 +69,7 @@ public class MicroServiceRestImpl implements MicroService {
                     mainThread.join();
                     bus.post(serviceStoppedEvent());
                 } catch (InterruptedException e) {
-                    new IllegalStateException(e.getMessage(), e);
+                    throw new IllegalStateException(e.getMessage(), e);
                 }
             }
         });

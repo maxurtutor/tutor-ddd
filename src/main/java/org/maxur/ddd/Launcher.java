@@ -40,7 +40,7 @@ public final class Launcher {
      * @param args - arguments of command.
      */
     public static void main(String[] args) {
-        locator("tddd", new Binder())
+        locator("default")
             .bean(MicroService.class)
             .start();
     }

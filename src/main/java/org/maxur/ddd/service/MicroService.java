@@ -10,6 +10,8 @@
 
 package org.maxur.ddd.service;
 
+import org.jvnet.hk2.annotations.Contract;
+
 /**
  * The interface Micro service.
  *
@@ -17,6 +19,7 @@ package org.maxur.ddd.service;
  * @version 1.0
  * @since <pre>9/15/2015</pre>
  */
+@Contract
 public interface MicroService {
 
     /**

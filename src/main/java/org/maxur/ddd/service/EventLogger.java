@@ -2,7 +2,10 @@ package org.maxur.ddd.service;
 
 import com.google.common.eventbus.Subscribe;
 import lombok.extern.slf4j.Slf4j;
+import org.jvnet.hk2.annotations.Service;
 import org.maxur.ddd.service.bus.Bus;
+
+import javax.inject.Inject;
 
 /**
  * The type Logger.
@@ -12,6 +15,7 @@ import org.maxur.ddd.service.bus.Bus;
  * @since <pre>7/28/2016</pre>
  */
 @Slf4j
+@Service
 public class EventLogger {
 
     /**
@@ -19,6 +23,7 @@ public class EventLogger {
      *
      * @param bus the bus
      */
+    @Inject
     public EventLogger(final Bus bus) {
         bus.register(this);
     }
@@ -32,7 +37,6 @@ public class EventLogger {
     @Subscribe
     public void on(final ServiceInitializedEvent event) {
         log.info("Service is initialized");
-
     }
 
     /**

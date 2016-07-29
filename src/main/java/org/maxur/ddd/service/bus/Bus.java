@@ -1,5 +1,6 @@
 package org.maxur.ddd.service.bus;
 
+import org.jvnet.hk2.annotations.Contract;
 import org.maxur.ddd.domain.Event;
 
 /**
@@ -9,6 +10,7 @@ import org.maxur.ddd.domain.Event;
  * @version 1.0
  * @since <pre>7/28/2016</pre>
  */
+@Contract
 public interface Bus {
 
     /**

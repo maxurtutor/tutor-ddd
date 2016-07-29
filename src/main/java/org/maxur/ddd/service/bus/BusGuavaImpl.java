@@ -2,6 +2,7 @@ package org.maxur.ddd.service.bus;
 
 import com.google.common.eventbus.EventBus;
 import lombok.experimental.Delegate;
+import org.jvnet.hk2.annotations.Service;
 import org.maxur.ddd.domain.Event;
 
 /**
@@ -11,13 +12,14 @@ import org.maxur.ddd.domain.Event;
  * @version 1.0
  * @since <pre>7/28/2016</pre>
  */
+@Service
 public final class BusGuavaImpl implements Bus {
 
     @Delegate
     private final EventBus eventBus;
 
-    private BusGuavaImpl(final EventBus eventBus) {
-        this.eventBus = eventBus;
+    private BusGuavaImpl() {
+        this.eventBus = new EventBus(new EventBusLoggingHandler());
     }
 
     /**
@@ -26,7 +28,7 @@ public final class BusGuavaImpl implements Bus {
      * @return the bus guava
      */
     public static BusGuavaImpl bus() {
-        return new BusGuavaImpl(new EventBus(new EventBusLoggingHandler()));
+        return new BusGuavaImpl();
     }
 
     @Override
