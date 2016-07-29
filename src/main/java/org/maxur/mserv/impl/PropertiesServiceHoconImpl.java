@@ -8,9 +8,8 @@
  * Legal use of the software provides receipt of a license from the right holder only.
  */
 
-package org.maxur.ddd.service.impl;
+package org.maxur.mserv.impl;
 
-import org.jvnet.hk2.annotations.Service;
 import org.maxur.ddd.service.PropertiesService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +25,6 @@ import java.util.function.Function;
  * @version 1.0
  * @since <pre>9/2/2015</pre>
  */
-@Service
 public class PropertiesServiceHoconImpl implements PropertiesService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesServiceHoconImpl.class);

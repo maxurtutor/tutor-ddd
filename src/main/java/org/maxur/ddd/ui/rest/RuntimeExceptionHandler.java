@@ -23,6 +23,8 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 
 /**
+ * The type Runtime exception handler.
+ *
  * @author myunusov
  * @version 1.0
  * @since <pre>11.09.2015</pre>

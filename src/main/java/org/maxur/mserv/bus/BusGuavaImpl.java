@@ -1,8 +1,7 @@
-package org.maxur.ddd.service.bus;
+package org.maxur.mserv.bus;
 
 import com.google.common.eventbus.EventBus;
 import lombok.experimental.Delegate;
-import org.jvnet.hk2.annotations.Service;
 import org.maxur.ddd.domain.Event;
 
 /**
@@ -12,7 +11,6 @@ import org.maxur.ddd.domain.Event;
  * @version 1.0
  * @since <pre>7/28/2016</pre>
  */
-@Service
 public final class BusGuavaImpl implements Bus {
 
     @Delegate

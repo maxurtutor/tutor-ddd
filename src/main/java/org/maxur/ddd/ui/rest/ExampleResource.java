@@ -14,6 +14,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
+ * The type Example resource.
+ *
  * @author Alexey Elin
  * @version 1.0 18.12.2015.
  */
@@ -27,6 +29,11 @@ public class ExampleResource {
     @Named("param")
     private String configParam;
 
+    /**
+     * Do hello response.
+     *
+     * @return the response
+     */
     @GET
     @Path("/hello")
     @Produces(MediaType.APPLICATION_JSON)
@@ -38,6 +45,11 @@ public class ExampleResource {
         return Response.ok("Hello World!").build();
     }
 
+    /**
+     * Do config param response.
+     *
+     * @return the response
+     */
     @GET
     @Path("/config")
     @Produces(MediaType.APPLICATION_JSON)

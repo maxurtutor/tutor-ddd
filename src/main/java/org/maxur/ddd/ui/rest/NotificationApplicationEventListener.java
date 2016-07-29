@@ -18,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * The type Notification application event listener.
+ *
  * @author Maxim Yunusov
  * @version 1.0
  * @since <pre>9/24/2015</pre>

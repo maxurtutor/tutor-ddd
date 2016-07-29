@@ -9,7 +9,7 @@
  */
 
 
-package org.maxur.ddd.service.aop;
+package org.maxur.mserv.aop;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

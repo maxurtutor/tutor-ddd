@@ -8,9 +8,7 @@
  * Legal use of the software provides receipt of a license from the right holder only.
  */
 
-package org.maxur.ddd.service;
-
-import org.jvnet.hk2.annotations.Contract;
+package org.maxur.mserv.microservice;
 
 /**
  * The interface Micro service.
@@ -19,7 +17,6 @@ import org.jvnet.hk2.annotations.Contract;
  * @version 1.0
  * @since <pre>9/15/2015</pre>
  */
-@Contract
 public interface MicroService {
 
     /**
@@ -31,4 +28,7 @@ public interface MicroService {
      * stop
      */
     void stop();
+
+
+    MicroService inPackages(String... packageNames);
 }

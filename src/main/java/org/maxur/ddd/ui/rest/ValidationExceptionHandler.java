@@ -22,6 +22,8 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 
 /**
+ * The type Validation exception handler.
+ *
  * @author Igor Chirkov
  * @since <pre>9/21/2015</pre>
  */

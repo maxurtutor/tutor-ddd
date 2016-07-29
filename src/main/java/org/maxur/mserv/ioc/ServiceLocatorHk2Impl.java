@@ -1,4 +1,4 @@
-package org.maxur.ddd.service.ioc;
+package org.maxur.mserv.ioc;
 
 import java.lang.annotation.Annotation;
 

@@ -1,4 +1,4 @@
-package org.maxur.ddd.service.bus;
+package org.maxur.mserv.bus;
 
 import com.google.common.eventbus.SubscriberExceptionContext;
 import com.google.common.eventbus.SubscriberExceptionHandler;

@@ -28,6 +28,8 @@ import java.net.URI;
 import java.net.URL;
 
 /**
+ * The type Application resource.
+ *
  * @author Maxim Yunusov
  * @version 1.0
  * @since <pre>11/29/13</pre>

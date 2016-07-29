@@ -15,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * The type Notification request event listener.
+ *
  * @author Maxim Yunusov
  * @version 1.0
  * @since <pre>9/24/2015</pre>
@@ -26,6 +28,7 @@ public class NotificationRequestEventListener implements RequestEventListener {
     private final long startTime;
 
     /**
+     * Instantiates a new Notification request event listener.
      *
      * @param requestNumber number of request
      */

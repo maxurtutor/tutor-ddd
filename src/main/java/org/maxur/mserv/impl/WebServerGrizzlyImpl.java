@@ -9,7 +9,7 @@
  */
 
 
-package org.maxur.ddd.service.impl;
+package org.maxur.mserv.impl;
 
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.StaticHttpHandler;

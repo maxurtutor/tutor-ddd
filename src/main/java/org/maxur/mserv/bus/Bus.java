@@ -1,6 +1,5 @@
-package org.maxur.ddd.service.bus;
+package org.maxur.mserv.bus;
 
-import org.jvnet.hk2.annotations.Contract;
 import org.maxur.ddd.domain.Event;
 
 /**
@@ -10,34 +9,33 @@ import org.maxur.ddd.domain.Event;
  * @version 1.0
  * @since <pre>7/28/2016</pre>
  */
-@Contract
 public interface Bus {
 
     /**
-     * Unregister.
+     * Unregister observer.
      *
-     * @param object the object
+     * @param observer the observer
      */
-    void unregister(Object object);
+    void unregister(Object observer);
 
     /**
-     * Post.
+     * Post event to bus.
      *
      * @param event the event
      */
     void post(Event event);
 
     /**
-     * Register.
+     * Register observer.
      *
-     * @param object the object
+     * @param observer the observer
      */
-    void register(Object object);
+    void register(Object observer);
 
     /**
-     * Id string.
+     * Bus Identifier.
      *
-     * @return the string
+     * @return the Bus Identifier
      */
     String id();
 

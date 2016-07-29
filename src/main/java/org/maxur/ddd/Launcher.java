@@ -14,9 +14,9 @@
 
 package org.maxur.ddd;
 
-import org.maxur.ddd.service.MicroService;
+import org.maxur.mserv.microservice.MicroService;
 
-import static org.maxur.ddd.service.ioc.ServiceLocatorFactoryHk2Impl.locator;
+import static org.maxur.mserv.ioc.ServiceLocatorFactoryHk2Impl.locator;
 
 /**
  * The Application Launcher.
@@ -42,6 +42,7 @@ public final class Launcher {
     public static void main(String[] args) {
         locator("default")
             .bean(MicroService.class)
+            .inPackages("org.maxur.ddd")
             .start();
     }
 

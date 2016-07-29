@@ -3,9 +3,12 @@ package org.maxur.ddd.service;
 import com.google.common.eventbus.Subscribe;
 import lombok.extern.slf4j.Slf4j;
 import org.jvnet.hk2.annotations.Service;
-import org.maxur.ddd.service.bus.Bus;
+import org.maxur.mserv.bus.Bus;
+import org.maxur.mserv.microservice.LifecycleEvent;
+import org.maxur.mserv.microservice.Observer;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 /**
  * The type Logger.
@@ -15,6 +18,7 @@ import javax.inject.Inject;
  * @since <pre>7/28/2016</pre>
  */
 @Slf4j
+@Observer
 @Service
 public class EventLogger {
 
@@ -24,41 +28,18 @@ public class EventLogger {
      * @param bus the bus
      */
     @Inject
-    public EventLogger(final Bus bus) {
+    public EventLogger(@Named("eventBus") final Bus bus) {
         bus.register(this);
     }
 
     /**
-     * On.
+     * On Lifecycle Event.
      *
-     * @param event the event
+     * @param event the Lifecycle event
      */
-    @SuppressWarnings("UnusedParameters")
     @Subscribe
-    public void on(final ServiceInitializedEvent event) {
-        log.info("Service is initialized");
-    }
-
-    /**
-     * On.
-     *
-     * @param event the event
-     */
-    @SuppressWarnings("UnusedParameters")
-    @Subscribe
-    public void on(final ServiceStartedEvent event) {
-        log.info("Service is started");
-    }
-
-    /**
-     * On.
-     *
-     * @param event the event
-     */
-    @SuppressWarnings("UnusedParameters")
-    @Subscribe
-    public void on(final ServiceStoppedEvent event) {
-        log.info("Service is stopped");
+    public void on(final LifecycleEvent event) {
+        log.info(event.getMessage());
     }
 
 }

@@ -1,4 +1,4 @@
-package org.maxur.ddd.service;
+package org.maxur.mserv.microservice;
 
 import org.maxur.ddd.domain.Event;
 
@@ -9,9 +9,10 @@ import org.maxur.ddd.domain.Event;
  * @version 1.0
  * @since <pre>7/28/2016</pre>
  */
-public final class ServiceStartedEvent extends Event {
+public final class ServiceStartedEvent extends LifecycleEvent {
 
     private ServiceStartedEvent() {
+        super("Service is started");
     }
 
     /**

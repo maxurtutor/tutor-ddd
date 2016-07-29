@@ -9,7 +9,7 @@
  */
 
 
-package org.maxur.ddd.service.aop;
+package org.maxur.mserv.aop;
 
 import com.ecyrd.speed4j.StopWatch;
 import com.ecyrd.speed4j.StopWatchFactory;

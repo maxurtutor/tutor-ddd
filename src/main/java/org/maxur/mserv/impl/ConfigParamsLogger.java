@@ -8,7 +8,7 @@
  * Legal use of the software provides receipt of a license from the right holder only.
  */
 
-package org.maxur.ddd.service.impl;
+package org.maxur.mserv.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

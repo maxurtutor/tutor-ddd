@@ -58,6 +58,11 @@ public class Incident implements Serializable {
             .collect(Collectors.toList());
     }
 
+    /**
+     * Gets message.
+     *
+     * @return the message
+     */
     @SuppressWarnings("UnusedDeclaration")
     public String getMessage() {
         return message;
