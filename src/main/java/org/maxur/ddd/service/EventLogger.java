@@ -23,17 +23,35 @@ public class EventLogger {
         bus.register(this);
     }
 
+    /**
+     * On.
+     *
+     * @param event the event
+     */
+    @SuppressWarnings("UnusedParameters")
     @Subscribe
     public void on(final ServiceInitializedEvent event) {
         log.info("Service is initialized");
 
     }
 
+    /**
+     * On.
+     *
+     * @param event the event
+     */
+    @SuppressWarnings("UnusedParameters")
     @Subscribe
     public void on(final ServiceStartedEvent event) {
         log.info("Service is started");
     }
 
+    /**
+     * On.
+     *
+     * @param event the event
+     */
+    @SuppressWarnings("UnusedParameters")
     @Subscribe
     public void on(final ServiceStoppedEvent event) {
         log.info("Service is stopped");
