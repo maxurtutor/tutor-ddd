@@ -12,12 +12,21 @@ import java.lang.annotation.Annotation;
 public interface ServiceLocator {
 
     /**
-     * Bean t.
+     * Returns Bean by descriptions.
      *
-     * @param <T>         the type parameter
-     * @param aClass      the a class
-     * @param annotations the annotations
-     * @return the t
+     * @param <T>         the type of Bean
+     * @param aClass      the a class of Bean
+     * @param annotations the annotations of Bean
+     * @return the Bean
      */
     <T> T bean(Class<T> aClass, Annotation... annotations);
+
+    /**
+     * In packages micro service.
+     *
+     * @param packageNames the package names
+     * @return the Service Locator
+     */
+    ServiceLocator withAopInPackages(String... packageNames);
+
 }

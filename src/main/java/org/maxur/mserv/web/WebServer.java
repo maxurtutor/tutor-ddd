@@ -8,13 +8,12 @@
  * Legal use of the software provides receipt of a license from the right holder only.
  */
 
-package org.maxur.ddd.service;
+package org.maxur.mserv.web;
 
+import org.maxur.mserv.annotation.Param;
+import org.maxur.mserv.config.RestConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.inject.Named;
-import java.net.URI;
 
 /**
  * This Abstract class represents interface of Web Server.
@@ -37,8 +36,8 @@ public abstract class WebServer {
      * WebApp URL
      */
     @SuppressWarnings("unused")
-    @Named("webapp.url")
-    private URI webappUrl;
+    @Param(key = "rest")
+    private RestConfig webappUrl;
 
     /**
      * Start Web server.
@@ -60,11 +59,11 @@ public abstract class WebServer {
 
 
     /**
-     * Gets webapp url.
+     * Gets Rest Config.
      *
-     * @return the webapp url
+     * @return the Rest Config
      */
-    public URI getWebappUrl() {
+    public RestConfig config() {
         return webappUrl;
     }
 

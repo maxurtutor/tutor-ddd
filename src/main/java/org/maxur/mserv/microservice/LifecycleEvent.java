@@ -13,14 +13,22 @@ import org.maxur.ddd.domain.Event;
 public abstract class LifecycleEvent extends Event {
 
     @Getter
-    private final String message;
+    private final MicroService service;
 
     /**
      * Instantiates a new Lifecycle event.
      *
-     * @param message the message
+     * @param service the service
      */
-    protected LifecycleEvent(final String message) {
-        this.message = message;
+    LifecycleEvent(final MicroService service) {
+
+        this.service = service;
     }
+
+    /**
+     * Message string.
+     *
+     * @return the string
+     */
+    public abstract String message();
 }

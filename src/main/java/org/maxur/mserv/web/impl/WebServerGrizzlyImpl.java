@@ -9,16 +9,13 @@
  */
 
 
-package org.maxur.mserv.impl;
+package org.maxur.mserv.web.impl;
 
 import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.grizzly.http.server.StaticHttpHandler;
 import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.maxur.ddd.service.WebServer;
+import org.maxur.mserv.web.WebServer;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 import javax.ws.rs.ext.Provider;
 
@@ -30,10 +27,10 @@ public class WebServerGrizzlyImpl extends WebServer {
 
     private HttpServer httpServer;
 
-    @Inject
+
     private ResourceConfig config;
 
-    @Inject
+
     private ServiceLocator locator;
 
     /**
@@ -45,20 +42,20 @@ public class WebServerGrizzlyImpl extends WebServer {
 
     @Override
     protected void launch() {
-        httpServer = GrizzlyHttpServerFactory.createHttpServer(
-            getWebappUrl(),
+/*        httpServer = GrizzlyHttpServerFactory.createHttpServer(
+                URI.create(config().getUrl()),
             config,
             locator
         );
         httpServer.getServerConfiguration().addHttpHandler(
                 new StaticHttpHandler(webappFolderName),
                 WEB_APP_URL + "api-docs"
-        );
+        );*/
     }
 
     @Override
     protected void shutdown() {
-        httpServer.shutdownNow();
+//        httpServer.shutdownNow();
     }
 
 

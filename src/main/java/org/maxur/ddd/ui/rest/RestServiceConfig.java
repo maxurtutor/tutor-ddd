@@ -15,6 +15,7 @@ import org.glassfish.jersey.ServiceLocatorProvider;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
+import org.jvnet.hk2.annotations.Service;
 
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
@@ -26,6 +27,7 @@ import javax.ws.rs.core.FeatureContext;
  * @version 1.0
  * @since <pre>30.08.2015</pre>
  */
+@Service
 public class RestServiceConfig extends ResourceConfig {
 
     /**

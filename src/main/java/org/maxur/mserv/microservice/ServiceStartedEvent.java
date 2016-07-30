@@ -1,6 +1,8 @@
 package org.maxur.mserv.microservice;
 
-import org.maxur.ddd.domain.Event;
+import java.text.SimpleDateFormat;
+
+import static java.lang.String.format;
 
 /**
  * The type Application started event.
@@ -11,17 +13,28 @@ import org.maxur.ddd.domain.Event;
  */
 public final class ServiceStartedEvent extends LifecycleEvent {
 
-    private ServiceStartedEvent() {
-        super("Service is started");
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+    private ServiceStartedEvent(final MicroService service) {
+        super(service);
     }
 
     /**
      * Application started event.
      *
      * @return the event
+     * @param service the MicroService
      */
-    public static Event serviceStartedEvent() {
-        return new ServiceStartedEvent();
+    public static ServiceStartedEvent serviceStartedEvent(final MicroService service) {
+        return new ServiceStartedEvent(service);
     }
 
+    @Override
+    public String message() {
+        return format("Service %s v.%s (%s) is started",
+                getService().getName(),
+                getService().getVersion(),
+                dateFormat.format(getService().getReleased())
+        );
+    }
 }

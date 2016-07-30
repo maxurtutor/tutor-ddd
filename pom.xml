@@ -40,6 +40,10 @@
         <jackson.version>2.8.1</jackson.version>
         <jersey.version>2.23.1</jersey.version>
 
+        <hibernate-validator.version>5.2.4.Final</hibernate-validator.version>
+        <javax.el.version>2.2.4</javax.el.version>
+        <snakeyaml.version>1.17</snakeyaml.version>
+
         <jooq.version>3.8.4</jooq.version>
         <h2.version>1.4.192</h2.version>
         <HikariCP.version>2.4.7</HikariCP.version>
@@ -61,6 +65,31 @@
     </properties>
 
     <dependencies>
+
+        <!-- Config -->
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>${snakeyaml.version}</version>
+        </dependency>
+
+        <!-- validator -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>${hibernate-validator.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.el</groupId>
+            <artifactId>javax.el-api</artifactId>
+            <version>${javax.el.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.web</groupId>
+            <artifactId>javax.el</artifactId>
+            <version>${javax.el.version}</version>
+        </dependency>
+
         <!-- DbC -->
         <dependency>
             <groupId>org.jetbrains</groupId>

@@ -10,23 +10,17 @@
 
 package org.maxur.mserv.microservice.impl;
 
-import eu.infomas.annotation.AnnotationDetector;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.jvnet.hk2.annotations.Service;
+import org.maxur.mserv.annotation.Param;
 import org.maxur.mserv.bus.Bus;
 import org.maxur.mserv.ioc.ServiceLocator;
-import org.maxur.mserv.microservice.Configuration;
 import org.maxur.mserv.microservice.MicroService;
-import org.maxur.mserv.microservice.Observer;
+import org.maxur.mserv.web.WebServer;
 
 import javax.inject.Inject;
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import java.util.Date;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.lang.String.format;
 import static org.maxur.mserv.microservice.ServiceStartedEvent.serviceStartedEvent;
 import static org.maxur.mserv.microservice.ServiceStoppedEvent.serviceStoppedEvent;
 
@@ -40,9 +34,7 @@ import static org.maxur.mserv.microservice.ServiceStoppedEvent.serviceStoppedEve
 @Slf4j
 public class MicroServiceRestImpl implements MicroService {
 
-    //  private final WebServer webServer;
-
-    //  private final ConfigParamsLogger configParamsLogger;
+    private final WebServer webServer;
 
     private final Bus bus;
 
@@ -50,24 +42,33 @@ public class MicroServiceRestImpl implements MicroService {
 
     private volatile boolean keepRunning = true;
 
-    private String[] packageNames = {};
+    @Param(key = "version", optional = true)
+    @Getter
+    private String version = "";
+
+    @Param(key = "released", optional = true)
+    @Getter
+    private Date released = new Date();
+
+    @Getter
+    private String name = "";
+
 
     /**
      * Instantiates a new Micro service rest.
      * <p>
-     * //  * @param webServer          webServer
+     * @param webServer          webServer
      *
      * @param bus     the Event bus
      * @param locator the Service Locator
      */
     @Inject
     public MicroServiceRestImpl(
-        // final WebServer webServer,
-        final Bus bus,
-        final ServiceLocator locator
+            final WebServer webServer,
+            final Bus bus,
+            final ServiceLocator locator
     ) {
-        //    this.webServer = webServer;
-        //    this.configParamsLogger = configParamsLogger;
+        this.webServer = webServer;
         this.bus = bus;
         this.locator = locator;
 
@@ -80,10 +81,10 @@ public class MicroServiceRestImpl implements MicroService {
                 keepRunning = false;
                 try {
                     mainThread.join();
-                    bus.post(serviceStoppedEvent());
+                    MicroServiceRestImpl.this.stop();
                 } catch (InterruptedException e) {
                     log.error("Error on stop service: ", e);
-                    throw new IllegalStateException(e.getMessage(), e);
+                    Thread.currentThread().interrupt();
                 }
             }
         });
@@ -97,108 +98,23 @@ public class MicroServiceRestImpl implements MicroService {
 
     @Override
     public final void start() {
-        scanPackage();
-//        webServer.start();
-        bus.post(serviceStartedEvent());
-//        configParamsLogger.validateParams();
+        if (keepRunning) {
+            webServer.start();
+            bus.post(serviceStartedEvent(this));
+        }
     }
 
     @Override
     public final void stop() {
-//        webServer.stop();
-        System.exit(0);
+        webServer.stop();
+        bus.post(serviceStoppedEvent(MicroServiceRestImpl.this));
     }
 
     @Override
-    public MicroService inPackages(final String... packageNames) {
-        this.packageNames = packageNames;
+    public MicroService withName(final String name) {
+        this.name = name;
         return this;
     }
 
-    private void scanPackage() {
-
-        final AnnotationDetector.TypeReporter reporter = new AnnotationDetector.TypeReporter() {
-
-            @Override
-            public void reportTypeAnnotation(final Class<? extends Annotation> aClass, final String className) {
-                if (aClass.equals(Observer.class)) {
-                    makeObserverBy(className);
-                }
-                if (aClass.equals(Configuration.class)) {
-                    makeConfigurationBy(className);
-                }
-            }
-
-            @SuppressWarnings("unchecked")
-            @Override
-            public Class<? extends Annotation>[] annotations() {
-                return new Class[]{Observer.class, Configuration.class};
-            }
-
-        };
-
-        final AnnotationDetector cf = new AnnotationDetector(reporter);
-        try {
-            if (packageNames.length == 0) {
-                cf.detect();
-            } else {
-                cf.detect(packageNames);
-            }
-        } catch (IOException e) {
-            log.error("Error on detect annotated classes: ", e);
-            throw new IllegalStateException(e.getMessage(), e);
-        }
-    }
-
-    private void makeConfigurationBy(final String className) {
-        final Class<?> clazz = getClassByName(className);
-        final Configuration clazzAnnotation = clazz.getAnnotation(Configuration.class);
-        final String fileName = clazzAnnotation.fileName();
-        if (!isNullOrEmpty(fileName)) {
-           loadConfig();
-        }
-    }
-
-    private void loadConfig() {
-        //TODO Implement It
-    }
-
-    private void makeObserverBy(final String className) {
-        final Class<?> clazz = getClassByName(className);
-        final Object observer;
-        if (clazz.isAnnotationPresent(Service.class)) {
-            observer = locator.bean(clazz);
-        } else {
-            observer = createClassInstance(clazz);
-        }
-
-        bus.register(observer);
-    }
-
-    private Object createClassInstance(final Class<?> clazz) {
-        try {
-            final Constructor<?> ctor = clazz.getConstructor();
-            return ctor.newInstance();
-        } catch (InstantiationException | InvocationTargetException e) {
-            log.error("Error on create observer: ", e);
-            throw new IllegalStateException(e.getMessage(), e);
-        } catch (IllegalAccessException e) {
-            log.error(format("Error on create observer (Illegal Access to Class %s): ", clazz.getSimpleName()), e);
-            throw new IllegalStateException(e.getMessage(), e);
-        } catch (NoSuchMethodException e) {
-            log.error(format("Error on create observer (Constructor of Class %s not found) : ",
-                clazz.getSimpleName()), e);
-            throw new IllegalStateException(e.getMessage(), e);
-        }
-    }
-
-    private Class<?> getClassByName(String className) {
-        try {
-            return Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            log.error(format("Error on create observer (Class %s not found): ", className), e);
-            throw new IllegalStateException(e.getMessage(), e);
-        }
-    }
 
 }

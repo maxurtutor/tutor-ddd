@@ -1,4 +1,4 @@
-package org.maxur.mserv.microservice;
+package org.maxur.mserv.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -14,5 +14,10 @@ import java.lang.annotation.Target;
 @Documented
 public @interface Configuration {
 
+    /**
+     * File name string.
+     *
+     * @return the string
+     */
     String fileName() default "";
 }

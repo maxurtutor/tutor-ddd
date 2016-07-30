@@ -40,10 +40,11 @@ public final class Launcher {
      * @param args - arguments of command.
      */
     public static void main(String[] args) {
-        locator("default")
-            .bean(MicroService.class)
-            .inPackages("org.maxur.ddd")
-            .start();
+        locator()
+                .withAopInPackages("org.maxur.ddd")
+                .bean(MicroService.class)
+                .withName("DDD Tutorial")
+                .start();
     }
 
 }

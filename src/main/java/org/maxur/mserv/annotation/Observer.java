@@ -1,4 +1,4 @@
-package org.maxur.mserv.microservice;
+package org.maxur.mserv.annotation;
 
 
 import java.lang.annotation.Documented;

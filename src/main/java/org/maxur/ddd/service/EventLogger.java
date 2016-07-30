@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jvnet.hk2.annotations.Service;
 import org.maxur.mserv.bus.Bus;
 import org.maxur.mserv.microservice.LifecycleEvent;
-import org.maxur.mserv.microservice.Observer;
+import org.maxur.mserv.annotation.Observer;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -39,7 +39,7 @@ public class EventLogger {
      */
     @Subscribe
     public void on(final LifecycleEvent event) {
-        log.info(event.getMessage());
+        log.info(event.message());
     }
 
 }

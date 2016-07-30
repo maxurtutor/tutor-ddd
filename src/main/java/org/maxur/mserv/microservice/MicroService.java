@@ -30,5 +30,32 @@ public interface MicroService {
     void stop();
 
 
-    MicroService inPackages(String... packageNames);
+    /**
+     * With name micro service.
+     *
+     * @param name the name
+     * @return the micro service
+     */
+    MicroService withName(String name);
+
+    /**
+     * Gets name.
+     *
+     * @return the name
+     */
+    String getName();
+
+    /**
+     * Gets version.
+     *
+     * @return the version
+     */
+    String getVersion();
+
+    /**
+     * Gets released.
+     *
+     * @return the released
+     */
+    java.util.Date getReleased();
 }
