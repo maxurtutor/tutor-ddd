@@ -1,4 +1,4 @@
-package org.maxur.mserv.annotation;
+package org.maxur.mserv.core.annotation;
 
 import java.lang.annotation.*;
 

@@ -10,10 +10,9 @@
 
 package org.maxur.mserv.web;
 
-import org.maxur.mserv.annotation.Param;
-import org.maxur.mserv.config.RestConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.maxur.mserv.core.annotation.Param;
+import org.maxur.mserv.bus.Bus;
+import org.maxur.mserv.config.WebConfig;
 
 /**
  * This Abstract class represents interface of Web Server.
@@ -24,28 +23,32 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class WebServer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebServer.class);
-
     /**
      * webapp folder url
      */
     protected static final String WEB_APP_URL = "/";
 
+    private final Bus bus;
+
+    @Param(key = "web")
+    private WebConfig webConfig;
+
 
     /**
-     * WebApp URL
+     * Instantiates a new Web server.
+     *
+     * @param bus the bus
      */
-    @SuppressWarnings("unused")
-    @Param(key = "rest")
-    private RestConfig webappUrl;
+    protected WebServer(final Bus bus) {
+        this.bus = bus;
+    }
 
     /**
      * Start Web server.
      */
     public void start() {
-        LOGGER.info("Start Web Server");
         launch();
-        LOGGER.info("Starting on " + webappUrl);
+        bus.post(WebServerStartedEvent.serviceStartedEvent(this));
     }
 
 
@@ -53,19 +56,10 @@ public abstract class WebServer {
      * Stop Web server.
      */
     public void stop() {
-        LOGGER.info("Stop Web Server");
+        bus.post(WebServerStoppedEvent.serviceStoppedEvent(this));
         shutdown();
     }
 
-
-    /**
-     * Gets Rest Config.
-     *
-     * @return the Rest Config
-     */
-    public RestConfig config() {
-        return webappUrl;
-    }
 
     /**
      * web server launch
@@ -77,5 +71,14 @@ public abstract class WebServer {
      */
     protected abstract void shutdown();
 
+
+    /**
+     * WebApp URL
+     *
+     * @return the web config
+     */
+    public WebConfig webConfig() {
+        return webConfig;
+    }
 
 }

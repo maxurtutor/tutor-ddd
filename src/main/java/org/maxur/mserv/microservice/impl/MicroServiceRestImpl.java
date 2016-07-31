@@ -12,13 +12,13 @@ package org.maxur.mserv.microservice.impl;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.maxur.mserv.annotation.Param;
+import org.maxur.mserv.core.annotation.Param;
 import org.maxur.mserv.bus.Bus;
-import org.maxur.mserv.ioc.ServiceLocator;
 import org.maxur.mserv.microservice.MicroService;
 import org.maxur.mserv.web.WebServer;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.Date;
 
 import static org.maxur.mserv.microservice.ServiceStartedEvent.serviceStartedEvent;
@@ -38,8 +38,6 @@ public class MicroServiceRestImpl implements MicroService {
 
     private final Bus bus;
 
-    private final ServiceLocator locator;
-
     private volatile boolean keepRunning = true;
 
     @Param(key = "version", optional = true)
@@ -57,20 +55,17 @@ public class MicroServiceRestImpl implements MicroService {
     /**
      * Instantiates a new Micro service rest.
      * <p>
-     * @param webServer          webServer
      *
-     * @param bus     the Event bus
-     * @param locator the Service Locator
+     * @param webServer webServer
+     * @param bus       the Event bus
      */
     @Inject
     public MicroServiceRestImpl(
             final WebServer webServer,
-            final Bus bus,
-            final ServiceLocator locator
+            @Named("event.bus") Bus bus
     ) {
         this.webServer = webServer;
         this.bus = bus;
-        this.locator = locator;
 
         final Thread mainThread = Thread.currentThread();
 
@@ -91,6 +86,11 @@ public class MicroServiceRestImpl implements MicroService {
 
     }
 
+    /**
+     * Is keep running boolean.
+     *
+     * @return the boolean
+     */
     public boolean isKeepRunning() {
         return keepRunning;
     }
@@ -115,6 +115,5 @@ public class MicroServiceRestImpl implements MicroService {
         this.name = name;
         return this;
     }
-
 
 }

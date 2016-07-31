@@ -7,7 +7,7 @@
  * Otherwise this violation would be treated by law and would be subject to legal prosecution.
  * Legal use of the software provides receipt of a license from the right holder only.
  */
-package org.maxur.ddd.ui.rest;
+package org.maxur.mserv.web.impl;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
  * @since <pre>11/25/13</pre>
  */
 public class Incident implements Serializable {
+
     private static final long serialVersionUID = 2368849548039200044L;
 
     /**

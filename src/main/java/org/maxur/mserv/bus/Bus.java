@@ -1,6 +1,6 @@
 package org.maxur.mserv.bus;
 
-import org.maxur.ddd.domain.Event;
+import org.maxur.mserv.core.Event;
 
 /**
  * The interface Bus.

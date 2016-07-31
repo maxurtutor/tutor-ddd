@@ -1,11 +1,11 @@
-package org.maxur.ddd.domain;
+package org.maxur.mserv.core;
 
 /**
- * The type Event.
+ * The Domain Event.
  *
  * @author Maxim Yunusov
  * @version 1.0
  * @since <pre>7/28/2016</pre>
  */
-public class Event {
+public interface Event {
 }

@@ -3,12 +3,8 @@ package org.maxur.ddd.service;
 import com.google.common.eventbus.Subscribe;
 import lombok.extern.slf4j.Slf4j;
 import org.jvnet.hk2.annotations.Service;
-import org.maxur.mserv.bus.Bus;
-import org.maxur.mserv.microservice.LifecycleEvent;
-import org.maxur.mserv.annotation.Observer;
-
-import javax.inject.Inject;
-import javax.inject.Named;
+import org.maxur.mserv.core.annotation.Observer;
+import org.maxur.mserv.core.LifecycleEvent;
 
 /**
  * The type Logger.
@@ -21,16 +17,6 @@ import javax.inject.Named;
 @Observer
 @Service
 public class EventLogger {
-
-    /**
-     * Instantiates a new Logger.
-     *
-     * @param bus the bus
-     */
-    @Inject
-    public EventLogger(@Named("eventBus") final Bus bus) {
-        bus.register(this);
-    }
 
     /**
      * On Lifecycle Event.

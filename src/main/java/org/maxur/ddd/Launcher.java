@@ -14,9 +14,7 @@
 
 package org.maxur.ddd;
 
-import org.maxur.mserv.microservice.MicroService;
-
-import static org.maxur.mserv.ioc.ServiceLocatorFactoryHk2Impl.locator;
+import org.maxur.mserv.MaxurSystem;
 
 /**
  * The Application Launcher.
@@ -40,11 +38,9 @@ public final class Launcher {
      * @param args - arguments of command.
      */
     public static void main(String[] args) {
-        locator()
+        MaxurSystem.system("DDD Tutorial")
                 .withAopInPackages("org.maxur.ddd")
-                .bean(MicroService.class)
-                .withName("DDD Tutorial")
-                .start();
+                .start("rest.service");
     }
 
 }

@@ -2,8 +2,8 @@ package org.maxur.mserv.reflection;
 
 import eu.infomas.annotation.AnnotationDetector;
 import lombok.extern.slf4j.Slf4j;
-import org.maxur.mserv.annotation.Configuration;
-import org.maxur.mserv.annotation.Observer;
+import org.maxur.mserv.core.annotation.Configuration;
+import org.maxur.mserv.core.annotation.Observer;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;

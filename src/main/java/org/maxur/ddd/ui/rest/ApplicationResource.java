@@ -35,7 +35,7 @@ import java.net.URL;
  * @since <pre>11/29/13</pre>
  */
 @Path("/application")
-@Api(tags = "application")
+@Api(tags = "Application Resources")
 public class ApplicationResource {
 
     /**

@@ -1,6 +1,7 @@
 package org.maxur.mserv.microservice;
 
-import org.maxur.ddd.domain.Event;
+import org.maxur.mserv.core.Event;
+import org.maxur.mserv.core.LifecycleEvent;
 
 import static java.lang.String.format;
 
@@ -11,7 +12,7 @@ import static java.lang.String.format;
  * @version 1.0
  * @since <pre>7/28/2016</pre>
  */
-public final class ServiceStoppedEvent extends LifecycleEvent {
+public final class ServiceStoppedEvent extends LifecycleEvent<MicroService> {
 
     private ServiceStoppedEvent(final MicroService service) {
         super(service);
@@ -20,8 +21,8 @@ public final class ServiceStoppedEvent extends LifecycleEvent {
     /**
      * Application stopped event.
      *
-     * @return the event
      * @param service the MicroService
+     * @return the event
      */
     public static Event serviceStoppedEvent(final MicroService service) {
         return new ServiceStoppedEvent(service);
@@ -30,7 +31,7 @@ public final class ServiceStoppedEvent extends LifecycleEvent {
     @Override
     public String message() {
         return format("Service '%s' is stopped",
-                getService().getName()
+                getEntity().getName()
         );
     }
 

@@ -1,28 +1,27 @@
-package org.maxur.mserv.microservice;
+package org.maxur.mserv.core;
 
 import lombok.Getter;
-import org.maxur.ddd.domain.Event;
 
 /**
  * The type Lifecycle event.
  *
+ * @param <T> entity type
  * @author Maxim Yunusov
  * @version 1.0
  * @since <pre>7/29/2016</pre>
  */
-public abstract class LifecycleEvent extends Event {
+public abstract class LifecycleEvent<T> implements Event {
 
     @Getter
-    private final MicroService service;
+    private final T entity;
 
     /**
      * Instantiates a new Lifecycle event.
      *
-     * @param service the service
+     * @param entity the entity
      */
-    LifecycleEvent(final MicroService service) {
-
-        this.service = service;
+    protected LifecycleEvent(final T entity) {
+        this.entity = entity;
     }
 
     /**

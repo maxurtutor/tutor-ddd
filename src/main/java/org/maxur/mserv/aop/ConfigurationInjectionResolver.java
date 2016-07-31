@@ -14,8 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.glassfish.hk2.api.Injectee;
 import org.glassfish.hk2.api.InjectionResolver;
 import org.glassfish.hk2.api.ServiceHandle;
-import org.maxur.mserv.annotation.Key;
-import org.maxur.mserv.annotation.Param;
+import org.maxur.mserv.core.annotation.Key;
+import org.maxur.mserv.core.annotation.Param;
 import org.maxur.mserv.reflection.ClassUtils;
 
 import java.lang.reflect.Field;
@@ -27,6 +27,8 @@ import java.util.Objects;
 import static java.lang.String.format;
 
 /**
+ * The type Configuration injection resolver.
+ *
  * @author Maxim Yunusov
  * @version 1.0
  * @since <pre>9/2/2015</pre>
@@ -45,7 +47,7 @@ public class ConfigurationInjectionResolver implements InjectionResolver<Param> 
         final boolean optional = annotation.optional();
         final Object result = keys.get(name);
         if (Objects.isNull(result) && !optional) {
-            log.error("Property '%s' is not found", name);
+            log.error(format("Property '%s' is not found", name));
         }
         return result;
     }
@@ -60,6 +62,11 @@ public class ConfigurationInjectionResolver implements InjectionResolver<Param> 
         return false;
     }
 
+    /**
+     * Sets config.
+     *
+     * @param config the config
+     */
     public void setConfig(Object config) {
         this.config = config;
         parse(config);

@@ -1,21 +1,7 @@
 package org.maxur.mserv.ioc;
 
-import org.glassfish.hk2.api.InjectionResolver;
-import org.glassfish.hk2.api.InterceptionService;
-import org.glassfish.hk2.api.TypeLiteral;
+import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.maxur.mserv.annotation.Param;
-import org.maxur.mserv.aop.ConfigurationInjectionResolver;
-import org.maxur.mserv.aop.HK2InterceptionService;
-import org.maxur.mserv.bus.Bus;
-import org.maxur.mserv.bus.BusGuavaImpl;
-import org.maxur.mserv.microservice.MicroService;
-import org.maxur.mserv.microservice.impl.MicroServiceRestImpl;
-import org.maxur.mserv.web.WebServer;
-import org.maxur.mserv.web.impl.WebServerGrizzlyImpl;
-
-import javax.inject.Singleton;
 
 /**
  * The type Service locator factory hk 2.
@@ -34,46 +20,30 @@ public final class ServiceLocatorFactoryHk2Impl {
     /**
      * Locator service locator.
      *
+     * @param binders HK2 Binders
      * @return the service locator
      */
-    public static ServiceLocator locator() {
-        return locator(LOCATOR_DEFAULT_NAME);
+    public static ServiceLocator locator(final Binder... binders) {
+        return locator(LOCATOR_DEFAULT_NAME, binders);
     }
 
     /**
      * Locator service locator.
      *
-     * @param name the name
+     * @param name    the name
+     * @param binders HK2 Binders
      * @return the service locator
      */
-    public static ServiceLocator locator(final String name) {
-        return new ServiceLocatorFactoryHk2Impl().newLocator(name);
+    public static ServiceLocator locator(final String name, final Binder... binders) {
+        return new ServiceLocatorFactoryHk2Impl().newLocator(name, binders);
     }
 
-    private ServiceLocator newLocator(final String name) {
+    private ServiceLocator newLocator(final String name, final Binder... binders) {
         final org.glassfish.hk2.api.ServiceLocator serviceLocator =
             ServiceLocatorUtilities.createAndPopulateServiceLocator(name);
-        ServiceLocatorUtilities.bind(serviceLocator, new Hk2Binder());
+        ServiceLocatorUtilities.bind(serviceLocator, binders);
         return serviceLocator.getService(ServiceLocator.class);
     }
 
-    private static class Hk2Binder extends AbstractBinder {
 
-        @Override
-        protected void configure() {
-            bind(ConfigurationInjectionResolver.class)
-                    .to(new TypeLiteral<InjectionResolver<Param>>() {
-                    })
-                    .named("configResolver")
-                    .in(Singleton.class);
-
-            bind(ServiceLocatorHk2Impl.class).to(ServiceLocator.class);
-            bind(HK2InterceptionService.class).to(InterceptionService.class).in(Singleton.class);
-            bind(BusGuavaImpl.class).to(Bus.class).named("eventBus").in(Singleton.class);
-            bind(BusGuavaImpl.class).to(Bus.class).named("commandBus").in(Singleton.class);
-            bind(WebServerGrizzlyImpl.class).to(WebServer.class).in(Singleton.class);
-            bind(MicroServiceRestImpl.class).to(MicroService.class).in(Singleton.class);
-        }
-
-    }
 }

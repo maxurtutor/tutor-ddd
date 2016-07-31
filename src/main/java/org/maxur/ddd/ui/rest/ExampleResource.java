@@ -2,16 +2,13 @@ package org.maxur.ddd.ui.rest;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
-import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 /**
  * The type Example resource.
@@ -19,15 +16,11 @@ import javax.ws.rs.core.Response;
  * @author Alexey Elin
  * @version 1.0 18.12.2015.
  */
-@Path("/api/v1.0")
+@Path("/example")
 @Singleton
 @Api(tags = "Example Resource")
+@Slf4j
 public class ExampleResource {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExampleResource.class);
-
-    @SuppressWarnings("unused")
-    @Named("param")
-    private String configParam;
 
     /**
      * Do hello response.
@@ -36,28 +29,12 @@ public class ExampleResource {
      */
     @GET
     @Path("/hello")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.TEXT_PLAIN)
     @ApiOperation(
-        value = "Description is here"
+        value = "Say hello", response = String.class
     )
-    public Response doHello() {
-        LOGGER.info("example resource: /hello");
-        return Response.ok("Hello World!").build();
-    }
-
-    /**
-     * Do config param response.
-     *
-     * @return the response
-     */
-    @GET
-    @Path("/config")
-    @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(
-        value = "Description is here"
-    )
-    public Response doConfigParam() {
-        LOGGER.info("example resource: /config");
-        return Response.ok(configParam).build();
+    public String doHello() {
+        log.info("example resource: /hello");
+        return "Hello World!";
     }
 }

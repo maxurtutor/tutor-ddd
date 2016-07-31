@@ -8,7 +8,7 @@
  * Legal use of the software provides receipt of a license from the right holder only.
  */
 
-package org.maxur.ddd.ui.rest;
+package org.maxur.mserv.web.impl;
 
 import org.glassfish.jersey.server.monitoring.ApplicationEvent;
 import org.glassfish.jersey.server.monitoring.ApplicationEventListener;

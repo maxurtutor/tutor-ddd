@@ -1,4 +1,4 @@
-package org.maxur.ddd.ui.rest;
+package org.maxur.mserv.core;
 
 /**
  * The type Validation exception.

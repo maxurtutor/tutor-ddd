@@ -1,14 +1,16 @@
 package org.maxur.ddd.config;
 
 import lombok.Data;
-import org.maxur.mserv.annotation.Configuration;
-import org.maxur.mserv.annotation.Key;
-import org.maxur.mserv.config.RestConfig;
+import org.maxur.mserv.core.annotation.Configuration;
+import org.maxur.mserv.core.annotation.Key;
+import org.maxur.mserv.config.WebConfig;
 
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
+ * The type User config.
+ *
  * @author myunusov
  * @version 1.0
  * @since <pre>12.07.2016</pre>
@@ -23,8 +25,8 @@ public class UserConfig {
     @NotNull
     private String version;
 
-    @Key("rest")
-    private RestConfig rest;
+    @Key("web")
+    private WebConfig web;
 
     @NotNull
     @Key("jdbc")

@@ -2,7 +2,7 @@ package org.maxur.mserv.bus;
 
 import com.google.common.eventbus.EventBus;
 import lombok.experimental.Delegate;
-import org.maxur.ddd.domain.Event;
+import org.maxur.mserv.core.Event;
 
 /**
  * The type Bus guava.

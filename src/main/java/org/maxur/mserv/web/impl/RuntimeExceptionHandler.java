@@ -9,7 +9,7 @@
  */
 
 
-package org.maxur.ddd.ui.rest;
+package org.maxur.mserv.web.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

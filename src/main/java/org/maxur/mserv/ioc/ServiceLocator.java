@@ -22,11 +22,13 @@ public interface ServiceLocator {
     <T> T bean(Class<T> aClass, Annotation... annotations);
 
     /**
-     * In packages micro service.
+     * Bean t.
      *
-     * @param packageNames the package names
-     * @return the Service Locator
+     * @param <T>    the type parameter
+     * @param aClass the a class
+     * @param name   the name
+     * @return the t
      */
-    ServiceLocator withAopInPackages(String... packageNames);
+    <T> T bean(Class<T> aClass, String name);
 
 }
