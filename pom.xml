@@ -65,7 +65,45 @@
         <jul-to-slf4j.version>1.7.21</jul-to-slf4j.version>
     </properties>
 
+
+    <profiles>
+        <profile>
+            <id>windows-profile</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <file>
+                    <exists>${java.home}/lib/tools.jar</exists>
+                </file>
+            </activation>
+            <properties>
+                <toolsjar>${java.home}/lib/tools.jar</toolsjar>
+            </properties>
+        </profile>
+        <profile>
+            <id>mac-profile</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+                <file>
+                    <exists>${java.home}/../lib/tools.jar</exists>
+                </file>
+            </activation>
+            <properties>
+                <toolsjar>${java.home}/../lib/tools.jar</toolsjar>
+            </properties>
+        </profile>
+    </profiles>
+
     <dependencies>
+
+        <!-- JDK -->
+        <dependency>
+            <groupId>jdk.tools</groupId>
+            <artifactId>jdk.tools</artifactId>
+            <version>jdk1.8.0</version>
+            <scope>system</scope>
+            <systemPath>${toolsjar}</systemPath>
+        </dependency>
+
 
         <!-- Config -->
         <dependency>
@@ -455,13 +493,13 @@
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
-                    <doclet>ch.raffael.doclets.pegdown.PegdownDoclet</doclet>
+                    <doclet>org.maxur.ldoc.Glossary</doclet>
                     <docletArtifact>
-                        <groupId>ch.raffael.pegdown-doclet</groupId>
-                        <artifactId>pegdown-doclet</artifactId>
-                        <version>pegdown-doclet.version</version>
+                        <groupId>org.maxur</groupId>
+                        <artifactId>tutor-ddd</artifactId>
+                        <version>0.1-SNAPSHOT</version>
                     </docletArtifact>
-                    <useStandardDocletOptions>true</useStandardDocletOptions>
+                    <useStandardDocletOptions>false</useStandardDocletOptions>
                 </configuration>
             </plugin>
 

@@ -1,0 +1,1 @@
+mvnw.cmd javadoc:javadoc
