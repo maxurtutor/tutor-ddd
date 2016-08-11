@@ -103,6 +103,11 @@
             <scope>system</scope>
             <systemPath>${toolsjar}</systemPath>
         </dependency>
+        <dependency>
+            <groupId>com.github.spullara.mustache.java</groupId>
+            <artifactId>mustache.java</artifactId>
+            <version>0.9.3</version>
+        </dependency>
 
 
         <!-- Config -->

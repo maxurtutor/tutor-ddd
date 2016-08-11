@@ -1,7 +1,17 @@
+/*
+ * Copyright 2016 Russian Post
+ *
+ * This source code is Russian Post Confidential Proprietary.
+ * This software is protected by copyright. All rights and titles are reserved.
+ * You shall not use, copy, distribute, modify, decompile, disassemble or reverse engineer the software.
+ * Otherwise this violation would be treated by law and would be subject to legal prosecution.
+ * Legal use of the software provides receipt of a license from the right holder only.
+ */
+
 package org.maxur.ldoc;
 
 
-import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.RootDoc;
 import com.sun.javadoc.Tag;
 
@@ -14,40 +24,68 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * The type Glossary.
+ *
  * @author myunusov
  * @version 1.0
  * @since <pre>07.08.2016</pre>
  */
 public class Glossary {
 
-    public static boolean start(RootDoc root){
-        String tagName = "concept";
-        writeContents(root.classes(), tagName);
+    /**
+     * Start boolean.
+     *
+     * @param root the root
+     * @return the boolean
+     */
+    public static boolean start(final RootDoc root) {
+        final Glossary glossary = new Glossary();
+        final List<DomainModel> models = glossary.createModels(root);
+        glossary.writeGlossary(models);
         return true;
     }
 
-    private static void writeContents(ClassDoc[] classes, String tagName) {
-        List<String> lines = new ArrayList<>();
-
-        Path file = Paths.get("Glossary.md");
-
-
-        for (int i=0; i < classes.length; i++) {
-            Tag[] tags = classes[i].tags(tagName);
+    /**
+     * Create models list.
+     *
+     * @param root the root
+     * @return the list
+     */
+    private List<DomainModel> createModels(final RootDoc root) {
+        final PackageDoc[] packages = root.specifiedPackages();
+        final List<DomainModel> result = new ArrayList<>();
+        for (PackageDoc aPackage : packages) {
+            Tag[] tags = aPackage.tags("boundedContext");
             if (tags.length > 0) {
-                for (int k=0; k < tags.length; k++) {
-                    lines.add(
-                            "  \n" + classes[i].name() + ": "
-                            + tags[k].text());
+                final DomainModel model = new DomainModel(aPackage.name());
+                result.add(model);
+                for (Tag tag : tags) {
+                    model.addDescription(tag.text());
                 }
+                model.addClasses(aPackage.allClasses());
+            }
+        }
+        return result;
+
+    }
+
+    /**
+     * Write glossary.
+     *
+     * @param models the models
+     */
+    private void writeGlossary(final List<DomainModel> models) {
+        for (DomainModel model : models) {
+            final Path file = Paths.get(model.name() + "-glossary.md");
+            final List<String> lines = model.glossary();
+            try {
+                Files.write(file, lines, Charset.forName("UTF-8"));
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
 
-        try {
-            Files.write(file, lines, Charset.forName("UTF-8"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
+
 
 }
