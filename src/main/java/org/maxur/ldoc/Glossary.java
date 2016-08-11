@@ -11,6 +11,8 @@
 package org.maxur.ldoc;
 
 
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Template;
 import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.RootDoc;
 import com.sun.javadoc.Tag;
@@ -76,10 +78,14 @@ public class Glossary {
      */
     private void writeGlossary(final List<DomainModel> models) {
         for (DomainModel model : models) {
-            final Path file = Paths.get(model.name() + "-glossary.md");
-            final List<String> lines = model.glossary();
+
             try {
-                Files.write(file, lines, Charset.forName("UTF-8"));
+                final Handlebars handlebars = new Handlebars();
+                final Path file = Paths.get(model.getName() + "-glossary.md");
+                final Template template = handlebars.compile("glossary");
+                byte[] bytes = template.apply(model).getBytes(Charset.forName("UTF-8"));
+                Files.write(file, bytes);
+
             } catch (IOException e) {
                 e.printStackTrace();
             }

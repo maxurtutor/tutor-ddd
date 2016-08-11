@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  */
 public class DomainModel {
 
-    private final List<String> description = new ArrayList<>();
+    private final List<String> descriptions = new ArrayList<>();
 
     private final String name;
 
@@ -53,7 +53,7 @@ public class DomainModel {
         final List<String> result = new ArrayList<>();
         result.add("#Словарь");
         result.add("");
-        result.add(String.format("##Контекст: %s (*%s*)", description(), name));
+        result.add(String.format("##Контекст: %s (*%s*)", getDescription(), name));
         result.add("");
         for (Class aClass : classes) {
             Concept annotation = (Concept) aClass.getAnnotation(Concept.class);
@@ -73,7 +73,7 @@ public class DomainModel {
      *
      * @return the string
      */
-    public String name() {
+    public String getName() {
         return name;
     }
 
@@ -83,7 +83,7 @@ public class DomainModel {
      * @param text the text
      */
     public void addDescription(final String text) {
-        description.add(text);
+        descriptions.add(text);
     }
 
     /**
@@ -91,8 +91,22 @@ public class DomainModel {
      *
      * @return the string
      */
-    public String description() {
-        return description.stream().collect(Collectors.joining("\n"));
+    public String getDescription() {
+        return descriptions.stream().collect(Collectors.joining("\n"));
+    }
+
+    public List<ConceptModel> getConcepts() {
+        final List<ConceptModel> result = new ArrayList<>();
+        for (Class aClass : classes) {
+            Concept annotation = (Concept) aClass.getAnnotation(Concept.class);
+            result.add(new ConceptModel(
+                annotation.name(),
+                aClass.getSimpleName(),
+                annotation.description()
+                )
+            );
+        }
+        return result;
     }
 
 
@@ -111,9 +125,7 @@ public class DomainModel {
     @SneakyThrows
     private Class<?> classByDoc(final ClassDoc doc)  {
         final String className = doc.name();
-        System.out.println(className);
         final String packageName = doc.containingPackage().name();
-        System.out.println(packageName);
         return Class.forName(packageName + "." +className);
     }
 
@@ -121,4 +133,28 @@ public class DomainModel {
         return Character.toUpperCase(line.charAt(0)) + line.substring(1).toLowerCase();
     }
 
+    public static class ConceptModel {
+
+        private final String title;
+        private final String name;
+        private final String description;
+
+        public ConceptModel(String title, String name, String description) {
+            this.title = title;
+            this.name = name;
+            this.description = description;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
 }
