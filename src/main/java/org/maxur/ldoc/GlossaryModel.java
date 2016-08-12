@@ -15,12 +15,12 @@ import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.PackageDoc;
 import com.sun.tools.javadoc.ClassDocImpl;
 import lombok.Getter;
+import lombok.SneakyThrows;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * The type Domain model.
@@ -41,7 +41,7 @@ public class GlossaryModel {
     private String title;
 
     @Getter
-    private Stream<ConceptModel> concepts;
+    private List<ConceptModel> concepts;
 
     /**
      * Instantiates a new Domain model.
@@ -85,7 +85,8 @@ public class GlossaryModel {
         model.concepts = Arrays.stream(aPackage.allClasses())
             .map(model::classByDoc)
             .filter(c -> c.isAnnotationPresent(Concept.class))
-            .map(ConceptModel::new);
+            .map(ConceptModel::new)
+            .collect(Collectors.toList());
 
         return model;
     }
@@ -94,8 +95,10 @@ public class GlossaryModel {
         return member.value().value().toString();
     }
 
+    @SneakyThrows
     private Class<?> classByDoc(final ClassDoc doc) {
-        return ((ClassDocImpl) doc).type.getClass();
+        final String className = ((ClassDocImpl) doc).type.toString();
+        return Class.forName (className);
     }
 
     private String capitalize(final String line) {

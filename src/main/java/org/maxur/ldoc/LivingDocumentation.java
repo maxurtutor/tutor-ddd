@@ -10,10 +10,12 @@
 
 package org.maxur.ldoc;
 
+import com.github.jabbalaci.graphviz.GraphViz;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.sun.javadoc.RootDoc;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -23,6 +25,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static java.lang.String.format;
 
 /**
  * The type Living Documentation doclet.
@@ -42,21 +46,25 @@ public class LivingDocumentation {
     public static boolean start(final RootDoc root) {
         final LivingDocumentation livingDocumentation = new LivingDocumentation();
         livingDocumentation.writeGlossary(root);
+        livingDocumentation.drawContextMap(root);
         return true;
     }
 
-    /**
-     * Create models list.
-     *
-     * @param root the root
-     * @return the list
-     */
-    private List<GlossaryModel> glossaryModels(final RootDoc root) {
-        return Arrays.stream(root.specifiedPackages())
-            .map(GlossaryModel::makeBy)
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .collect(Collectors.toList());
+    private void drawContextMap(RootDoc root) {
+        GraphViz gv = new GraphViz();
+        gv.addln(gv.start_graph());
+        for (GlossaryModel model : glossaryModels(root)) {
+            gv.addln(format("%s -> Commons;", model.getName()));
+        }
+        gv.addln(gv.end_graph());
+        System.out.println(gv.getDotSource());
+        gv.increaseDpi();
+        gv.increaseDpi();
+        gv.increaseDpi();
+        String type = "png";
+        String repesentationType= "dot";
+        File out = new File("contextMap."+ type);
+        gv.writeGraphToFile( gv.getGraph(gv.getDotSource(), type, repesentationType), out );
     }
 
     /**
@@ -77,6 +85,20 @@ public class LivingDocumentation {
             }
         }
 
+    }
+
+    /**
+     * Create models list.
+     *
+     * @param root the root
+     * @return the list
+     */
+    private List<GlossaryModel> glossaryModels(final RootDoc root) {
+        return Arrays.stream(root.specifiedPackages())
+            .map(GlossaryModel::makeBy)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toList());
     }
 
 

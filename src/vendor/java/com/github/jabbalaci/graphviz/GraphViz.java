@@ -139,20 +139,23 @@ public class GraphViz
      * tempDir = /tmp
      */
     public GraphViz() {
-        String dot = findDot();
-        this.executable = dot;
+        this.executable = findDot();
+        this.tempDir = findTempDir();
+    }
 
-        System.out.println(System.getProperty("java.io.tmpdir"));
-
+    private String findTempDir() {
+        final String value = System.getProperty("java.io.tmpdir");
+        if (value != null) {
+            return value;
+        }
         if (GraphViz.osName.startsWith("Windows")) {
-            this.tempDir = "c:/temp";
-            this.executable = "c:/Program Files (x86)/Graphviz 2.28/bin/dot.exe";
+            return "c:/temp";
         } else if (GraphViz.osName.equals("MacOSX")) {
-            this.tempDir = "/tmp";
-            this.executable = "/usr/local/bin/dot";
+            return "/tmp";
         } else if (GraphViz.osName.equals("Linux")) {
-            this.tempDir = "/tmp";
-            this.executable = "/usr/bin/dot";
+            return "/tmp";
+        }else {
+            throw new IllegalStateException("Unknown OS");
         }
     }
 
