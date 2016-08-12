@@ -18,6 +18,8 @@
  * @author myunusov
  * @version 1.0
  * @since <pre>10.02.2016</pre>
- * @boundedContext Сопровождение курса DDD
  */
+@BoundedContext(name = "Монолит", description = "Сопровождение курса DDD")
 package org.maxur.ddd.domain;
+
+import org.maxur.ldoc.BoundedContext;

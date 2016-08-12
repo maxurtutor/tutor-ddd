@@ -10,29 +10,28 @@
 
 package org.maxur.ldoc;
 
-
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
-import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.RootDoc;
-import com.sun.javadoc.Tag;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
- * The type Glossary.
+ * The type Living Documentation doclet.
  *
  * @author myunusov
  * @version 1.0
  * @since <pre>07.08.2016</pre>
  */
-public class Glossary {
+public class LivingDocumentation {
 
     /**
      * Start boolean.
@@ -41,9 +40,8 @@ public class Glossary {
      * @return the boolean
      */
     public static boolean start(final RootDoc root) {
-        final Glossary glossary = new Glossary();
-        final List<DomainModel> models = glossary.createModels(root);
-        glossary.writeGlossary(models);
+        final LivingDocumentation livingDocumentation = new LivingDocumentation();
+        livingDocumentation.writeGlossary(root);
         return true;
     }
 
@@ -53,32 +51,20 @@ public class Glossary {
      * @param root the root
      * @return the list
      */
-    private List<DomainModel> createModels(final RootDoc root) {
-        final PackageDoc[] packages = root.specifiedPackages();
-        final List<DomainModel> result = new ArrayList<>();
-        for (PackageDoc aPackage : packages) {
-            Tag[] tags = aPackage.tags("boundedContext");
-            if (tags.length > 0) {
-                final DomainModel model = new DomainModel(aPackage.name());
-                result.add(model);
-                for (Tag tag : tags) {
-                    model.addDescription(tag.text());
-                }
-                model.addClasses(aPackage.allClasses());
-            }
-        }
-        return result;
-
+    private List<GlossaryModel> glossaryModels(final RootDoc root) {
+        return Arrays.stream(root.specifiedPackages())
+            .map(GlossaryModel::makeBy)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toList());
     }
 
     /**
      * Write glossary.
      *
-     * @param models the models
      */
-    private void writeGlossary(final List<DomainModel> models) {
-        for (DomainModel model : models) {
-
+    private void writeGlossary(final RootDoc root) {
+        for (GlossaryModel model : glossaryModels(root)) {
             try {
                 final Handlebars handlebars = new Handlebars();
                 final Path file = Paths.get(model.getName() + "-glossary.md");

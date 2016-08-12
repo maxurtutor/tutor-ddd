@@ -499,7 +499,7 @@
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
-                    <doclet>org.maxur.ldoc.Glossary</doclet>
+                    <doclet>org.maxur.ldoc.LivingDocumentation</doclet>
                     <docletArtifact>
                         <groupId>org.maxur</groupId>
                         <artifactId>tutor-ddd</artifactId>
