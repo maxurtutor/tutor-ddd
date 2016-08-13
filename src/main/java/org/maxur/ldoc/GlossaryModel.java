@@ -10,12 +10,8 @@
 
 package org.maxur.ldoc;
 
-import com.sun.javadoc.AnnotationDesc;
-import com.sun.javadoc.ClassDoc;
-import com.sun.javadoc.PackageDoc;
-import com.sun.tools.javadoc.ClassDocImpl;
+import com.sun.javadoc.*;
 import lombok.Getter;
-import lombok.SneakyThrows;
 
 import java.util.Arrays;
 import java.util.List;
@@ -83,22 +79,25 @@ public class GlossaryModel {
         }
 
         model.concepts = Arrays.stream(aPackage.allClasses())
-            .map(model::classByDoc)
-            .filter(c -> c.isAnnotationPresent(Concept.class))
+            .filter(GlossaryModel::isConcept)
             .map(ConceptModel::new)
             .collect(Collectors.toList());
 
         return model;
     }
 
-    private static String getString(AnnotationDesc.ElementValuePair member) {
-        return member.value().value().toString();
+    private static boolean isConcept(final ProgramElementDoc doc) {
+        return Arrays.stream(doc.annotations())
+                .map(AnnotationDesc::annotationType)
+                .anyMatch(GlossaryModel::isBusinessMeaningful);
     }
 
-    @SneakyThrows
-    private Class<?> classByDoc(final ClassDoc doc) {
-        final String className = ((ClassDocImpl) doc).type.toString();
-        return Class.forName (className);
+    private static boolean isBusinessMeaningful(final AnnotationTypeDoc annotationType) {
+        return "org.maxur.ldoc.Concept".equals(annotationType.qualifiedTypeName());
+    }
+
+    private static String getString(AnnotationDesc.ElementValuePair member) {
+        return member.value().value().toString();
     }
 
     private String capitalize(final String line) {
@@ -107,15 +106,33 @@ public class GlossaryModel {
 
     public static class ConceptModel {
 
-        private final String title;
         private final String name;
-        private final String description;
+        private String title;
+        private String description;
 
-        ConceptModel(final Class<?> aClass) {
-            final Concept annotation = aClass.getAnnotation(Concept.class);
-            this.title = annotation.name();
-            this.name = aClass.getSimpleName();
-            this.description = annotation.description();
+        ConceptModel(final ClassDoc doc) {
+            this.name = doc.simpleTypeName();
+
+            final Optional<AnnotationDesc> desk =
+                    Arrays.stream(doc.annotations())
+                    .filter(d -> isBusinessMeaningful(d.annotationType()))
+                    .findFirst();
+
+            AnnotationDesc.ElementValuePair [] members = desk
+                    .orElseThrow(() -> new IllegalStateException("AnnotationDesk is not found"))
+                    .elementValues();
+
+            for (AnnotationDesc.ElementValuePair member : members) {
+                switch (member.element().name()) {
+                    case "name":
+                        this.title = getString(member);
+                        break;
+                    case "description":
+                        this.description = getString(member);
+                        break;
+                    default:
+                }
+            }
         }
 
         public String getTitle() {
