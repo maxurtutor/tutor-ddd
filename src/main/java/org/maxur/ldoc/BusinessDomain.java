@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.PACKAGE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface BoundedContext {
+public @interface BusinessDomain {
 
     String name();
 

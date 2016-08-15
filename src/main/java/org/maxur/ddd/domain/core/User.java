@@ -1,4 +1,4 @@
-package org.maxur.ddd.domain;
+package org.maxur.ddd.domain.core;
 
 import org.maxur.ldoc.Concept;
 

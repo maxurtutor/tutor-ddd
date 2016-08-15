@@ -19,7 +19,10 @@
  * @version 1.0
  * @since <pre>10.02.2016</pre>
  */
-@BoundedContext(name = "Монолит", description = "Сопровождение курса DDD")
-package org.maxur.ddd.domain;
+@BusinessDomain(
+    name = "Общая область",
+    description = "Содержит общие для системы концепты"
+)
+package org.maxur.ddd.domain.common;
 
-import org.maxur.ldoc.BoundedContext;
+import org.maxur.ldoc.BusinessDomain;

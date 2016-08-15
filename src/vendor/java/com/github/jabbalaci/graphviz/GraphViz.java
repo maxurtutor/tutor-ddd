@@ -25,22 +25,25 @@ package com.github.jabbalaci.graphviz;
  ******************************************************************************
  */
 
-    import java.io.BufferedReader;
-    import java.io.DataInputStream;
-    import java.io.File;
-    import java.io.FileInputStream;
-    import java.io.FileOutputStream;
-    import java.io.FileWriter;
-    import java.io.InputStreamReader;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 
 /**
  * <dl>
  * <dt>Purpose: GraphViz Java API
  * <dd>
- *
+ * <p>
  * <dt>Description:
  * <dd> With this Java class you can simply call dot
- *      from your Java programs.
+ * from your Java programs.
  * <dt>Example usage:
  * <dd>
  * <pre>
@@ -57,29 +60,15 @@ package com.github.jabbalaci.graphviz;
  *    gv.writeGraphToFile( gv.getGraph(gv.getDotSource(), type, representationType), out );
  * </pre>
  * </dd>
- *
+ * <p>
  * </dl>
  *
- * @version v0.6.1, 2016/04/10 (April) -- Patch of Markus Keunecke is added.
- * The eclipse project configuration was extended with the maven nature.
- * @version v0.6, 2013/11/28 (November) -- Patch of Olivier Duplouy is added. Now you
- * can specify the representation type of your graph: dot, neato, fdp, sfdp, twopi, circo
- * @version v0.5.1, 2013/03/18 (March) -- Patch of Juan Hoyos (Mac support)
- * @version v0.5, 2012/04/24 (April) -- Patch of Abdur Rahman (OS detection + start subgraph +
- * read config file)
- * @version v0.4, 2011/02/05 (February) -- Patch of Keheliya Gallaba is added. Now you
- * can specify the type of the output file: gif, dot, fig, pdf, ps, svg, png, etc.
- * @version v0.3, 2010/11/29 (November) -- Windows support + ability to read the graph from a text file
- * @version v0.2, 2010/07/22 (July) -- bug fix
+ * @author Laszlo Szathmary (<a href="jabba.laci@gmail.com">jabba.laci@gmail.com</a>)
  * @version v0.1, 2003/12/04 (December) -- first release
- * @author  Laszlo Szathmary (<a href="jabba.laci@gmail.com">jabba.laci@gmail.com</a>)
  */
-public class GraphViz
-{
-    /**
-     * Detects the client's operating system.
-     */
-    private final static String osName = System.getProperty("os.name").replaceAll("\\s","");
+public class GraphViz {
+
+    private static final GraphViz.Os os = detectOs();
 
     /**
      * The image size in dpi. 96 dpi is normal size. Higher values are 10% higher each.
@@ -87,34 +76,7 @@ public class GraphViz
      *
      * dpi patch by Peter Mueller
      */
-    private final int[] dpiSizes = {46, 51, 57, 63, 70, 78, 86, 96, 106, 116, 128, 141, 155, 170, 187, 206, 226, 249};
-
-    /**
-     * Define the index in the image size array.
-     */
-    private int currentDpiPos = 7;
-
-    /**
-     * Increase the image size (dpi).
-     */
-    public void increaseDpi() {
-        if ( this.currentDpiPos < (this.dpiSizes.length - 1) ) {
-            ++this.currentDpiPos;
-        }
-    }
-
-    /**
-     * Decrease the image size (dpi).
-     */
-    public void decreaseDpi() {
-        if (this.currentDpiPos > 0) {
-            --this.currentDpiPos;
-        }
-    }
-
-    public int getImageDpi() {
-        return this.dpiSizes[this.currentDpiPos];
-    }
+    private DpiSizes dpiSize = DpiSizes.DPI_96;
 
     /**
      * The source of the graph written in dot language.
@@ -124,6 +86,18 @@ public class GraphViz
     private String tempDir;
 
     private String executable;
+    private String representationType;
+
+    /**
+     * Configurable Constructor with path to executable dot and a temp dir
+     *
+     * @param executable absolute path to dot executable
+     * @param tempDir    absolute path to temp directory
+     */
+    public GraphViz(String executable, String tempDir) {
+        this.executable = executable;
+        this.tempDir = tempDir;
+    }
 
     /**
      * Convenience Constructor with default OS specific pathes
@@ -148,14 +122,13 @@ public class GraphViz
         if (value != null) {
             return value;
         }
-        if (GraphViz.osName.startsWith("Windows")) {
-            return "c:/temp";
-        } else if (GraphViz.osName.equals("MacOSX")) {
-            return "/tmp";
-        } else if (GraphViz.osName.equals("Linux")) {
-            return "/tmp";
-        }else {
-            throw new IllegalStateException("Unknown OS");
+        switch (os) {
+            case WINDOWS: return "c:/temp";
+            case LINUX:
+            case MAC:
+                return "/tmp";
+            default:
+                throw new IllegalStateException("Unknown OS");
         }
     }
 
@@ -164,30 +137,40 @@ public class GraphViz
         if (value != null) {
             return value;
         }
-        if (GraphViz.osName.startsWith("Windows")) {
-            return "c:/Program Files (x86)/Graphviz 2.28/bin/dot.exe";
-        } else if (GraphViz.osName.equals("MacOSX")) {
-            return  "/usr/local/bin/dot";
-        } else if (GraphViz.osName.equals("Linux")) {
-            return "/usr/bin/dot";
-        } else {
-            throw new IllegalStateException("Unknown OS");
+        switch (os) {
+            case WINDOWS:
+                return "c:/Program Files (x86)/Graphviz 2.28/bin/dot.exe";
+            case LINUX:
+                return "/usr/bin/dot";
+            case MAC:
+                return  "/usr/local/bin/dot";
+            default:
+                throw new IllegalStateException("Unknown OS");
         }
     }
 
+
     /**
-     * Configurable Constructor with path to executable dot and a temp dir
+     * Sets image dpi.
      *
-     * @param executable absolute path to dot executable
-     * @param tempDir absolute path to temp directory
+     * @param dpiSize the dpi size
      */
-    public GraphViz(String executable, String tempDir) {
-        this.executable = executable;
-        this.tempDir = tempDir;
+    public void setImageDpi(final DpiSizes dpiSize) {
+        this.dpiSize = dpiSize;
+    }
+
+    /**
+     * Gets image dpi.
+     *
+     * @return the image dpi
+     */
+    public int getImageDpi() {
+        return this.dpiSize.value();
     }
 
     /**
      * Returns the graph's source description in dot language.
+     *
      * @return Source of the graph in dot language.
      */
     public String getDotSource() {
@@ -196,16 +179,20 @@ public class GraphViz
 
     /**
      * Adds a string to the graph's source (without newline).
+     *
+     * @param line the line
      */
-    public void add(String line) {
+    public void add(final String line) {
         this.graph.append(line);
     }
 
     /**
      * Adds a string to the graph's source (with newline).
+     *
+     * @param line the line
      */
-    public void addln(String line) {
-        this.graph.append(line + "\n");
+    public void addln(final String line) {
+        this.graph.append(line).append("\n");
     }
 
     /**
@@ -215,40 +202,34 @@ public class GraphViz
         this.graph.append('\n');
     }
 
-    public void clearGraph(){
+    /**
+     * Clear graph.
+     */
+    public void clearGraph() {
         this.graph = new StringBuilder();
     }
 
     /**
      * Returns the graph as an image in binary format.
-     * @param dot_source Source of the graph to be drawn.
-     * @param type Type of the output image to be produced, e.g.: gif, dot, fig, pdf, ps, svg, png.
-     * @param representationType Type of how you want to represent the graph:
-     * <ul>
-     * 	<li>dot</li>
-     * 	<li>neato</li>
-     * 	<li>fdp</li>
-     * 	<li>sfdp</li>
-     * 	<li>twopi</li>
-     * 	<li>circo</li>
-     * </ul>
-     * @see http://www.graphviz.org under the Roadmap title
-     * @return A byte array containing the image of the graph.
+     *
+     * @param dotSource          Source of the graph to be drawn.
+     * @param type               Type of the output image to be produced, e.g.: gif, dot, fig, pdf, ps, svg, png.
+     * @param representationType Type of how you want to represent the graph: <ul> 	<li>dot</li> 	<li>neato</li> 	<li>fdp</li> 	<li>sfdp</li> 	<li>twopi</li> 	<li>circo</li> </ul>
+     * @return A byte array containing the image of the graph. http://www.graphviz.org under the Roadmap title
      */
-    public byte[] getGraph(String dot_source, String type, String representationType)
-    {
-        File dot;
-        byte[] img_stream = null;
+    public byte[] getGraph(final String dotSource, final String type, final String representationType) {
+        final File dot;
+        byte[] imgStream;
 
         try {
-            dot = writeDotSourceToFile(dot_source);
+            dot = writeDotSourceToFile(dotSource);
             if (dot != null)
             {
-                img_stream = get_img_stream(dot, type, representationType);
+                imgStream = get_img_stream(dot, type, representationType);
                 if (dot.delete() == false) {
                     System.err.println("Warning: " + dot.getAbsolutePath() + " could not be deleted!");
                 }
-                return img_stream;
+                return imgStream;
             }
             return null;
         } catch (java.io.IOException ioe) { return null; }
@@ -256,9 +237,10 @@ public class GraphViz
 
     /**
      * Writes the graph's image in a file.
-     * @param img   A byte array containing the image of the graph.
-     * @param file  Name of the file to where we want to write.
-     * @return Success: 1, Failure: -1
+     *
+     * @param img  A byte array containing the image of the graph.
+     * @param file Name of the file to where we want to write.
+     * @return Success : 1, Failure: -1
      */
     public int writeGraphToFile(byte[] img, String file)
     {
@@ -268,9 +250,10 @@ public class GraphViz
 
     /**
      * Writes the graph's image in a file.
-     * @param img   A byte array containing the image of the graph.
-     * @param to    A File object to where we want to write.
-     * @return Success: 1, Failure: -1
+     *
+     * @param img A byte array containing the image of the graph.
+     * @param to  A File object to where we want to write.
+     * @return Success : 1, Failure: -1
      */
     public int writeGraphToFile(byte[] img, File to)
     {
@@ -310,7 +293,15 @@ public class GraphViz
 
             // patch by Mike Chenault
             // representation type with -K argument by Olivier Duplouy
-            String[] args = { executable, "-T" + type, "-K" + representationType, "-Gdpi=" + dpiSizes[this.currentDpiPos], dot.getAbsolutePath(), "-o", img.getAbsolutePath() };
+            String[] args = {
+                executable,
+                "-T" + type,
+                "-K" + representationType,
+                "-Gdpi=" + dpiSize.value(),
+                dot.getAbsolutePath(),
+                "-o",
+                img.getAbsolutePath()
+            };
             Process p = rt.exec(args);
             p.waitFor();
 
@@ -345,16 +336,12 @@ public class GraphViz
      * @param str Source of the graph (in dot language).
      * @return The file (as a File object) that contains the source of the graph.
      */
-    private File writeDotSourceToFile(String str) throws java.io.IOException
-    {
-        File temp;
-        try {
-            temp = File.createTempFile("graph_", ".dot.tmp", new File(tempDir));
-            FileWriter fout = new FileWriter(temp);
-            fout.write(str);
-            fout.close();
-        }
-        catch (Exception e) {
+    private File writeDotSourceToFile(String str) throws java.io.IOException {
+
+        File temp = File.createTempFile("graph_", ".dot.tmp", new File(tempDir));
+        try (Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(temp), "UTF-8"))){
+            out.write(str);
+        } catch (IOException e) {
             System.err.println("Error: I/O error while writing the dot source to temp file!");
             return null;
         }
@@ -363,6 +350,7 @@ public class GraphViz
 
     /**
      * Returns a string that is used to start a graph.
+     *
      * @return A string to open a graph.
      */
     public String start_graph() {
@@ -371,6 +359,7 @@ public class GraphViz
 
     /**
      * Returns a string that is used to end a graph.
+     *
      * @return A string to close a graph.
      */
     public String end_graph() {
@@ -380,6 +369,8 @@ public class GraphViz
     /**
      * Takes the cluster or subgraph id as input parameter and returns a string
      * that is used to start a subgraph.
+     *
+     * @param clusterid the clusterid
      * @return A string to open a subgraph.
      */
     public String start_subgraph(int clusterid) {
@@ -388,6 +379,7 @@ public class GraphViz
 
     /**
      * Returns a string that is used to end a graph.
+     *
      * @return A string to close a graph.
      */
     public String end_subgraph() {
@@ -397,8 +389,7 @@ public class GraphViz
     /**
      * Read a DOT graph from a text file.
      *
-     * @param input Input text file containing the DOT graph
-     * source.
+     * @param input Input text file containing the DOT graph source.
      */
     public void readSource(String input)
     {
@@ -421,5 +412,193 @@ public class GraphViz
 
         this.graph = sb;
     }
+
+    /**
+     * Detects the client's operating system.
+     */
+    private static Os detectOs() {
+        final String osName = System.getProperty("os.name").replaceAll("\\s","");
+        if (osName.startsWith("Windows")) {
+            return Os.WINDOWS;
+        } else if ("MacOSX".equals(osName)) {
+            return Os.MAC;
+        } else if ("Linux".equals(osName)) {
+            return Os.LINUX;
+        }else {
+            return Os.UNKNOWN;
+        }
+    }
+
+    /**
+     * Sets representation type.
+     *
+     * @param representationType the representation type
+     */
+    public void setRepresentationType(String representationType) {
+        this.representationType = representationType;
+    }
+
+
+    private enum Os {
+        /**
+         * Linux os.
+         */
+        LINUX,
+        /**
+         * Mac os.
+         */
+        MAC,
+        /**
+         * Windows os.
+         */
+        WINDOWS,
+        /**
+         * Unknown os.
+         */
+        UNKNOWN
+    }
+
+    /**
+     * Type of the output image to be produced, e.g.: gif, dot, fig, pdf, ps, svg, png.
+     */
+    public enum RepresentationType {
+        /**
+         * Gif representation type.
+         */
+        gif("gif"),
+        /**
+         * Dot representation type.
+         */
+        dot("dot"),
+        /**
+         * Fig representation type.
+         */
+        fig("fig"),
+        /**
+         * Pdf representation type.
+         */
+        pdf("pdf"),
+        /**
+         * Ps representation type.
+         */
+        ps("ps"),
+        /**
+         * Svg representation type.
+         */
+        svg("svg"),
+        /**
+         * Png representation type.
+         */
+        png("png");
+
+        private final String value;
+
+        RepresentationType(String value) {
+            this.value = value;
+        }
+
+        /**
+         * Value string.
+         *
+         * @return the string
+         */
+        public String value() {
+            return value;
+        }
+    }
+
+    /**
+     * The enum Dpi sizes.
+     */
+    public enum DpiSizes {
+        /**
+         * Dpi 46 dpi sizes.
+         */
+        DPI_46(46),
+        /**
+         * Dpi 51 dpi sizes.
+         */
+        DPI_51(51),
+        /**
+         * Dpi 57 dpi sizes.
+         */
+        DPI_57(57),
+        /**
+         * Dpi 63 dpi sizes.
+         */
+        DPI_63(63),
+        /**
+         * Dpi 70 dpi sizes.
+         */
+        DPI_70(70),
+        /**
+         * Dpi 78 dpi sizes.
+         */
+        DPI_78(78),
+        /**
+         * Dpi 86 dpi sizes.
+         */
+        DPI_86(86),
+        /**
+         * Dpi 96 dpi sizes.
+         */
+        DPI_96(96),
+        /**
+         * Dpi 106 dpi sizes.
+         */
+        DPI_106(106),
+        /**
+         * Dpi 116 dpi sizes.
+         */
+        DPI_116(116),
+        /**
+         * Dpi 128 dpi sizes.
+         */
+        DPI_128(128),
+        /**
+         * Dpi 141 dpi sizes.
+         */
+        DPI_141(141),
+        /**
+         * Dpi 155 dpi sizes.
+         */
+        DPI_155(155),
+        /**
+         * Dpi 170 dpi sizes.
+         */
+        DPI_170(170),
+        /**
+         * Dpi 187 dpi sizes.
+         */
+        DPI_187(187),
+        /**
+         * Dpi 206 dpi sizes.
+         */
+        DPI_206(206),
+        /**
+         * Dpi 226 dpi sizes.
+         */
+        DPI_226(226),
+        /**
+         * Dpi 1249 dpi sizes.
+         */
+        DPI_249(249);
+
+        private final int value;
+
+        DpiSizes(int value) {
+            this.value = value;
+        }
+
+        /**
+         * Value int.
+         *
+         * @return the int
+         */
+        int value() {
+            return value;
+        }
+    }
+
 
 }

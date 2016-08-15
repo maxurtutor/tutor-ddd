@@ -14,6 +14,7 @@ import com.github.jabbalaci.graphviz.GraphViz;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.sun.javadoc.RootDoc;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +36,7 @@ import static java.lang.String.format;
  * @version 1.0
  * @since <pre>07.08.2016</pre>
  */
+@Slf4j
 public class LivingDocumentation {
 
     /**
@@ -54,17 +56,16 @@ public class LivingDocumentation {
         GraphViz gv = new GraphViz();
         gv.addln(gv.start_graph());
         for (GlossaryModel model : glossaryModels(root)) {
-            gv.addln(format("%s -> Commons;", model.getName()));
+            gv.addln(format("%s [label=\"%s\"];", model.getName(), model.getTitle()));
         }
         gv.addln(gv.end_graph());
-        System.out.println(gv.getDotSource());
-        gv.increaseDpi();
-        gv.increaseDpi();
-        gv.increaseDpi();
-        String type = "png";
-        String repesentationType= "dot";
-        File out = new File("contextMap."+ type);
-        gv.writeGraphToFile( gv.getGraph(gv.getDotSource(), type, repesentationType), out );
+        log.debug(gv.getDotSource());
+        gv.setImageDpi(GraphViz.DpiSizes.DPI_249);
+        gv.setRepresentationType("png");
+        final String type = "png";
+        final String repesentationType= "dot";
+        final File out = new File("contextMap."+ type);
+        gv.writeGraphToFile(gv.getGraph(gv.getDotSource(), type, repesentationType), out);
     }
 
     /**
@@ -81,7 +82,7 @@ public class LivingDocumentation {
                 Files.write(file, bytes);
 
             } catch (IOException e) {
-                e.printStackTrace();
+                log.debug(e.getMessage(), e);
             }
         }
 
