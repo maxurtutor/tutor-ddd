@@ -34,11 +34,15 @@ public class GlossaryModel {
     @Getter
     private final String name;
 
+
     @Getter
     private String description;
 
     @Getter
     private String title;
+
+    @Getter
+    private final List<LinkModel> links;
 
     @Getter
     private List<ConceptModel> concepts;
@@ -62,6 +66,12 @@ public class GlossaryModel {
                 default:
             }
         }
+
+        this.links = Arrays.stream(doc.annotations())
+            .filter(ad -> isAnnotatedAsLink(ad.annotationType()))
+            .map(LinkModel::makeBy)
+            .collect(Collectors.toList());
+
 
         this.concepts = Arrays.stream(doc.allClasses())
             .map(ConceptModel::makeBy)
@@ -94,11 +104,15 @@ public class GlossaryModel {
         return BusinessDomain.class.getCanonicalName().equals(annotationType.qualifiedTypeName());
     }
 
+    private static boolean isAnnotatedAsLink(final AnnotationTypeDoc annotationType) {
+        return Link.class.getCanonicalName().equals(annotationType.qualifiedTypeName());
+    }
+
     private static String getString(AnnotationDesc.ElementValuePair member) {
         return member.value().value().toString();
     }
 
-    private String capitalize(final String line) {
+    private static String capitalize(final String line) {
         return Character.toUpperCase(line.charAt(0)) + line.substring(1).toLowerCase();
     }
 
@@ -107,8 +121,11 @@ public class GlossaryModel {
      */
     public static class ConceptModel {
 
+        @Getter
         private final String name;
+        @Getter
         private String title;
+        @Getter
         private String description;
 
 
@@ -127,6 +144,12 @@ public class GlossaryModel {
             }
         }
 
+        /**
+         * Make by optional.
+         *
+         * @param doc the doc
+         * @return the optional
+         */
         static Optional<ConceptModel> makeBy(final ClassDoc doc) {
             final Optional<AnnotationDesc> desc = conceptAnnotation(doc);
             return desc.isPresent() ?
@@ -134,32 +157,6 @@ public class GlossaryModel {
                 Optional.empty();
         }
 
-        /**
-         * Gets title.
-         *
-         * @return the title
-         */
-        public String getTitle() {
-            return title;
-        }
-
-        /**
-         * Gets name.
-         *
-         * @return the name
-         */
-        public String getName() {
-            return name;
-        }
-
-        /**
-         * Gets description.
-         *
-         * @return the description
-         */
-        public String getDescription() {
-            return description;
-        }
 
 
         private static Optional<AnnotationDesc> conceptAnnotation(final ProgramElementDoc doc) {
@@ -173,5 +170,29 @@ public class GlossaryModel {
         }
 
 
+    }
+
+    /**
+     * The type Link model.
+     */
+    public static class LinkModel {
+
+        @Getter
+        private String related;
+
+        private LinkModel(final AnnotationDesc desc) {
+            for (AnnotationDesc.ElementValuePair member : desc.elementValues()) {
+                switch (member.element().name()) {
+                    case "related":
+                        this.related = capitalize(getString(member));
+                        break;
+                    default:
+                }
+            }
+        }
+
+        private static LinkModel makeBy(final AnnotationDesc desc) {
+            return new LinkModel(desc);
+        }
     }
 }

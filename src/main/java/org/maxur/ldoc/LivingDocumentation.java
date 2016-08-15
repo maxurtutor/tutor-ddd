@@ -16,7 +16,6 @@ import com.github.jknack.handlebars.Template;
 import com.sun.javadoc.RootDoc;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -26,8 +25,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static java.lang.String.format;
 
 /**
  * The type Living Documentation doclet.
@@ -54,18 +51,17 @@ public class LivingDocumentation {
 
     private void drawContextMap(RootDoc root) {
         GraphViz gv = new GraphViz();
-        gv.addln(gv.start_graph());
+        gv.startGraph("ContextMap");
         for (GlossaryModel model : glossaryModels(root)) {
-            gv.addln(format("%s [label=\"%s\"];", model.getName(), model.getTitle()));
+            gv.node(model.getName(), model.getTitle());
+            for (GlossaryModel.LinkModel link : model.getLinks()) {
+                gv.addln(model.getName() + "->" + link.getRelated());
+            }
         }
-        gv.addln(gv.end_graph());
-        log.debug(gv.getDotSource());
+        gv.endGraph();
+        log.debug(gv.source());
         gv.setImageDpi(GraphViz.DpiSizes.DPI_249);
-        gv.setRepresentationType("png");
-        final String type = "png";
-        final String repesentationType= "dot";
-        final File out = new File("contextMap."+ type);
-        gv.writeGraphToFile(gv.getGraph(gv.getDotSource(), type, repesentationType), out);
+        gv.writeTo("contextMap");
     }
 
     /**

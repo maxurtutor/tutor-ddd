@@ -25,16 +25,17 @@ package com.github.jabbalaci.graphviz;
  ******************************************************************************
  */
 
-import java.io.BufferedReader;
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.BufferedWriter;
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+
+import static java.lang.String.format;
 
 /**
  * <dl>
@@ -66,6 +67,7 @@ import java.io.Writer;
  * @author Laszlo Szathmary (<a href="jabba.laci@gmail.com">jabba.laci@gmail.com</a>)
  * @version v0.1, 2003/12/04 (December) -- first release
  */
+@Slf4j
 public class GraphViz {
 
     private static final GraphViz.Os os = detectOs();
@@ -73,7 +75,7 @@ public class GraphViz {
     /**
      * The image size in dpi. 96 dpi is normal size. Higher values are 10% higher each.
      * Lower values 10% lower each.
-     *
+     * <p>
      * dpi patch by Peter Mueller
      */
     private DpiSizes dpiSize = DpiSizes.DPI_96;
@@ -86,7 +88,10 @@ public class GraphViz {
     private String tempDir;
 
     private String executable;
-    private String representationType;
+
+    private RepresentationType representationType = RepresentationType.DOT;
+
+    private Type type = Type.PNG;
 
     /**
      * Configurable Constructor with path to executable dot and a temp dir
@@ -123,7 +128,8 @@ public class GraphViz {
             return value;
         }
         switch (os) {
-            case WINDOWS: return "c:/temp";
+            case WINDOWS:
+                return "c:/temp";
             case LINUX:
             case MAC:
                 return "/tmp";
@@ -143,7 +149,7 @@ public class GraphViz {
             case LINUX:
                 return "/usr/bin/dot";
             case MAC:
-                return  "/usr/local/bin/dot";
+                return "/usr/local/bin/dot";
             default:
                 throw new IllegalStateException("Unknown OS");
         }
@@ -173,8 +179,63 @@ public class GraphViz {
      *
      * @return Source of the graph in dot language.
      */
-    public String getDotSource() {
+    public String source() {
         return this.graph.toString();
+    }
+
+    /**
+     * Start a graph.
+     *
+     * @param name Graph name.
+     */
+    public void startGraph(final String name) {
+        this.graph.append(format("digraph %s {", name)).append("\n");
+    }
+
+    /**
+     * End a graph.
+     */
+    public void endGraph() {
+        this.graph.append("}").append("\n");
+    }
+
+    /**
+     * Takes the cluster or subgraph id as input parameter start a subgraph.
+     *
+     * @param clusterid the clusterid
+     */
+    public void startSubgraph(int clusterid) {
+        this.graph
+            .append("subgraph cluster_")
+            .append(clusterid)
+            .append(" {")
+            .append("\n");
+    }
+
+    /**
+     * End a subgraph.
+     */
+    public void endSubgraph() {
+        this.graph.append("}").append("\n");
+    }
+
+    /**
+     * Add Node.
+     *
+     * @param name  the name
+     * @param label the label
+     */
+    public void node(final String name, final String label) {
+        addln(format("%s [label=\"%s\"];", name, label));
+    }
+
+    /**
+     * Add Node.
+     *
+     * @param name the name
+     */
+    public void node(final String name) {
+        addln(format("%s;", name));
     }
 
     /**
@@ -212,219 +273,129 @@ public class GraphViz {
     /**
      * Returns the graph as an image in binary format.
      *
-     * @param dotSource          Source of the graph to be drawn.
-     * @param type               Type of the output image to be produced, e.g.: gif, dot, fig, pdf, ps, svg, png.
-     * @param representationType Type of how you want to represent the graph: <ul> 	<li>dot</li> 	<li>neato</li> 	<li>fdp</li> 	<li>sfdp</li> 	<li>twopi</li> 	<li>circo</li> </ul>
+     * @param dot Dot file
      * @return A byte array containing the image of the graph. http://www.graphviz.org under the Roadmap title
      */
-    public byte[] getGraph(final String dotSource, final String type, final String representationType) {
-        final File dot;
-        byte[] imgStream;
+    private byte[] process(final File dot) {
+        final byte[] imgStream = getImgStream(dot);
+        if (!dot.delete()) {
+            log.warn("Warning: " + dot.getAbsolutePath() + " could not be deleted!");
+        }
+        return imgStream;
+    }
 
-        try {
-            dot = writeDotSourceToFile(dotSource);
-            if (dot != null)
-            {
-                imgStream = get_img_stream(dot, type, representationType);
-                if (dot.delete() == false) {
-                    System.err.println("Warning: " + dot.getAbsolutePath() + " could not be deleted!");
-                }
-                return imgStream;
-            }
-            return null;
-        } catch (java.io.IOException ioe) { return null; }
+    /**
+     * Writes the graph's image in a fileName.
+     *
+     * @param fileName Name of the fileName to where we want to write.
+     * @return true on Success
+     */
+    public boolean writeTo(final String fileName) {
+        return writeTo(new File(fileName + "." + type.value()));
     }
 
     /**
      * Writes the graph's image in a file.
      *
-     * @param img  A byte array containing the image of the graph.
-     * @param file Name of the file to where we want to write.
-     * @return Success : 1, Failure: -1
+     * @param to A File object to where we want to write.
+     *           * @return true on Success
      */
-    public int writeGraphToFile(byte[] img, String file)
-    {
-        File to = new File(file);
-        return writeGraphToFile(img, to);
+    private boolean writeTo(final File to) {
+        try (FileOutputStream fos = new FileOutputStream(to)) {
+            fos.write(process(fileFrom(source())));
+        } catch (RuntimeException | IOException e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+        return true;
     }
 
     /**
-     * Writes the graph's image in a file.
+     * It will call the external dot program, and return the image in binary format.
      *
-     * @param img A byte array containing the image of the graph.
-     * @param to  A File object to where we want to write.
-     * @return Success : 1, Failure: -1
-     */
-    public int writeGraphToFile(byte[] img, File to)
-    {
-        try {
-            FileOutputStream fos = new FileOutputStream(to);
-            fos.write(img);
-            fos.close();
-        } catch (java.io.IOException ioe) { return -1; }
-        return 1;
-    }
-
-    /**
-     * It will call the external dot program, and return the image in
-     * binary format.
      * @param dot Source of the graph (in dot language).
-     * @param type Type of the output image to be produced, e.g.: gif, dot, fig, pdf, ps, svg, png.
-     * @param representationType Type of how you want to represent the graph:
-     * <ul>
-     * 	<li>dot</li>
-     * 	<li>neato</li>
-     * 	<li>fdp</li>
-     * 	<li>sfdp</li>
-     * 	<li>twopi</li>
-     * 	<li>circo</li>
-     * </ul>
-     * @see http://www.graphviz.org under the Roadmap title
+     *            http://www.graphviz.org under the Roadmap title
      * @return The image of the graph in .gif format.
      */
-    private byte[] get_img_stream(File dot, String type, String representationType)
-    {
-        File img;
-        byte[] img_stream = null;
+    private byte[] getImgStream(final File dot) {
+
+        final File img;
+        try {
+            img = File.createTempFile("graph_", "." + type.value(), new File(this.tempDir));
+        } catch (IOException ioe1) {
+            throw new IllegalStateException("Error: in I/O processing of tempfile in dir " + tempDir, ioe1);
+        }
 
         try {
-            img = File.createTempFile("graph_", "." + type, new File(this.tempDir));
-            Runtime rt = Runtime.getRuntime();
+            exec(dot, img);
+        } catch (java.io.IOException ioe) {
+            throw new IllegalStateException("Error: in calling external command", ioe);
+        } catch (java.lang.InterruptedException ie) {
+            throw new IllegalStateException("Error: the execution of the external program was interrupted", ie);
+        }
 
-            // patch by Mike Chenault
-            // representation type with -K argument by Olivier Duplouy
-            String[] args = {
-                executable,
-                "-T" + type,
-                "-K" + representationType,
-                "-Gdpi=" + dpiSize.value(),
-                dot.getAbsolutePath(),
-                "-o",
-                img.getAbsolutePath()
-            };
-            Process p = rt.exec(args);
-            p.waitFor();
+        try (FileInputStream in = new FileInputStream(img.getAbsolutePath())) {
 
-            FileInputStream in = new FileInputStream(img.getAbsolutePath());
-            img_stream = new byte[in.available()];
-            in.read(img_stream);
-            // Close it if we need to
-            if( in != null ) {
-                in.close();
+            byte[] imgStream = new byte[in.available()];
+            int read = in.read(imgStream);
+            if (read < imgStream.length) {
+                log.error("Error: in read file");
             }
-
-            if (img.delete() == false) {
-                System.err.println("Warning: " + img.getAbsolutePath() + " could not be deleted!");
+            if (!img.delete()) {
+                log.warn("Warning: " + img.getAbsolutePath() + " could not be deleted!");
             }
+            return imgStream;
+        } catch (java.io.IOException ioe) {
+            throw new IllegalStateException("Error: in I/O processing of tempfile in dir " + tempDir, ioe);
         }
-        catch (java.io.IOException ioe) {
-            System.err.println("Error:    in I/O processing of tempfile in dir " + tempDir + "\n");
-            System.err.println("       or in calling external command");
-            ioe.printStackTrace();
-        }
-        catch (java.lang.InterruptedException ie) {
-            System.err.println("Error: the execution of the external program was interrupted");
-            ie.printStackTrace();
-        }
+    }
 
-        return img_stream;
+    private void exec(File dot, File img) throws IOException, InterruptedException {
+        // patch by Mike Chenault
+        // representation type with -K argument by Olivier Duplouy
+        String[] args = {
+            executable,
+            "-T" + type.value(),
+            "-K" + representationType.value(),
+            "-Gdpi=" + dpiSize.value(),
+            dot.getAbsolutePath(),
+            "-o",
+            img.getAbsolutePath()
+        };
+        Process p = Runtime.getRuntime().exec(args);
+        p.waitFor();
     }
 
     /**
      * Writes the source of the graph in a file, and returns the written file
      * as a File object.
+     *
      * @param str Source of the graph (in dot language).
      * @return The file (as a File object) that contains the source of the graph.
      */
-    private File writeDotSourceToFile(String str) throws java.io.IOException {
-
-        File temp = File.createTempFile("graph_", ".dot.tmp", new File(tempDir));
-        try (Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(temp), "UTF-8"))){
+    private File fileFrom(final String str) throws java.io.IOException {
+        final File temp = File.createTempFile("graph_", ".dot.tmp", new File(tempDir));
+        try (Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(temp), "UTF-8"))) {
             out.write(str);
         } catch (IOException e) {
-            System.err.println("Error: I/O error while writing the dot source to temp file!");
-            return null;
+            throw new IllegalStateException("Error: I/O error while writing the dot source to temp file!", e);
         }
         return temp;
     }
 
-    /**
-     * Returns a string that is used to start a graph.
-     *
-     * @return A string to open a graph.
-     */
-    public String start_graph() {
-        return "digraph G {";
-    }
-
-    /**
-     * Returns a string that is used to end a graph.
-     *
-     * @return A string to close a graph.
-     */
-    public String end_graph() {
-        return "}";
-    }
-
-    /**
-     * Takes the cluster or subgraph id as input parameter and returns a string
-     * that is used to start a subgraph.
-     *
-     * @param clusterid the clusterid
-     * @return A string to open a subgraph.
-     */
-    public String start_subgraph(int clusterid) {
-        return "subgraph cluster_" + clusterid + " {";
-    }
-
-    /**
-     * Returns a string that is used to end a graph.
-     *
-     * @return A string to close a graph.
-     */
-    public String end_subgraph() {
-        return "}";
-    }
-
-    /**
-     * Read a DOT graph from a text file.
-     *
-     * @param input Input text file containing the DOT graph source.
-     */
-    public void readSource(String input)
-    {
-        StringBuilder sb = new StringBuilder();
-
-        try
-        {
-            FileInputStream fis = new FileInputStream(input);
-            DataInputStream dis = new DataInputStream(fis);
-            BufferedReader br = new BufferedReader(new InputStreamReader(dis));
-            String line;
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
-            }
-            dis.close();
-        }
-        catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
-        }
-
-        this.graph = sb;
-    }
 
     /**
      * Detects the client's operating system.
      */
     private static Os detectOs() {
-        final String osName = System.getProperty("os.name").replaceAll("\\s","");
+        final String osName = System.getProperty("os.name").replaceAll("\\s", "");
         if (osName.startsWith("Windows")) {
             return Os.WINDOWS;
         } else if ("MacOSX".equals(osName)) {
             return Os.MAC;
         } else if ("Linux".equals(osName)) {
             return Os.LINUX;
-        }else {
+        } else {
             return Os.UNKNOWN;
         }
     }
@@ -434,9 +405,19 @@ public class GraphViz {
      *
      * @param representationType the representation type
      */
-    public void setRepresentationType(String representationType) {
+    public void setRepresentationType(final RepresentationType representationType) {
         this.representationType = representationType;
     }
+
+    /**
+     * Sets representation type.
+     *
+     * @param type the representation type
+     */
+    public void setType(final Type type) {
+        this.type = type;
+    }
+
 
 
     private enum Os {
@@ -459,41 +440,86 @@ public class GraphViz {
     }
 
     /**
-     * Type of the output image to be produced, e.g.: gif, dot, fig, pdf, ps, svg, png.
+     * Type of how you want to represent the graph: dot, neato, fdp, sfdp, twopi, circo.
      */
     public enum RepresentationType {
         /**
-         * Gif representation type.
-         */
-        gif("gif"),
-        /**
          * Dot representation type.
          */
-        dot("dot"),
+        DOT("dot"),
         /**
          * Fig representation type.
          */
-        fig("fig"),
+        NEATO("neato"),
         /**
          * Pdf representation type.
          */
-        pdf("pdf"),
+        FDP("fdp"),
         /**
          * Ps representation type.
          */
-        ps("ps"),
+        SFDP("sfdp"),
         /**
          * Svg representation type.
          */
-        svg("svg"),
+        TWOPI("twopi"),
         /**
          * Png representation type.
          */
-        png("png");
+        CIRCO("circo");
 
         private final String value;
 
         RepresentationType(String value) {
+            this.value = value;
+        }
+
+        /**
+         * Value string.
+         *
+         * @return the string
+         */
+        public String value() {
+            return value;
+        }
+    }
+
+    /**
+     * Type of the output image to be produced, e.g.: gif, dot, fig, pdf, ps, svg, png.
+     */
+    public enum Type {
+        /**
+         * Gif representation type.
+         */
+        GIF("gif"),
+        /**
+         * Dot representation type.
+         */
+        DOT("dot"),
+        /**
+         * Fig representation type.
+         */
+        FIG("fig"),
+        /**
+         * Pdf representation type.
+         */
+        PDF("pdf"),
+        /**
+         * Ps representation type.
+         */
+        PS("ps"),
+        /**
+         * Svg representation type.
+         */
+        SVG("svg"),
+        /**
+         * Png representation type.
+         */
+        PNG("png");
+
+        private final String value;
+
+        Type(String value) {
             this.value = value;
         }
 
