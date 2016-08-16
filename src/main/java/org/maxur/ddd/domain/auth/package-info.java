@@ -20,11 +20,12 @@
  * @since <pre>10.02.2016</pre>
  */
 @BusinessDomain(
-    name = "Общая область",
-    description = "Содержит общие для системы концепты"
+    name = "Авторизация",
+    description = "Содержит концепты для авторизации и аутентификации пользователей"
 )
-@Link(related = "core", label = "Анти-коррупционный слой")
-package org.maxur.ddd.domain.common;
+@Link(related = "core")
+@Link(related = "common")
+package org.maxur.ddd.domain.auth;
 
 import org.maxur.ldoc.BusinessDomain;
 import org.maxur.ldoc.Link;

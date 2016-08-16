@@ -12,12 +12,16 @@ package org.maxur.ldoc;
 
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.AnnotationTypeDoc;
+import com.sun.javadoc.AnnotationValue;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.ProgramElementDoc;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,7 +33,8 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @since <pre>8/11/2016</pre>
  */
-public class GlossaryModel {
+@Slf4j
+public class DomainModel {
 
     private final String codeName;
 
@@ -49,7 +54,7 @@ public class GlossaryModel {
      * Instantiates a new Domain model.
      *
      */
-    private GlossaryModel(final PackageDoc doc, final AnnotationDesc desc) {
+    private DomainModel(final PackageDoc doc, final AnnotationDesc desc) {
         this.codeName = doc.name();
 
         for (AnnotationDesc.ElementValuePair member : desc.elementValues()) {
@@ -66,8 +71,15 @@ public class GlossaryModel {
 
         this.links = Arrays.stream(doc.annotations())
             .filter(ad -> isAnnotatedAsLink(ad.annotationType()))
-            .map(LinkModel::makeBy)
+            .map(LinkModel::makeByLink)
             .collect(Collectors.toList());
+
+        this.links.addAll(Arrays.stream(doc.annotations())
+            .filter(ad -> isAnnotatedAsLinks(ad.annotationType()))
+            .map(LinkModel::makeByLinks)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toList())
+        );
 
 
         this.concepts = Arrays.stream(doc.allClasses())
@@ -83,14 +95,14 @@ public class GlossaryModel {
      * @param aPackage the a package
      * @return the optional
      */
-    static Optional<GlossaryModel> makeBy(final PackageDoc aPackage) {
+    static Optional<DomainModel> makeBy(final PackageDoc aPackage) {
         final List<AnnotationDesc> types = Arrays.stream(aPackage.annotations())
             .filter(ad -> isAnnotatedAsBoundedContext(ad.annotationType()))
             .collect(Collectors.toList());
 
         switch (types.size()) {
             case 0: return Optional.empty();
-            case 1: return Optional.of(new GlossaryModel(aPackage, types.get(0)));
+            case 1: return Optional.of(new DomainModel(aPackage, types.get(0)));
             default:
                 throw new IllegalStateException("There are more than one BoundedContext annotations");
         }
@@ -113,6 +125,10 @@ public class GlossaryModel {
 
     private static boolean isAnnotatedAsLink(final AnnotationTypeDoc annotationType) {
         return Link.class.getCanonicalName().equals(annotationType.qualifiedTypeName());
+    }
+
+    private static boolean isAnnotatedAsLinks(final AnnotationTypeDoc annotationType) {
+        return Links.class.getCanonicalName().equals(annotationType.qualifiedTypeName());
     }
 
     private static String getString(AnnotationDesc.ElementValuePair member) {
@@ -204,8 +220,21 @@ public class GlossaryModel {
             }
         }
 
-        private static LinkModel makeBy(final AnnotationDesc desc) {
+        private static LinkModel makeByLink(final AnnotationDesc desc) {
             return new LinkModel(desc);
+        }
+
+        private static List<LinkModel> makeByLinks(final AnnotationDesc desc) {
+            final ArrayList<LinkModel> result = new ArrayList<>();
+            for (AnnotationDesc.ElementValuePair member : desc.elementValues())
+                if ("value".equals(member.element().name())) {
+                    Arrays.stream((AnnotationValue[]) member.value().value())
+                        .map(AnnotationValue::value)
+                        .map(AnnotationDesc.class::cast)
+                        .forEach(ad -> result.add(new LinkModel(ad)));
+
+                }
+            return result;
         }
     }
 }
