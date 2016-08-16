@@ -23,6 +23,8 @@
     name = "Общая область",
     description = "Содержит общие для системы концепты"
 )
+@Link(related = "core", label = "acl")
 package org.maxur.ddd.domain.common;
 
 import org.maxur.ldoc.BusinessDomain;
+import org.maxur.ldoc.Link;

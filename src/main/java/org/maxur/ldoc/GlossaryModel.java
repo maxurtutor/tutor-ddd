@@ -31,9 +31,7 @@ import java.util.stream.Collectors;
  */
 public class GlossaryModel {
 
-    @Getter
-    private final String name;
-
+    private final String codeName;
 
     @Getter
     private String description;
@@ -52,8 +50,7 @@ public class GlossaryModel {
      *
      */
     private GlossaryModel(final PackageDoc doc, final AnnotationDesc desc) {
-        final String[] strings = doc.name().split("\\.");
-        this.name = capitalize(strings[strings.length - 1]);
+        this.codeName = doc.name();
 
         for (AnnotationDesc.ElementValuePair member : desc.elementValues()) {
             switch (member.element().name()) {
@@ -98,6 +95,16 @@ public class GlossaryModel {
                 throw new IllegalStateException("There are more than one BoundedContext annotations");
         }
 
+    }
+
+    public String getId() {
+        final String[] strings = codeName.split("\\.");
+        return strings[strings.length - 1].toLowerCase();
+    }
+
+    public String getName() {
+        final String[] strings = codeName.split("\\.");
+        return capitalize(strings[strings.length - 1]);
     }
 
     private static boolean isAnnotatedAsBoundedContext(final AnnotationTypeDoc annotationType) {
@@ -178,13 +185,19 @@ public class GlossaryModel {
     public static class LinkModel {
 
         @Getter
+        private String label;
+
+        @Getter
         private String related;
 
         private LinkModel(final AnnotationDesc desc) {
             for (AnnotationDesc.ElementValuePair member : desc.elementValues()) {
                 switch (member.element().name()) {
                     case "related":
-                        this.related = capitalize(getString(member));
+                        this.related = getString(member).toLowerCase();
+                        break;
+                    case "label":
+                        this.label = getString(member);
                         break;
                     default:
                 }

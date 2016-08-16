@@ -23,7 +23,7 @@
     name = "Ядро системы",
     description = "Содержит основные концепты системы"
 )
-@Link(related = "common")
+@Link(related = "common", label = "acl")
 package org.maxur.ddd.domain.core;
 
 import org.maxur.ldoc.BusinessDomain;

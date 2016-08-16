@@ -21,10 +21,15 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static java.lang.String.format;
 
 /**
  * The type Living Documentation doclet.
@@ -50,17 +55,57 @@ public class LivingDocumentation {
     }
 
     private void drawContextMap(RootDoc root) {
-        GraphViz gv = new GraphViz();
+        final GraphViz gv = new GraphViz();
+        gv.setImageDpi(GraphViz.DpiSizes.DPI_249);
+
+        final Map<String, Map<String, GlossaryModel.LinkModel>> linkModelMap = new HashMap<>();
+
         gv.startGraph("ContextMap");
         for (GlossaryModel model : glossaryModels(root)) {
-            gv.node(model.getName(), model.getTitle());
+            gv.node(model.getId(), model.getTitle());
             for (GlossaryModel.LinkModel link : model.getLinks()) {
-                gv.addln(model.getName() + "->" + link.getRelated());
+                final  Map<String, GlossaryModel.LinkModel> map =
+                    linkModelMap.computeIfAbsent(model.getId(), id -> new HashMap<>());
+                map.put(link.getRelated(), link);
             }
         }
+
+        for (String downLink : linkModelMap.keySet()) {
+            Map<String, GlossaryModel.LinkModel> map = linkModelMap.get(downLink);
+
+            for (Map.Entry<String, GlossaryModel.LinkModel> entry : map.entrySet()) {
+
+                final List<String> attr = new ArrayList<>();
+                final List<String> labels = new ArrayList<>();
+
+                final String label = entry.getValue().getLabel();
+                if (!label.isEmpty()) {
+                    labels.add(label);
+                }
+
+                final String upLink = entry.getKey();
+                if (linkModelMap.get(upLink).keySet().contains(downLink)) {
+                    final String label2 = linkModelMap.get(upLink).get(downLink).getLabel();
+                    if (!label2.isEmpty()) {
+                        labels.add(label2);
+                    }
+                    attr.add("[dir=\"both\"]");
+                    linkModelMap.get(upLink).remove(downLink);
+                }
+
+                attr.add(format("[label=\"%s\"]", labels.stream().collect(Collectors.joining("/"))));
+
+                gv.addln(format("%s -> %s %s;",
+                    downLink,
+                    upLink,
+                    attr.stream().collect(Collectors.joining()))
+                );
+            }
+        }
+
         gv.endGraph();
         log.debug(gv.source());
-        gv.setImageDpi(GraphViz.DpiSizes.DPI_249);
+
         gv.writeTo("contextMap");
     }
 

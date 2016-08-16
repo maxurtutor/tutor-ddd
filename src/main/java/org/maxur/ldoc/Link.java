@@ -12,5 +12,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Link {
+
     String related();
+
+    String label() default "";
 }
