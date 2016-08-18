@@ -9,7 +9,7 @@
  */
 
 
-package org.maxur.mserv.web.impl;
+package org.maxur.mserv.web.grizzly;
 
 import jersey.repackaged.com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.glassfish.grizzly.http.server.HttpHandlerRegistration;

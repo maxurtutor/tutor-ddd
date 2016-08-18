@@ -8,7 +8,7 @@
  * Legal use of the software provides receipt of a license from the right holder only.
  */
 
-package org.maxur.mserv.web.impl;
+package org.maxur.mserv.web.grizzly;
 
 import org.maxur.mserv.core.ValidationException;
 import org.slf4j.Logger;

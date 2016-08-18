@@ -1,7 +1,8 @@
-package org.maxur.mserv.ioc;
+package org.maxur.mserv.ioc.hk2;
 
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
+import org.maxur.mserv.ioc.ServiceLocator;
 
 /**
  * The type Service locator factory hk 2.

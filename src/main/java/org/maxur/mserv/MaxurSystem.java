@@ -1,38 +1,22 @@
 package org.maxur.mserv;
 
 import lombok.extern.slf4j.Slf4j;
-import org.glassfish.hk2.api.InjectionResolver;
-import org.glassfish.hk2.api.InterceptionService;
-import org.glassfish.hk2.api.TypeLiteral;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.jvnet.hk2.annotations.Service;
+import org.maxur.mserv.bus.Bus;
+import org.maxur.mserv.config.ConfigFile;
 import org.maxur.mserv.core.annotation.Binder;
 import org.maxur.mserv.core.annotation.Configuration;
 import org.maxur.mserv.core.annotation.Observer;
-import org.maxur.mserv.core.annotation.Param;
-import org.maxur.mserv.aop.ConfigurationInjectionResolver;
-import org.maxur.mserv.aop.HK2InterceptionService;
-import org.maxur.mserv.bus.Bus;
-import org.maxur.mserv.bus.BusGuavaImpl;
-import org.maxur.mserv.config.ConfigFile;
 import org.maxur.mserv.ioc.ServiceLocator;
-import org.maxur.mserv.ioc.ServiceLocatorHk2Impl;
+import org.maxur.mserv.ioc.hk2.Hk2System;
 import org.maxur.mserv.microservice.MicroService;
-import org.maxur.mserv.microservice.impl.MicroServiceRestImpl;
 import org.maxur.mserv.reflection.ClassRepository;
-import org.maxur.mserv.web.WebServer;
-import org.maxur.mserv.web.impl.WebServerGrizzlyImpl;
 
-import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
-import static java.util.stream.Collectors.toList;
-import static org.maxur.mserv.ioc.ServiceLocatorFactoryHk2Impl.locator;
 import static org.maxur.mserv.reflection.ClassRepository.byPackages;
-import static org.maxur.mserv.reflection.ClassUtils.createClassInstance;
 
 /**
  * The type Maxur system.
@@ -52,7 +36,7 @@ public class MaxurSystem {
 
     private final List<Class<?>> configurations = new ArrayList<>();
 
-    private ServiceLocator locator;
+    private final Hk2System diSystem = new Hk2System();
 
     private MaxurSystem(final String name) {
         this.name = name;
@@ -101,24 +85,14 @@ public class MaxurSystem {
      * @param serviceName the service name
      */
     public void start(final String serviceName) {
-        final List<AbstractBinder> list = binders();
-        locator = locator(list.toArray(new AbstractBinder[list.size()]));
+
+        diSystem.init(binders);
+
         config();
         addObservers();
-        locator.bean(MicroService.class, serviceName)
+        locator().bean(MicroService.class, serviceName)
                 .withName(name)
                 .start();
-    }
-
-    // TODO hardcode
-    private List<AbstractBinder> binders() {
-        final List<AbstractBinder> result = binders.stream()
-                .map(this::instanceOf)
-                .filter(AbstractBinder.class::isInstance)
-                .map(AbstractBinder.class::cast)
-                .collect(toList());
-        result.add(new Hk2Binder());
-        return result;
     }
 
     private void addObservers() {
@@ -129,7 +103,7 @@ public class MaxurSystem {
         switch (configurations.size()) {
             case 0:
                 log.warn("Configuration class (with 'Configuration' annotation) is not found");
-                return;
+                break;
             case 1:
                 makeConfigurationBy(configurations.get(0));
                 break;
@@ -142,12 +116,9 @@ public class MaxurSystem {
         final Configuration clazzAnnotation = clazz.getAnnotation(Configuration.class);
         final String fileName = clazzAnnotation.fileName();
         final Object config = isNullOrEmpty(fileName) ?
-                instanceOf(clazz) :
+                diSystem.instanceOf(clazz) :
                 loadConfig(fileName, clazz);
-        final ConfigurationInjectionResolver resolver = (ConfigurationInjectionResolver)
-                locator.bean(InjectionResolver.class, "config.resolver");
-        resolver.setConfig(config);
-
+        diSystem.configResolver().setConfig(config);
     }
 
     private Object loadConfig(final String fileName, final Class<?> clazz) {
@@ -164,36 +135,10 @@ public class MaxurSystem {
     }
 
     private void makeObserverBy(final Class<?> clazz) {
-        locator.bean(Bus.class, "event.bus").register(instanceOf(clazz));
+        locator().bean(Bus.class, "event.bus").register(diSystem.instanceOf(clazz));
     }
 
-    private Object instanceOf(final Class<?> clazz) {
-        return clazz.isAnnotationPresent(Service.class) ?
-                locator.bean(clazz) :
-                createClassInstance(clazz);
+    private ServiceLocator locator() {
+        return diSystem.locator();
     }
-
-    private static class Hk2Binder extends AbstractBinder {
-
-        @Override
-        protected void configure() {
-            bind(ConfigurationInjectionResolver.class)
-                    .to(new TypeLiteral<InjectionResolver<Param>>() {
-                    })
-                    .named("config.resolver")
-                    .in(Singleton.class);
-
-            bind(ServiceLocatorHk2Impl.class).to(ServiceLocator.class).in(Singleton.class);
-            bind(HK2InterceptionService.class).to(InterceptionService.class).in(Singleton.class);
-            bind(BusGuavaImpl.class).to(Bus.class).named("event.bus").in(Singleton.class);
-            bind(BusGuavaImpl.class).to(Bus.class).named("command.bus").in(Singleton.class);
-            bind(WebServerGrizzlyImpl.class).to(WebServer.class).in(Singleton.class);
-            bind(MicroServiceRestImpl.class)
-                    .to(MicroService.class)
-                    .named("rest.service")
-                    .in(Singleton.class);
-        }
-
-    }
-
 }

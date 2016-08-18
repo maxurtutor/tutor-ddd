@@ -1,4 +1,4 @@
-package org.maxur.mserv.web.impl;
+package org.maxur.mserv.web.grizzly;
 
 import org.glassfish.jersey.server.ResourceConfig;
 import org.jvnet.hk2.annotations.Contract;

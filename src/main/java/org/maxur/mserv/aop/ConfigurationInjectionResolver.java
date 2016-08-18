@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.glassfish.hk2.api.Injectee;
 import org.glassfish.hk2.api.InjectionResolver;
 import org.glassfish.hk2.api.ServiceHandle;
+import org.maxur.ddd.config.ConfigResolver;
 import org.maxur.mserv.core.annotation.Key;
 import org.maxur.mserv.core.annotation.Param;
 import org.maxur.mserv.reflection.ClassUtils;
@@ -34,7 +35,7 @@ import static java.lang.String.format;
  * @since <pre>9/2/2015</pre>
  */
 @Slf4j
-public class ConfigurationInjectionResolver implements InjectionResolver<Param> {
+public class ConfigurationInjectionResolver implements ConfigResolver, InjectionResolver<Param> {
 
     private Object config;
 
@@ -67,6 +68,7 @@ public class ConfigurationInjectionResolver implements InjectionResolver<Param> 
      *
      * @param config the config
      */
+    @Override
     public void setConfig(Object config) {
         this.config = config;
         parse(config);

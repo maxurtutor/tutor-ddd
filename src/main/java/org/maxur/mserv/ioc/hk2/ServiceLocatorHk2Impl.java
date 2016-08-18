@@ -1,6 +1,7 @@
-package org.maxur.mserv.ioc;
+package org.maxur.mserv.ioc.hk2;
 
 import lombok.extern.slf4j.Slf4j;
+import org.maxur.mserv.ioc.ServiceLocator;
 
 import javax.inject.Inject;
 import java.lang.annotation.Annotation;

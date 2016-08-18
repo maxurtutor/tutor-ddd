@@ -3,7 +3,9 @@ package org.maxur.ddd.ui.rest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.maxur.ddd.service.Uow;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -21,6 +23,9 @@ import javax.ws.rs.core.MediaType;
 @Api(tags = "Example Resource")
 @Slf4j
 public class ExampleResource {
+
+    @Inject
+    private Uow value;
 
     /**
      * Do hello response.

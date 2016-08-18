@@ -12,7 +12,7 @@
 package org.maxur.ddd.ui.rest;
 
 import org.jvnet.hk2.annotations.Service;
-import org.maxur.mserv.web.impl.JerseyResourceConfig;
+import org.maxur.mserv.web.grizzly.JerseyResourceConfig;
 
 /**
  * Rest Service Configuration

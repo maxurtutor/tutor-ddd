@@ -7,7 +7,7 @@
  * Otherwise this violation would be treated by law and would be subject to legal prosecution.
  * Legal use of the software provides receipt of a license from the right holder only.
  */
-package org.maxur.mserv.web.impl;
+package org.maxur.mserv.web.grizzly;
 
 import java.io.Serializable;
 import java.util.Arrays;

@@ -9,7 +9,7 @@
  */
 
 
-package org.maxur.mserv.web.impl;
+package org.maxur.mserv.web.grizzly;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
