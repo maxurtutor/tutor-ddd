@@ -102,8 +102,7 @@ public class MaxurSystem {
      */
     public void start(final String serviceName) {
         final List<AbstractBinder> list = binders();
-        final AbstractBinder[] array = list.toArray(new AbstractBinder[list.size()]);
-        locator = locator(array);
+        locator = locator(list.toArray(new AbstractBinder[list.size()]));
         config();
         addObservers();
         locator.bean(MicroService.class, serviceName)

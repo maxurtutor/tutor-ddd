@@ -2,8 +2,6 @@ package org.maxur.mserv.reflection;
 
 import eu.infomas.annotation.AnnotationDetector;
 import lombok.extern.slf4j.Slf4j;
-import org.maxur.mserv.core.annotation.Configuration;
-import org.maxur.mserv.core.annotation.Observer;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -75,7 +73,7 @@ public class ClassRepository {
             @SuppressWarnings("unchecked")
             @Override
             public Class<? extends Annotation>[] annotations() {
-                return new Class[]{Observer.class, Configuration.class};
+                return rules.keySet().toArray(new Class[rules.size()]);
             }
 
         };
