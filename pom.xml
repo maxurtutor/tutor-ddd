@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.maxur</groupId>
+    <artifactId>maxur-tutor-ddd</artifactId>
+    <version>0.1-SNAPSHOT</version>
+    <name>maxur-tutor-ddd</name>
+    <description>Supplementary materials for "Domain driven design" Course</description>
+
+    <properties>
+        <project.source.encoding>UTF-8</project.source.encoding>
+        <project.build.sourceEncoding>${project.source.encoding}</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>${project.source.encoding}</project.reporting.outputEncoding>
+        <!--
+        ISO 8601, see http://en.wikipedia.org/wiki/ISO_8601. This
+        property is defined in order to give us an ability to use ${maven.build.timestamp}
+        later in the file
+        -->
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
+        <github.global.server>github</github.global.server>
+        <maven-failsafe-plugin.version>2.20</maven-failsafe-plugin.version>
+        <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
+
+        <ktlint.version>0.9.1</ktlint.version>
+
+        <kotlin.version>1.1.60</kotlin.version>
+        <assertj.version>3.8.0</assertj.version>
+        <junit.version>4.12</junit.version>
+    </properties>
+
+    <organization>
+        <name>Maxim Yunusov</name>
+        <url>http://www.maxur.org</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>Apache 2</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/maxurtutor/tutor-ddd</url>
+        <connection>scm:git:ssh://git@github.com:maxurtutor/tutor-ddd.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:maxurtutor/tutor-ddd.git</developerConnection>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub Social Coding</system>
+        <url>https://github.com/maxurtutor/tutor-ddd/issues</url>
+    </issueManagement>
+
+    <profiles>
+        <profile>
+            <id>prod</id>
+            <activation>
+                <property>
+                    <name>env</name>
+                    <value>prod</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>assembly</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>${project.basedir}/src/assembly/prod.xml</descriptor>
+                                    </descriptors>
+                                    <appendAssemblyId>false</appendAssemblyId>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>dev</id>
+            <activation>
+                <property>
+                    <name>env</name>
+                    <value>dev</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>assembly</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>${project.basedir}/src/assembly/dev.xml</descriptor>
+                                    </descriptors>
+                                    <appendAssemblyId>false</appendAssemblyId>
+                                    <attach>false</attach>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>inspect</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>ktlint</id>
+                                <phase>verify</phase>
+                                <configuration>
+                                    <target name="ktlint">
+                                        <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="false"
+                                              classname="com.github.shyiko.ktlint.Main"
+                                              classpathref="maven.plugin.classpath">
+                                            <arg value="src/**/*.kt"/>
+                                        </java>
+                                    </target>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>ktlint-format</id>
+                                <configuration>
+                                    <target name="ktlint">
+                                        <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="false"
+                                              classname="com.github.shyiko.ktlint.Main"
+                                              classpathref="maven.plugin.classpath">
+                                            <arg value="-F"/>
+                                            <arg value="src/**/*.kt"/>
+                                        </java>
+                                    </target>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>com.github.shyiko</groupId>
+                                <artifactId>ktlint</artifactId>
+                                <version>${ktlint.version}</version>
+                            </dependency>
+                            <!-- additional 3rd party ruleset(s) can be specified here -->
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.maxur</groupId>
+            <artifactId>maxur-mserv-core</artifactId>
+            <version>0.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib-jre8</artifactId>
+            <version>${kotlin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-test-junit</artifactId>
+            <version>${kotlin.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>${assertj.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <sourceDirectory>src/main/kotlin</sourceDirectory>
+        <plugins>
+            <plugin>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <configuration>
+                    <jvmTarget>1.8</jvmTarget>
+                </configuration>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <version>${kotlin.version}</version>
+
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+
+                    <execution>
+                        <id>test-compile</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven-failsafe-plugin.version}</version>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <perCoreThreadCount>true</perCoreThreadCount>
+                    <threadCount>1</threadCount>
+                    <argLine>-Xmx512m</argLine>
+                    <additionalClasspathElements>
+                        <additionalClasspathElement>${basedir}/src/assembly/content/conf</additionalClasspathElement>
+                    </additionalClasspathElements>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>integration-test</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>verify</id>
+                        <goals>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>${maven-deploy-plugin.version}</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>
