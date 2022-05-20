@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>ru.iunusov.timetable</groupId>
+    <artifactId>base</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>base</name>
+    <packaging>pom</packaging>
+    <inceptionYear>2022</inceptionYear>
+    <url>https://github.com/maxurtutor/tutor-ddd/tree/Timetable</url>
+
+    <description>base</description>
+
+    <organization>
+        <name>Maxim Yunusov</name>
+        <url>https://github.com/myunusov</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <id>miunusov</id>
+            <name>Maxim Yunusov</name>
+            <email>maxim@iunusov.ru</email>
+            <url>https://github.com/myunusov</url>
+            <organization>Maxim Yunusov</organization>
+            <organizationUrl>https://github.com/myunusov</organizationUrl>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>-3</timezone>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>Apache 2</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
+
+    <modules>
+        <module>scheduling</module>
+    </modules>
+
+</project>
